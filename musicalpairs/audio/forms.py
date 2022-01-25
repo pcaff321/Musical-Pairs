@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 class AudioForm(forms.ModelForm):
     class Meta:
         model=Audio_store
-        fields=['word', 'allow_mumble', 'record']
+        fields=['name', 'allow_mumble', 'file_location']
 
 
 class ResearcherSignUpForm(UserCreationForm):
