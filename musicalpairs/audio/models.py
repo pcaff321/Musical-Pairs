@@ -6,8 +6,8 @@ from django.contrib.auth.models import AbstractUser
 
 def set_file_name(instance, user_id):
     if user_id is not None:
-            return '{0}/{1}.wav'.format(str(user_id), str(instance.word))
-    return 'user_{0}/{1}.wav'.format(str(instance.word), str(instance.word))
+            return '{0}/{1}.wav'.format(str(user_id), str(instance.name))
+    return 'user_{0}/{1}.wav'.format(str(instance.name), str(instance.name))
 
 
 
