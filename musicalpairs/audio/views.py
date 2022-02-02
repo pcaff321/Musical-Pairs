@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm
-from .models import User
+from .models import User, Audio_store
 from .audio_manipulation import combineAudios
 from .serializers import Audio_serializer
 from rest_framework.renderers import JSONRenderer
@@ -17,25 +17,24 @@ from django.views.generic import CreateView
 
 def main(request):
     return HttpResponse("Test")
-    
+
 
 @login_required
 def Audio_store(request):
-    if request.method == 'POST': 
-        form = AudioForm(request.POST,request.FILES or None) 
-        if form.is_valid(): 
-            form = form.save() 
-            combineAudios()
-            serializer = Audio_serializer(form)
-            json = JSONRenderer().render(serializer.data)
-            return HttpResponse(str(json))
+    print("HERE")
+    if request.method == 'POST':
+        form = AudioForm(request.POST, request.FILES or None)
+        if form.is_valid():
+            form.save()  
     else: 
         form = AudioForm() 
     return render(request, 'aud.htm', {'form' : form}) 
 
 
+
 def playAudioFile(request):
-    url = settings.MEDIA_URL + "user_efaefa/efaefa.wav"
+    combineAudios()
+    url = settings.MEDIA_URL + 'combinedAudio.wav'
     return render(request, 'playAudio.html', {'link': url })
 
 

@@ -5,4 +5,4 @@ from .models import Audio_store
 class Audio_serializer(serializers.ModelSerializer):
     class Meta:
         model = Audio_store
-        fields = ('word', 'allow_mumble')
+        fields = ('name', 'allow_mumble', 'file_location')
