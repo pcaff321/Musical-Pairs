@@ -87,7 +87,8 @@
 
     <script>
         function saveAudio() {
-            var audioBlob = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length);
+            var audioBlobURL = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 0);
+            var audioBlob = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 1);
             var li = document.createElement('li');
             var link = document.createElement('a');
             //get the name that's written in input text box
@@ -97,7 +98,7 @@
                 alert("Must give audio a name")
             }
             else{
-                link.href = audioBlob;
+                link.href = audioBlobURL;
                 link.download = name + '.wav';
                 link.innerHTML = link.download;
                 //add the new audio and a elements to the li element 
@@ -106,7 +107,24 @@
 
                 recordingsList.appendChild(li);
 
-                var formData = new FormData();
+                var fd = new FormData();
+                audioName = name + '.wav'
+                fd.append('word', audioName);
+                fd.append('allow_mumble', $("allow_mumble").val() || false)
+                fd.append('file_location', audioBlobURL);
+                fd.append('file', audioBlob);
+                $.ajax({
+                    type: 'POST',
+                    url: '/uploadAudio/',
+                    headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function(data) {
+                    console.log(data);
+                });
+
+               /*  var formData = new FormData();
                 audioName = name + '.wav'
                 formData.append('name', name)
                 formData.append('allow_mumble', $("allow_mumble").val())
@@ -114,7 +132,7 @@
                 var request = new XMLHttpRequest();
                 request.open("POST", "/uploadAudio/");
                 request.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); 
-                request.send(formData);
+                request.send(formData); */
             }
     
         }
