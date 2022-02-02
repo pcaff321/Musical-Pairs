@@ -260,7 +260,7 @@ player.on('ready', function() {
 });
 
 function startRecording(event){
-    if (!player.record().isRecording() || (player.record().isRecording() && player.record().paused)) {
+    if (!player.record().isRecording() || (player.record().isRecording() && player.record().paused)) {
         player.record().start();
         
         recordButton.style.backgroundColor = "red"
@@ -295,7 +295,7 @@ function add_audio(name){
     // Convert a audio-buffer segment to a Blob using WAVE representation
     // The returned Object URL can be set directly as a source for an Auido element.
     // (C) Ken Fyrstenberg / MIT license
-    function bufferToWave(abuffer, offset, len) {
+    function bufferToWave(abuffer, offset, len, return_blob) {
 
         var numOfChan = abuffer.numberOfChannels,
         length = len * numOfChan * 2 + 44,
@@ -333,6 +333,10 @@ function add_audio(name){
                 pos += 2;
                 }
                 offset++                                     // next source sample
+            }
+
+            if (return_blob == 1){
+                return new Blob([buffer], {type: "audio/wav"})
             }
 
             // create Blob
