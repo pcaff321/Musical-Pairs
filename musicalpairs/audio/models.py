@@ -1,5 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from faker import Faker
+from time import time
+
+
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 # Create your models here.
@@ -60,4 +66,34 @@ class Audio_Answer(models.Model):
     answer = models.CharField(max_length=20, null=False)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+class SurveyExample(models.Model):
+    text = models.CharField(max_length=3000, null=False)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+
+class AudioRound(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+
+class TextRound(models.Model):
+    text = models.CharField(max_length=3000, null=False)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+
+class Page(models.Model):
+    page_number = models.IntegerField(max_length=100, null=False)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+
+class UserProgress:
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    page_number = models.IntegerField(max_length=100, null=False)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+    text = models.CharField(max_length=3000, null=False)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)

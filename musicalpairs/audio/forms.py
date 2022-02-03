@@ -49,3 +49,9 @@ class ExperimenteeSignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        # exclude = ['author', 'updated', 'created', ]
+        fields = ['text']
