@@ -1,0 +1,51 @@
+{% extends '../layout.html' %}
+
+{% block content %}
+
+<h2> Page Number: {{ sessionNum }} </h2>
+
+{% if page == 'audio' %}
+
+<h1> Close your eyes </h1>
+<div class='row'>
+    <audio controls>
+        <source src="https://github.com/Pietro-Rizzo/words_and_nonwords_1/blob/main/delay_music_15_seconds.wav?raw=true" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+</div>
+
+{% endif %}
+
+
+{% if page == 'survey' %}
+
+<h1> {{ text }} </h1>
+
+<div class='row'>
+  <form action="" method = "post" enctype="multipart/form-data"> 
+      {% csrf_token %} 
+      {{ form }} 
+      <button type="submit">Upload</button> 
+  </form>
+</div>
+
+
+{% endif %}
+
+
+{% if page == 'text' %}
+
+<h1>
+    {{ text }}    
+    <h1>
+    
+
+{% endif %}
+
+
+<a href="/prevRound"> Previous Page </a>
+<br><br><br>
+<a href="/nextRound"> Next Page </a>
+
+
+{% endblock %}
