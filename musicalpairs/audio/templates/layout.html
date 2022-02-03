@@ -13,7 +13,6 @@
       {% block shippingCSS %}  {% endblock %}
       {% block displayCSS %}  {% endblock %}
 
-
       <style>
         .topnav {
           background-color: #333;
@@ -43,7 +42,7 @@
 
       <header>
         {% if user.is_authenticated %}
-          <h1> Hello {{request.user.username}} </h1>
+          <h1> Hello {{request.user.first_name}} </h1>
         {% else %}
           <h1> You are not logged in </h1>
         {% endif %}
@@ -81,6 +80,9 @@
     <script src="{% static 'assets/js/breakpoints.min.js' %}"></script>
     <script src="{% static 'assets/js/util.js' %}"></script>
     <script src="{% static 'assets/js/main.js' %}"></script>
+    {% block extrascripts %}
+    
+    {% endblock %}
       </body>
 
       <footer>
