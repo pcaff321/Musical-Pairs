@@ -1,0 +1,255 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Create Experiments</title>
+  <style>
+    .container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+      }
+      
+      .box {
+        border: 3px solid #666;
+        background-color: #ddd;
+        border-radius: .5em;
+        padding: 10px;
+        cursor: move;
+      }
+
+      .box.over {
+        border: 3px dotted #666;
+      }
+
+  </style>
+
+</head>
+
+<body>
+
+  <button id="addRound" onclick="addRound(this)">Add Round</button>
+  <select name="roundType" id="roundType">
+    <option value="text">Text Round</option>
+    <option value="audio">Audio Round</option>
+    <option value="survey">Survey Round</option>
+  </select><br><br><br>
+
+
+<label for="experimentName">Experiment Name: </label>
+<input></input><br><br><br>
+
+<label for="roundContainer">Rounds</label>
+  <div class="container" id="roundContainer">
+    <div draggable="true" class="box"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input"></textarea></div>
+
+  </div><br><br><br>
+
+
+
+  <button id="submitButton"onclick="submitExperiment()">
+    Submit Experiment
+    </button>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+
+<script>
+
+  var items;
+
+  document.addEventListener('DOMContentLoaded', (event) => {
+    items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('dragenter', handleDragEnter);
+      item.addEventListener('dragleave', handleDragLeave);
+      item.addEventListener('dragend', handleDragEnd);
+      item.addEventListener('drop', handleDrop);
+      
+    });
+  });
+        
+    function handleDragStart(e) {
+        this.style.opacity = '0.4';
+      
+        dragSrcEl = this;
+      
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+      }
+  
+    function handleDragEnd(e) {
+      this.style.opacity = '1';
+  
+      items.forEach(function (item) {
+        item.classList.remove('over');
+      });
+    }
+  
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+  
+      return false;
+    }
+  
+    function handleDragEnter(e) {
+      this.classList.add('over');
+    }
+  
+    function handleDragLeave(e) {
+      this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+      
+        if (dragSrcEl !== this) {
+          dragSrcEl.innerHTML = this.innerHTML;
+          this.innerHTML = e.dataTransfer.getData('text/html');
+          divSting = ""
+          let childrenOfDiv = document.getElementById('roundContainer').children
+          var arr = Array.prototype.slice.call( childrenOfDiv )
+
+          console.log("PRINTING DIVS")
+
+
+          arr.forEach(function (item, index) {
+            console.log(item.innerHTML, index);
+          });
+
+        }
+      
+        return false;
+      }
+
+  
+  
+  
+
+
+  var questionHtml = `<label for="question">Question: </label><input id="question"></input><br>
+  <select name="questionType" id="questionType">
+    <option value="scale">Scale Bar 1-10</option>
+    <option value="input">Input Box</option>
+    <option value="yesOrNo">Yes Or No Option</option>
+  </select><br>`;
+
+  var textRoundHtml = '<div draggable="true" class="box"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input"></textarea></div>';
+
+  var surveyRoundHtml = `<div draggable="true" class="box"><h1>Survey Round</h1>This is a survey box<br>
+    <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
+
+    <label for="question">Question: </label><input id="question"></input><br>
+    <select name="questionType" id="questionType">
+      <option value="scale">Scale Bar 1-10</option>
+      <option value="input">Input Box</option>
+      <option value="yesOrNo">Yes Or No Option</option>
+    </select><br><br><br>
+  </div>`;
+
+  var audioRoundHtml = `<div draggable="true" class="box">
+    <h1>Audio Round</h1>
+    <label for="mumbles">Use Mumbles: </label><input type="checkbox"><br>
+    <label for="placebo">Use Placebos: </label><input type="checkbox"><br>
+    <label for="pairs">Amount of Pairs: </label><input type="number" min="1" max="20"><br>
+    </div>`;
+
+
+  var containerBox = document.getElementById("roundContainer");
+
+  function createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+  
+    return div.firstChild;
+  }
+
+  function addQuestion(element){
+    console.log("HERE");
+    surveyDiv = element.parentNode;
+    //newQuestion = htmlToElement(questionHtml);
+    //console.log(newQuestion);
+
+    //surveyDiv.appendChild(newQuestion);
+    surveyDiv.insertAdjacentHTML('beforeend', questionHtml);
+
+  
+    
+  }
+
+  function removeRound(elem){
+    elem.parentNode.remove()
+  }
+
+  function addRound(){
+    roundHtml = textRoundHtml
+    typeVal = document.getElementById("roundType").value
+
+    if (typeVal == "audio"){
+      roundHtml = audioRoundHtml
+    }else if (typeVal == "survey"){
+      roundHtml = surveyRoundHtml
+      }
+
+      //Add delete button
+    roundHtml = roundHtml.replace('<div draggable="true" class="box">', '<div draggable="true" class="box"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>')
+
+
+
+    containerBox.insertAdjacentHTML('beforeend',roundHtml)
+    divEl = containerBox.lastChild
+    //divEl = createElementFromHTML(textRoundHtml)
+    //containerBox.appendChild(divEl)
+
+
+    divEl.addEventListener('dragstart', handleDragStart);
+    divEl.addEventListener('dragover', handleDragOver);
+    divEl.addEventListener('dragenter', handleDragEnter);
+    divEl.addEventListener('dragleave', handleDragLeave);
+    divEl.addEventListener('dragend', handleDragEnd);
+    divEl.addEventListener('drop', handleDrop);
+
+    console.log(items)
+
+    items.push(divEl)
+
+  }
+
+
+
+    function submitExperiment() {
+
+              experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
+
+              surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
+
+              textRound = "$type=text$END$text=This is text for a text round$END"
+
+              audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+
+            var fd = new FormData();
+            experimentString = "@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
+            fd.append('roundInfo', experimentString);
+            $.ajax({
+                type: 'POST',
+                url: '/postExperiment/',
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                console.log(data);
+            });
+    }
+</script>
+
+</body>
+</html>

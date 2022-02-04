@@ -1,0 +1,115 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Create Experiments</title>
+  <style>
+    .container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+      }
+      
+      .box {
+        border: 3px solid #666;
+        background-color: #ddd;
+        border-radius: .5em;
+        padding: 10px;
+        cursor: move;
+      }
+
+      .box.over {
+        border: 3px dotted #666;
+      }
+
+  </style>
+
+</head>
+
+<body>
+
+  <script>
+
+      document.addEventListener('DOMContentLoaded', (event) => {
+        
+        function handleDragStart(e) {
+            this.style.opacity = '0.4';
+          
+            dragSrcEl = this;
+          
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+          }
+      
+        function handleDragEnd(e) {
+          this.style.opacity = '1';
+      
+          items.forEach(function (item) {
+            item.classList.remove('over');
+          });
+        }
+      
+        function handleDragOver(e) {
+          if (e.preventDefault) {
+            e.preventDefault();
+          }
+      
+          return false;
+        }
+      
+        function handleDragEnter(e) {
+          this.classList.add('over');
+        }
+      
+        function handleDragLeave(e) {
+          this.classList.remove('over');
+        }
+
+        function handleDrop(e) {
+            e.stopPropagation();
+          
+            if (dragSrcEl !== this) {
+              dragSrcEl.innerHTML = this.innerHTML;
+              this.innerHTML = e.dataTransfer.getData('text/html');
+            }
+          
+            return false;
+          }
+          
+      
+        let items = document.querySelectorAll('.container .box');
+        items.forEach(function(item) {
+          item.addEventListener('dragstart', handleDragStart);
+          item.addEventListener('dragover', handleDragOver);
+          item.addEventListener('dragenter', handleDragEnter);
+          item.addEventListener('dragleave', handleDragLeave);
+          item.addEventListener('dragend', handleDragEnd);
+          item.addEventListener('drop', handleDrop);
+          
+        });
+      });
+
+  </script>
+
+  <div>This is a test container <br><br><br><br><br></div>
+
+  <div class="container">
+    <div draggable="true" class="box">
+        <h1>Audio Round</h1>
+        <audio controls>
+            <source src="https://github.com/Pietro-Rizzo/words_and_nonwords_1/blob/main/delay_music_15_seconds.wav?raw=true" type="audio/wav">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    <div draggable="true" class="box"><h1>Survey Round</h1>This is a survey box<form><input type="Number"></input></form></div>
+    <div draggable="true" class="box"><h1>Text Round</h1>Hello and welcome to the experiment</div>
+    <div draggable="true" class="box"><h1>Text Round</h1>Thank you for doing the experiment</div>
+  </div>
+
+  <div> <br><br><br><br> Another test container </div>
+
+</body>
+</html>
