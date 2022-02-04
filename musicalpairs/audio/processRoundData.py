@@ -1,5 +1,19 @@
 from .models import Experiment, Page, SurveyExample, AudioRound, TextRound, Survey
 
+## EXAMPLE STRING:
+experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
+
+surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
+
+textRound = "$type=text$END$text=This is text for a text round$END"
+
+audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+
+experimentString = "@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
+
+## Each 'representation' is delimited using @@@OBJECT-DELIM@@@, then processed when received in a post request  
+
+
 
 def getVar(string, varName):
     _, _, a = string.partition("${}=".format(varName))
