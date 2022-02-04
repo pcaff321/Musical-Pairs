@@ -67,8 +67,12 @@ class Audio_Answer(models.Model):
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
+class Survey(models.Model):
+    question = models.CharField(max_length=3000, null=False)
+
 class SurveyExample(models.Model):
     text = models.CharField(max_length=3000, null=False)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
 
