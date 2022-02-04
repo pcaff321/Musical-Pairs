@@ -69,25 +69,45 @@ class Audio_Answer(models.Model):
 
 class Survey(models.Model):
     question = models.CharField(max_length=3000, null=False)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+
 
 class SurveyExample(models.Model):
     text = models.CharField(max_length=3000, null=False)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+## Audio model for a specific user(when randomly generated audio is made)
+class UserAudioRound(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+    for_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    roundNum = models.IntegerField(null=False)
 
 
 class AudioRound(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
-    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+    mumbles = models.BooleanField('mumbles', default=False)
+    pairs = models.IntegerField(null=False)
+    placebo = models.BooleanField('placebo', default=False)
+
 
 class TextRound(models.Model):
     text = models.CharField(max_length=3000, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Page(models.Model):
     page_number = models.IntegerField(max_length=100, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+
     
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()

@@ -1,4 +1,4 @@
-from .models import Audio_store, AudioRound, User, TextRound, SurveyExample, Page, Experiment
+from .models import Audio_store, AudioRound, User, TextRound, SurveyExample, Page, Experiment, Survey
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -14,27 +14,30 @@ def create_Fake_Models():
 
     experiment = Experiment(user_source=user, title="ExperimentTest")
     experiment.save()
-    textRound = TextRound(text="Welcome To The Experiment", experiment=experiment)
+    textRound = TextRound(text="Welcome To The Experiment", experiment=experiment, user_source=user)
     textRound.save()
-    textRound1 = TextRound(text="Please Close Your Eyes And Click Any Button", experiment=experiment)
+    textRound1 = TextRound(text="Please Close Your Eyes And Click Any Button", experiment=experiment, user_source=user)
     textRound1.save()
-    textRound2 = TextRound(text="Please Answer The Questions on The Next Page", experiment=experiment)
+    textRound2 = TextRound(text="Please Answer The Questions on The Next Page", experiment=experiment, user_source=user)
     textRound2.save()
-    textRound3 = TextRound(text="Thank You For Doing The Experiment", experiment=experiment)
+    textRound3 = TextRound(text="Thank You For Doing The Experiment", experiment=experiment, user_source=user)
     textRound3.save()
-    surveyRound = SurveyExample(text="Survey Test", experiment=experiment)
+    survey = Survey(question="Do you like surveys", user_source=user)
+    survey.save()
+    surveyRound = SurveyExample(text="Survey Test", experiment=experiment, survey=survey, user_source=user)
     surveyRound.save()
 
-    testAudio = Audio_store(name="SampleAudio", allow_mumble=False, file_location=settings.MEDIA_URL+"/TEST_USER/combinedAudio.wav", user_source=user)
-    testAudio.save()
-    audioRound = AudioRound(experiment=experiment, audio_ref=testAudio)
+    #testAudio = Audio_store(name="SampleAudio", allow_mumble=False, file_location=settings.MEDIA_URL+"/TEST_USER/combinedAudio.wav", user_source=user)
+    #testAudio.save()
+
+    audioRound = AudioRound(experiment=experiment, mumbles=False, pairs=5, placebo=False, user_source=user)
     audioRound.save()
 
     rounds = [textRound, textRound1, audioRound, textRound2, surveyRound, textRound3]
 
     page_num = 1
     for round in rounds:
-        new_page = Page(page_number=page_num, experiment=experiment, content_object=round)
+        new_page = Page(page_number=page_num, experiment=experiment, content_object=round, user_source=user)
         new_page.save()
         page_num += 1
 

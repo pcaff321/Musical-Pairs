@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm
 from .models import User, set_file_name, Audio_store, Word, Experiment, Page, SurveyExample, AudioRound, TextRound
 from .audio_manipulation import combineAudios, getRoundFile
+from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, createTextRound
 from .serializers import Audio_serializer
 from rest_framework.renderers import JSONRenderer
 from django.conf import settings
@@ -89,7 +90,6 @@ def playAudioFile(request):
 
 def getPage(experimentID, pageNumber):
     experiment = Experiment.objects.filter(title=experimentID)[0]
-    print("EXPER", experiment)
     pages = Page.objects.filter(experiment=experiment, page_number=pageNumber)
     if len(pages) <= 0:
         return None
@@ -108,7 +108,7 @@ def prevRoundPage(request):
 def nextRoundPage(request):
     sessionNum = request.session.get('sessionNum', 0)
     sessionNum += 1
-    if getPage("ExperimentTest", sessionNum) is not None:
+    if getPage("TestExperiment123", sessionNum) is not None:
         request.session['sessionNum'] = sessionNum
     return redirect("/playRoundTest/")
 
@@ -117,8 +117,11 @@ def roundTest(request):
     if sessionNum == 0:
         return nextRoundPage(request)
     user_id = request.user.id
-    page = getPage("ExperimentTest", sessionNum)
+    print("GetPaging")
+    page = getPage("TestExperiment123", sessionNum)
+    print("After page")
     if page is None:
+        print("Its none")
         return HttpResponse("Page " + str(sessionNum) + " does not exist")
     print("PAGE:", page)
     if page is None:
@@ -128,7 +131,7 @@ def roundTest(request):
     #pageType = "survey" ## Determine this by checking page number to experiment pages
     if isinstance(pageType, AudioRound):
         print("AUDIO ROUND")
-        url = settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+        url = '' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
         context = {
             'page': 'audio',
             'audio': url,
@@ -229,12 +232,6 @@ def createPostTest(request):
             content_type="application/json"
         )
 
-def createTextRound(text, experiment_id):
-    experiment = Experiment.objects.filter(title=experiment_id)[0]
-    textRound = TextRound(text=text, experiment=experiment)
-    textRound.save()
-    return textRound
-
 
 def createTextRound_POST(request):
     if request.method == 'POST':
@@ -257,25 +254,69 @@ def createTextRound_POST(request):
         )
 
 
+def createExperiment(request):
+    return render(request, "ResearcherPages/createExperiment.html")
 
-""" import re
 
-string = "@@@OBJECT-START@@@+$name=Paul$END$text=Hello, my welcome to the experiment$END$experimentID=fjea2349jakfe$END]++[word=hi]+@@@OBJECT-START@@@"
+def createExperiment_POST(request):
+    if request.method == 'POST':
+        global fake_user
+        user = fake_user  # request.user
+        roundInfo = request.POST.get('roundInfo')
 
-splitString = string.split('@@@OBJECT-START@@@')
+        
+        roundInfoSplit = roundInfo.split('@@@OBJECT-DELIM@@@')
 
-print(splitString[1])
+        experiment = None
 
-_, _, a = splitString[1].partition("$name=")
-name, _, _ = a.partition("$END")
+        pageNum = 1
+        pages = list()
 
-_, _, a = splitString[1].partition("$text=")
-text, _, _ = a.partition("$END")
+        for roundObj in roundInfoSplit:
+            print("Round ojb", roundObj)
+            if roundObj != '':
+                round = None
+                data = processRound(roundObj)
+                if data['roundType'] == "experiment":
+                    experiment_id = data['experimentID']
+                    print("HEREfef", data)
+                    experiment = Experiment(user_source=user, title=experiment_id)
+                    experiment.save()
+                    print("also here")
+                elif data['roundType'] == "survey":
+                    text = data['text']
+                    surveyID = data['surveyID']
+                    round = createSurveyRound(text, experiment, surveyID, user)
+                elif data['roundType'] == "audio":
+                    mumbles = bool(data['mumbles'])
+                    pairs = int(data['pairs'])
+                    placebo = bool(data['placebo'])
+                    round = createAudioRound(mumbles, pairs, placebo, experiment, user)
+                elif data['roundType'] == "text":
+                    text = data['text']
+                    round = createTextRound(text, experiment, user)
 
-_, _, a = splitString[1].partition("$experimentID=")
-experimentID, _, _ = a.partition("$END")
+                if round is not None:
+                    print("Round not none")
+                    new_page = createPage(experiment, pageNum, round, user)
+                    pages.append(new_page)
+                    pageNum += 1
+                else:
+                    print("ronuid none")
 
-print(name)
-print(text)
-print(experimentID)
- """
+        response_data = {}
+
+        print("POSTED EXP")
+
+
+        response_data['result'] = 'Create post successful!'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "this isn't happening"}),
+            content_type="application/json"
+        )
