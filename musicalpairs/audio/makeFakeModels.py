@@ -1,4 +1,4 @@
-from .models import Audio_store, AudioRound, User, TextRound, SurveyExample, Page, Experiment, Survey
+from .models import Audio_store, AudioRound, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -22,9 +22,11 @@ def create_Fake_Models():
     textRound2.save()
     textRound3 = TextRound(text="Thank You For Doing The Experiment", experiment=experiment, user_source=user)
     textRound3.save()
-    survey = Survey(question="Do you like surveys", user_source=user)
+    survey = Survey(name="TestSurvey", user_source=user)
     survey.save()
-    surveyRound = SurveyExample(text="Survey Test", experiment=experiment, survey=survey, user_source=user)
+    question = SurveyQuestion(user_source=user, survey=survey, questionText="Hello", questionType=1, questionNumber=1)
+    question.save()
+    surveyRound = SurveyRound(survey=survey, experiment=experiment, user_source=user)
     surveyRound.save()
 
     #testAudio = Audio_store(name="SampleAudio", allow_mumble=False, file_location=settings.MEDIA_URL+"/TEST_USER/combinedAudio.wav", user_source=user)

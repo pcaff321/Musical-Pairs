@@ -1,4 +1,4 @@
-from .models import Experiment, Page, SurveyExample, AudioRound, TextRound, Survey
+from .models import Experiment, Page, SurveyRound, AudioRound, TextRound, Survey, SurveyQuestion
 
 ## EXAMPLE STRING:
 experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
@@ -25,15 +25,33 @@ def processRound(string):
     roundType = getVar(string, "type")
 
     if roundType == "experiment":
-        experimentID = getVar(string, "experimentID")
+        experimentID = getVar(string, "experimentName")
         
-        data = {"experimentID": experimentID}
+        data = {"experimentName": experimentID}
     
     if roundType == "survey":
-        text = getVar(string, "text")
-        surveyID = getVar(string, "surveyID")
+        name = getVar(string, "name")
+        questionsSplit = string.split('@@@QUESTION@@@')
+        questions = list()
+
+        for question in questionsSplit:
+            if getVar(question, "questionType") != '':
+                questionText = getVar(question, "questionText")
+                questionType = getVar(question, "questionType")
+                if questionType == 'input':
+                    questionType = 1
+                elif questionType == 'slider':
+                    questionType = 2
+                elif questionType == 'yesOrNo':
+                    questionType = 3
+                question = {"questionText": questionText, "questionType": questionType}
+                questions.append(question)
+
+
+
+
         
-        data = {"text": text, "surveyID": surveyID}
+        data = {"name": "Survey", "questions": questions}
         
     if roundType == "audio":
         mumbles = getVar(string, "add_mumbles")
@@ -50,7 +68,27 @@ def processRound(string):
     data['roundType'] = roundType
     
     return data
+
+
+def getQuestions(survey):
+    questions = SurveyQuestion.objects.filter(survey=survey)
+    questionList = list()
+    for question in questions:
+        questionType = str(question.questionType)
+        if questionType == '1':
+            questionType = 'text'
+        elif questionType == '2':
+            questionType = 'slider'
+        elif questionType == '3':
+            questionType = 'yesOrNo'
+        questionDict = {"questionText": question.questionText, "questionType": questionType}
+        questionList.append(questionDict)
     
+    return questionList
+
+
+
+
 
 def createPage(experiment, page_num, content_object, user):
     new_page = Page(page_number=page_num, experiment=experiment, content_object=content_object, user_source=user)
@@ -68,8 +106,18 @@ def createAudioRound(mumbles, pairs, placebo, experiment, user):
     audioRound.save()
     return audioRound
 
-def createSurveyRound(text, experiment, surveyID, user):
-    survey = Survey.objects.all()[0] # Survey.objects.filter(id=surveyID)[0]
-    surveyRound = SurveyExample(text=text, experiment=experiment, survey=survey, user_source=user)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    questionText = models.CharField(max_length=3000, null=False)
+    questionType = models.PositiveSmallIntegerField(choices=questionTypes, default=1)
+    questionNumber
+
+def createSurveyQuestion(user, survey, questionText, questionType, questionNumber):
+    question = SurveyQuestion(user_source=user, survey=survey, questionText=questionText, questionType=questionType, questionNumber=questionNumber)
+    question.save()
+    return question
+
+def createSurveyRound(experiment, survey, user):
+    surveyRound = SurveyRound(survey=survey, experiment=experiment, user_source=user)
     surveyRound.save()
     return surveyRound

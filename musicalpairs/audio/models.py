@@ -68,15 +68,24 @@ class Audio_Answer(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
 class Survey(models.Model):
-    question = models.CharField(max_length=3000, null=False)
+    name = models.CharField(max_length=3000, null=False)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 
-
-
-
-class SurveyExample(models.Model):
-    text = models.CharField(max_length=3000, null=False)
+class SurveyQuestion(models.Model):
+    questionTypes = (
+      (1, 'text'),
+      (2, 'slider'),
+      (3, 'yesOrNo')
+    )
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    questionText = models.CharField(max_length=3000, null=False)
+    questionType = models.PositiveSmallIntegerField(choices=questionTypes, default=1)
+    questionNumber = models.IntegerField(max_length=100, null=False)
+
+
+class SurveyRound(models.Model):
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 
