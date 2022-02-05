@@ -135,12 +135,12 @@
   
 
 
-  var questionHtml = `<label for="question">Question: </label><input id="question"></input><br>
+  var questionHtml = `<div><label for="question">Question: </label><input id="question"></input><br>
   <select name="questionType" id="questionType">
     <option value="scale">Scale Bar 1-10</option>
     <option value="input">Input Box</option>
     <option value="yesOrNo">Yes Or No Option</option>
-  </select><br>`;
+  </select><button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
 
   var textRoundHtml = '<div draggable="true" class="box"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input"></textarea></div>';
 
@@ -152,7 +152,7 @@
       <option value="scale">Scale Bar 1-10</option>
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
-    </select><br><br><br>
+    </select><br><br>
   </div>`;
 
   var audioRoundHtml = `<div draggable="true" class="box">
