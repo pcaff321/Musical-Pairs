@@ -1,17 +1,17 @@
-{% extends '../layout.html' %}
+{% comment %} {% extends '../layout.html' %}
 
 {% block content %}
-
+ {% endcomment %}
 <h2> Page Number: {{ sessionNum }} </h2>
 
 {% if page == 'audio' %}
+<h1> Audio Round </h1> 
 
 <h1> Close your eyes </h1>
 <div class='row'>
-    <audio controls>
-        <source src="https://github.com/Pietro-Rizzo/words_and_nonwords_1/blob/main/delay_music_15_seconds.wav?raw=true" type="audio/wav">
-        Your browser does not support the audio element.
-    </audio>
+    <h1> Mumbles: {{ mumbles }} </h1>
+    <h1> Pairs: {{ pairs }} </h1>
+    <h1> Placebo: {{ placebo }} </h1>
 </div>
 
 {% endif %}
@@ -19,14 +19,23 @@
 
 {% if page == 'survey' %}
 
-<h1> {{ text }} </h1>
-
 <div class='row'>
-  <form action="" method = "post" enctype="multipart/form-data"> 
-      {% csrf_token %} 
-      {{ form }} 
-      <button type="submit">Upload</button> 
-  </form>
+  <h1> Survey: {{ surveyName }} </h1>
+  
+  {% for question in questions %}
+    <h1> Question {{ question.questionNum }}: </h1>
+    <h1> {{ question.questionText }} </h1>
+    {% if question.questionType == "text" %}
+    <input></input>
+    {% endif %}
+    {% if question.questionType == "slider" %}
+    <input type="range" min="0" max="10">
+    {% endif %}
+    {% if question.questionType == "yesOrNo" %}
+    <button>Yes</button>
+    <button>No</button>
+    {% endif %}
+  {% endfor %}
 </div>
 
 
@@ -34,6 +43,7 @@
 
 
 {% if page == 'text' %}
+<h1> Text round </h1>
 
 <h1>
     {{ text }}    
@@ -48,4 +58,4 @@
 <a href="/nextRound"> Next Page </a>
 
 
-{% endblock %}
+{% comment %} {% endblock %} {% endcomment %}
