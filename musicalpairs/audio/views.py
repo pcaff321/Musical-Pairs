@@ -20,7 +20,7 @@ from .makeFakeModels import create_Fake_Models
 
 
 print("CALLING CREATE FAKE MODELS")
-fake_user = create_Fake_Models()
+fake_user, fake_experiment = create_Fake_Models()
 
 
 from django.template.defaulttags import register
@@ -61,10 +61,9 @@ def Audio_store_view(request):
         print("POSTED")
         print(request.POST)
         print("Files:", request.FILES)
-        print(form)
         if form.is_valid(): 
             global fake_user
-            user = fake_user # request.user
+            user = request.user
             print("stuff: \n")
             word = form.cleaned_data['word']
             audio_name = "{}_{}".format(request.user.id, word)
@@ -80,6 +79,8 @@ def Audio_store_view(request):
             # Make associated Word object
             associated_word_instance = Word(word=word, user_source=user, audio_store=audio_store_instance)
             associated_word_instance.save()
+            print("Word created", associated_word_instance, associated_word_instance.user_source)
+            print("Word list", Word.objects.filter(user_source=user))
 
 
             return redirect(showAudios)
@@ -95,7 +96,8 @@ def playAudioFile(request):
     return render(request, 'playAudio.html', {'link': url })
 
 def getPage(experimentID, pageNumber):
-    experiment = Experiment.objects.filter(title=experimentID)[0]
+    print("Get page: ", experimentID, pageNumber)
+    experiment = Experiment.objects.filter(id=experimentID)[0]
     pages = Page.objects.filter(experiment=experiment, page_number=pageNumber)
     if len(pages) <= 0:
         return None
@@ -112,18 +114,31 @@ def prevRoundPage(request):
     return redirect("/playRoundTest/")
 
 def nextRoundPage(request):
+    print("next page")
+    user_experiment_id = request.session.get('experiment_id', fake_experiment.id)
+    print("us ex", user_experiment_id)
     sessionNum = request.session.get('sessionNum', 0)
     sessionNum += 1
-    if getPage("Test123", sessionNum) is not None:
+    if getPage(user_experiment_id, sessionNum) is not None:
         request.session['sessionNum'] = sessionNum
     return redirect("/playRoundTest/")
 
 def roundTest(request):
+    user = request.user
+    experiment_id = request.GET.get('id')
+    if experiment_id is None:
+        experiment_id = fake_experiment.id
+    experiment_id = int(experiment_id)
+    user_experiment_id = request.session.get('experiment_id', experiment_id)
+    if experiment_id != user_experiment_id and experiment_id != fake_experiment.id:
+        request.session['experiment_id'] = experiment_id
+        request.session['sessionNum'] = 0
     sessionNum = request.session.get('sessionNum', 0)
+    user_experiment_id = request.session['experiment_id']
     if sessionNum == 0:
         return nextRoundPage(request)
     user_id = request.user.id
-    page = getPage("Test123", sessionNum)
+    page = getPage(user_experiment_id, sessionNum)
     if page is None:
         return HttpResponse("Page " + str(sessionNum) + " does not exist")
     if page is None:
@@ -132,13 +147,18 @@ def roundTest(request):
     #pageType = "survey" ## Determine this by checking page number to experiment pages
     if isinstance(pageType, AudioRound):
         print("AUDIO ROUND")
-        url = '' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+        mumbles = pageType.mumbles
+        pairs = pageType.pairs
+        placebo = pageType.placebo
+        print("sneding user", user)
+        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
         context = {
             'page': 'audio',
-            'mumbles': pageType.mumbles,
-            'pairs': pageType.pairs,
-            'placebo': pageType.placebo,
-            'sessionNum': sessionNum
+            'mumbles': mumbles,
+            'pairs': pairs,
+            'placebo': placebo,
+            'sessionNum': sessionNum,
+            'url': url
         }
         return render(request, 'ExperimentTemplates/standardPage.html', context)
     elif isinstance(pageType, TextRound):
@@ -173,6 +193,14 @@ def showAudios(request):
         "object_list": audios_of_user
     }
     return render(request, 'showAudios.html', context)
+
+def listExperiments(request):
+    user_id = request.user.id
+    experiments = Experiment.objects.all()
+    context = {
+        "object_list": experiments
+    }
+    return render(request, 'listExperiments.html', context)
 
 
 def loginView(request):
@@ -209,13 +237,13 @@ class researcher_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect(Audio_store)
+        return redirect("/showAudios/")
 
 
     
 def logout_view(request):
     logout(request)
-    return redirect("/signup/experimentee/")
+    return redirect("/login")
 
 def createPostTest(request):
     if request.method == 'POST':
