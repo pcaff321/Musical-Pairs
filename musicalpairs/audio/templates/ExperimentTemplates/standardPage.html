@@ -1,7 +1,7 @@
-{% comment %} {% extends '../layout.html' %}
+{% extends '../layout.html' %}
 
 {% block content %}
- {% endcomment %}
+
 <h2> Page Number: {{ sessionNum }} </h2>
 
 {% if page == 'audio' %}
@@ -12,6 +12,11 @@
     <h1> Mumbles: {{ mumbles }} </h1>
     <h1> Pairs: {{ pairs }} </h1>
     <h1> Placebo: {{ placebo }} </h1>
+
+    <audio controls>
+      <source src="{{ url }}" type="audio/wav">
+      Your browser does not support the audio element.
+  </audio>
 </div>
 
 {% endif %}
@@ -58,4 +63,4 @@
 <a href="/nextRound"> Next Page </a>
 
 
-{% comment %} {% endblock %} {% endcomment %}
+{% endblock %}

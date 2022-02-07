@@ -1,10 +1,6 @@
-<!doctype html>
+{% extends 'layout.html' %}
 
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+{% block style %}
   <title>Create Experiments</title>
   <style>
     .container {
@@ -26,10 +22,9 @@
       }
 
   </style>
+{% endblock %}
 
-</head>
-
-<body>
+{% block content %}
 
   <button id="addRound" onclick="addRound(this)">Add Round</button>
   <select name="roundType" id="roundType">
@@ -360,5 +355,4 @@
 
 </script>
 
-</body>
-</html>
+{% endblock %}

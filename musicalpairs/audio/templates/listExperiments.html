@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+{% for instance in object_list %}
+<div class='row'>
+    <h1>{{ instance.title }}
+    <a href="/playRoundTest/?id={{ instance.id }}"><button>Go To Experiment</button></a>
+</div>
+<br><br><br>
+{% endfor %}
+
+{% endblock %}
