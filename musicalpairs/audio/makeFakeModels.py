@@ -14,6 +14,7 @@ def create_Fake_Models():
 
     experiment = Experiment(user_source=user, title="ExperimentTest")
     experiment.save()
+    print("Fake id", experiment.id)
     textRound = TextRound(text="Welcome To The Experiment", experiment=experiment, user_source=user)
     textRound.save()
     textRound1 = TextRound(text="Please Close Your Eyes And Click Any Button", experiment=experiment, user_source=user)
@@ -44,4 +45,4 @@ def create_Fake_Models():
         page_num += 1
 
     print("Fake models created")
-    return user
+    return user, experiment

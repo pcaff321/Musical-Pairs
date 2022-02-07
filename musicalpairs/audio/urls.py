@@ -1,13 +1,14 @@
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import Audio_store_view, createExperiment, createExperiment_POST, main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, researcher_signup, logout_view, ajaxTest,createPostTest
+from .views import Audio_store_view, listExperiments, showAudios, createExperiment, createExperiment_POST, main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, researcher_signup, logout_view, ajaxTest,createPostTest
 
 
 urlpatterns = [
     path('uploadAudio/', Audio_store_view),
     path('playAudio/', playAudioFile),
     path('showAudios/', showAudios),
+    path('listExperiments/', listExperiments),
     path('login/', loginView),
     path('create_post/', createPostTest),
     path('ajaxTest/', ajaxTest),
