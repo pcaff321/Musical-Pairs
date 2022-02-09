@@ -59,7 +59,7 @@ def getWords(experiment):
     return list(words)
 
 
-def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None):
+def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None, experiment=None):
     user_id = None
     if user is None:
         user_id = 12345
@@ -74,11 +74,11 @@ def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None):
         #temp.write(music.content)
         #temp.seek(0)
         #music = AudioSegment.from_wav(temp)
-        words_for_pairing = getWords().shuffle() # randomise for unique pairs
+        words_for_pairing = getWords(experiment)#.shuffle() # randomise for unique pairs
         if (len(words_for_pairing) < (pairs * 2)):
             words_for_pairing = list()
             for i in range(pairs*2):
-                words_for_pairing.append(getWord())  # FIX THIS: Just a workaround in case theres too little words, but awful solution
+                words_for_pairing.append(getWord(user, None))  # FIX THIS: Just a workaround in case theres too little words, but awful solution
         final_audio = None #music
         for i in range(pairs):
             print("MAking audio", i)
@@ -108,5 +108,5 @@ def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None):
         temp.close()
     return settings.MEDIA_ROOT + "/" + str(user_id) + "/combinedAudio.wav"
 
-def getRoundFile(mumbles=False, pairs=5, placebo=False, user=None):
-    return makeRoundAudio(mumbles, pairs, placebo, user)
+def getRoundFile(mumbles=False, pairs=5, placebo=False, user=None, experiment=None):
+    return makeRoundAudio(mumbles, pairs, placebo, user, experiment)

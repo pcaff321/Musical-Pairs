@@ -152,8 +152,9 @@ def roundTest(request):
         mumbles = pageType.mumbles
         pairs = pageType.pairs
         placebo = pageType.placebo
+        experiment = pageType.experiment
         print("sneding user", user)
-        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
         context = {
             'page': 'audio',
             'mumbles': mumbles,
