@@ -26,6 +26,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=30, null=False)
     last_name = models.CharField(max_length=30)
     email = models.EmailField()
+    REQUIRED_FIELDS = ['date_of_birth', 'gender', 'first_name']
 
     def age(self):
             import datetime
@@ -54,6 +55,11 @@ class Word(models.Model):
     word = models.CharField(max_length=20, null=False, unique=True)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     audio_store = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+
+
+class ExperimentWord(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    word = models.ForeignKey(Word, on_delete=models.CASCADE)
 
 
 class Pair(models.Model):
@@ -88,6 +94,14 @@ class SurveyRound(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class SurveyAnswer(models.Model):
+    surveyQuestion = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=300, null=False)
+
 
 
 ## Audio model for a specific user(when randomly generated audio is made)

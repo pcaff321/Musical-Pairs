@@ -128,8 +128,18 @@ def roundTest(request):
     experiment_id = request.GET.get('id')
     if experiment_id is None:
         experiment_id = fake_experiment.id
+    if 'experiment_id' not in request.session:
+        print("SETTING KEYS")
+        user_experiment_id = request.session.get('experiment_id', experiment_id)
+        sessionNum = request.session.get('sessionNum', 0)
+        request.session.modified = True
+        redirect('/playRoundTest/?id=' + str(experiment_id))
     experiment_id = int(experiment_id)
     user_experiment_id = request.session.get('experiment_id', experiment_id)
+    sessionNum = request.session.get('sessionNum', 0)
+    request.session.modified = True
+    print("ID", user_experiment_id)
+    print("ID", request.session['experiment_id'])
     if experiment_id != user_experiment_id and experiment_id != fake_experiment.id:
         request.session['experiment_id'] = experiment_id
         request.session['sessionNum'] = 0

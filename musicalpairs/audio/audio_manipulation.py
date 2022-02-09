@@ -1,9 +1,10 @@
 from django.conf import settings
 
 from pydub import AudioSegment, effects
-from .models import Pair, Word, Audio_store, set_file_name
+from .models import Pair, Word, Audio_store, set_file_name, ExperimentWord
 import requests
 import tempfile
+from random import shuffle
 
 firstWord = settings.MEDIA_ROOT + "/user_fileTwo23/fileTwo23.wav"
 secondWord = settings.MEDIA_ROOT + "/user_fileTwo23/fileTwo23.wav"
@@ -46,10 +47,17 @@ def makeRoundAudio_OLD():
     return settings.MEDIA_ROOT + "/" + user + "/combinedAudio.wav"
 
 
+#Dumb function, ignore
 def getWord(user, used_words):
-    print("User")
     print("words",  Word.objects.filter(user_source=user))
     return Word.objects.filter(user_source=user)[0]
+
+def getWords(experiment):
+    words = ExperimentWord.objects.filter(experiment=experiment)
+    if not words.exist():
+        words = Word.objects.filter(user_source=experiment.user_source)
+    return list(words)
+
 
 def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None):
     user_id = None
@@ -66,11 +74,12 @@ def makeRoundAudio(mumbles=False, pairs=5, placebo=False, user=None):
         #temp.write(music.content)
         #temp.seek(0)
         #music = AudioSegment.from_wav(temp)
-        words_for_pairing = list()
+        words_for_pairing = getWords().shuffle() # randomise for unique pairs
+        if (len(words_for_pairing) < (pairs * 2)):
+            words_for_pairing = list()
+            for i in range(pairs*2):
+                words_for_pairing.append(getWord())  # FIX THIS: Just a workaround in case theres too little words, but awful solution
         final_audio = None #music
-        for i in range(pairs*2):
-            print("Getting words", i, pairs)
-            words_for_pairing.append(getWord(user, words_for_pairing))
         for i in range(pairs):
             print("MAking audio", i)
             word1 = words_for_pairing.pop()
