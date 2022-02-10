@@ -9,28 +9,35 @@ class CreateSurvey extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            guest_can_pause: true,
-            votes_to_skip: this.defaultVotes,
+            name: "Default",
+            // guest_can_pause: true,
+            // votes_to_skip: this.defaultVotes,
             round_count: this.defaultVotes,
             round_list: {1: "content"}
         };
     }
 
-    handleVotesChange = (e) => {
-        this.setState({
-            votes_to_skip: e.target.value
-    });
-    }
+    // handleVotesChange = (e) => {
+    //     this.setState({
+    //         votes_to_skip: e.target.value
+    // });
+    // }
 
-    handleGuestCanPauseChange = (e) => {
-        this.setState({
-            guest_can_pause: e.target.value === true ? true : false
-        });
-    }
+    // handleGuestCanPauseChange = (e) => {
+    //     this.setState({
+    //         guest_can_pause: e.target.value === true ? true : false
+    //     });
+    // }
 
     handleRoundCountChange = (e) => {
         this.setState({
             round_count: e.target.value
+        });
+    }
+
+    handleNameChange = (e) => {
+        this.setState({
+            name: e.target.value
         });
     }
 
@@ -41,6 +48,7 @@ class CreateSurvey extends Component {
             body: JSON.stringify({
                 round_count: this.state.round_count,
                 round_list: this.state.round_list,
+                name: this.state.name,
                 "fuck you": "just work"
             })
         };
@@ -90,6 +98,19 @@ class CreateSurvey extends Component {
                         </FormHelperText>
                     </FormControl>
                 </Grid> */}
+
+                <Grid item xs={12} align="center">
+                    <FormControl>
+                        <TextField 
+                            required={true} type="text"
+                            inputProps={{style: {textAlign: "center"}}}
+                            onChange={this.handleNameChange}
+                        />
+                        <FormHelperText>
+                            Name of Survey
+                        </FormHelperText>
+                    </FormControl>
+                </Grid>
 
                 <Grid item xs={12} align="center">
                     <FormControl>

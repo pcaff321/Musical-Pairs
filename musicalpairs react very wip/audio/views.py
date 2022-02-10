@@ -74,18 +74,29 @@ class CreateSurveyView(APIView):
     def post(self, request, format="None"):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-        
+
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            name = serializer.data.get("name")
             round_count = serializer.data.get("round_count")
             round_list = serializer.data.get("round_list")
             host = self.request.session.session_key
-            survey = Survey(host=host, round_count = round_count,
-            round_list = "placeholder")
+            survey = Survey(
+                host = host,
+                name = name,
+                round_count = round_count,
+                round_list = {
+                    1: ["text", "Introduction", "Welcome to my study!", "Paragraph 2"],
+                    2: ["audio", True, 1, False, "/static/door_creak.wav"],
+                    3: ["question", "Is my survey based?", "Yes/No"],
+                    4: ["question", "How based?", "Slider"],
+                    5: ["question", "Describe in your own words how based it was", "Text"]
+                }
+            )
             survey.save()
 
             return Response(SurveySerializer(survey).data, status=status.HTTP_201_CREATED)
-            
+
 
 
 

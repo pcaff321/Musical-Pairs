@@ -8,7 +8,7 @@ export default class SurveyTest extends Component {
     render() {
         return (
             <audio controls autoPlay>
-                <source src="/static/april.mp3" type="audio/mp3"></source>
+                <source src="/static/april.mp3" type="audio/mp3" hidden></source>
             </audio>
         )
     }

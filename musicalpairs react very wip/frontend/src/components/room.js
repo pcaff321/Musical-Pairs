@@ -4,10 +4,11 @@ import { useParams } from 'react-router-dom'
 
 export default function Room(props) {
     const initialState = {
+        name: "Default",
         round_count: 2,
         is_host: false
     }
-    const [roomData, setRoomData] = useState(initialState) 
+    const [ roomData, setRoomData ] = useState(initialState) 
     const { roomCode } = useParams()
   
     useEffect(() => {
@@ -15,7 +16,8 @@ export default function Room(props) {
         .then(res => res.json())
         .then(data => {
           setRoomData({
-            roomData, 
+            roomData,
+            name: data.name,
             round_count: data.round_count,
             round_list: data.round_list,
             is_host: data.is_host,
@@ -26,8 +28,9 @@ export default function Room(props) {
       <div>
         <h3>{roomCode}</h3>
         {/* <p>Votes: {roomData.votes_to_skip}</p> */}
+        <p>name: {roomData.name}</p>
         <p>RoundCount: {roomData.round_count}</p>
-        <p>RoundList: {roomData.round_list}</p>  
+        <p>RoundList: {JSON.stringify(roomData.round_list)}</p>  
         {/* <p>Guest: {roomData.guest_can_pause.toString()}</p> */}
         <p>Host: {roomData.is_host.toString()}</p>
       </div>

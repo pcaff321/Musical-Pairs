@@ -11,11 +11,11 @@ class Audio_serializer(serializers.ModelSerializer):
 class SurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
-        fields = ('id', 'code', 'host', 'round_count', 'round_list', 'created_at')
+        fields = ('id', 'code', 'host', 'name', 'round_count', 'round_list', 'created_at')
 
 
 class CreateSurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
-        fields = ('round_count', 'round_list')
+        fields = ('name', 'round_count', 'round_list')
 
