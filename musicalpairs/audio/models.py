@@ -18,3 +18,8 @@ class Audio_store(models.Model):
 class User(AbstractUser):
     is_researcher = models.BooleanField('researcher status', default=False)
     is_experimentee = models.BooleanField('experimentee status', default=True)
+
+class Experiment(models.Model):
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator")
+    title = models.CharField(max_length=50, null=False)
+    subscribers = models.ManyToManyField(User, related_name="sub")

@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<form name="myform" method="GET" action="{% url 'myapp:listExperiments' %}">
+    <input type="text" name="search" placeholder="Search" />
+</form>
+
+<p>{{num}} results found.</p>
+{% for instance in object_list %}
+<div class='row'>
+    <h1>{{ instance.title }}</h1>
+        <p>{{ instance.id }}</p>><button>Go To Experiment</button>
+    <form method="POST" action="{% url 'myapp:listExperiments' %}">
+        {% csrf_token %}
+        <input type="hidden" name="experiment_id" value="{{instance.id}}"/>
+    <input type="submit" value="Subscribe">
+    </form>
+</div>
+<br><br><br>
+{% endfor %}
+
+{% endblock %}
