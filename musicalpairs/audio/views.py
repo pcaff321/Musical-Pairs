@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm
 from .models import Survey, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound, TextRound
-from .audio_manipulation import combineAudios, getRoundFile
+from .audio_manipulation import getRoundFile
 from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer
 from rest_framework.renderers import JSONRenderer
@@ -76,6 +76,8 @@ def Audio_store_view(request):
             audio_store_instance.file_location.name = file_location
             audio_store_instance.save()
 
+            print("AUDIO STORE URL", audio_store_instance.file_location.url)
+
             # Make associated Word object
             associated_word_instance = Word(word=word, user_source=user, audio_store=audio_store_instance)
             associated_word_instance.save()
@@ -106,38 +108,42 @@ def getPage(experimentID, pageNumber):
 
 
 def prevRoundPage(request):
-    sessionNum = request.session.get('sessionNum', 0)
+    sessionInfo = request.session.get('sessionInfo', [fake_experiment.id, 0])
+    user_experiment_id = sessionInfo[0]
+    sessionNum = sessionInfo[1]
     sessionNum -= 1
     if sessionNum < 0:
         sessionNum = 0
-    request.session['sessionNum'] = sessionNum
+    request.session['sessionInfo'] = [user_experiment_id, sessionNum]
     return redirect("/playRoundTest/")
 
 def nextRoundPage(request):
     print("next page")
-    user_experiment_id = request.session.get('experiment_id', fake_experiment.id)
-    print("us ex", user_experiment_id)
-    sessionNum = request.session.get('sessionNum', 0)
+    sessionInfo = request.session.get('sessionInfo', [fake_experiment.id, 0])
+    user_experiment_id = sessionInfo[0]
+    sessionNum = sessionInfo[1]
     sessionNum += 1
     if getPage(user_experiment_id, sessionNum) is not None:
-        request.session['sessionNum'] = sessionNum
+        request.session['sessionInfo'] = [user_experiment_id, sessionNum]
     return redirect("/playRoundTest/")
+
 
 def roundTest(request):
     user = request.user
     experiment_id = request.GET.get('id')
+    pageNum = request.GET.get('page')
     if experiment_id is None:
         experiment_id = fake_experiment.id
-    experiment_id = int(experiment_id)
-    user_experiment_id = request.session.get('experiment_id', experiment_id)
-    sessionNum = request.session.get('sessionNum', 0)
-    print("SESS", request.session)
+    if pageNum is None:
+        pageNum = 0
+    sessionInfo = request.session.get('sessionInfo', [experiment_id, pageNum])
+    user_experiment_id = sessionInfo[0]
+    sessionNum = sessionInfo[1]
     if experiment_id != user_experiment_id and experiment_id != fake_experiment.id:
-        request.session['experiment_id'] = experiment_id
-        request.session['sessionNum'] = 0
-    sessionNum = request.session.get('sessionNum', 0)
-    user_experiment_id = request.session.get('experiment_id', experiment_id)
-    if sessionNum == 0:
+        user_experiment_id = experiment_id
+        sessionNum = 0
+        request.session['sessionInfo'] = [user_experiment_id, sessionNum]
+    if int(sessionNum) <= 0:
         return nextRoundPage(request)
     user_id = request.user.id
     page = getPage(user_experiment_id, sessionNum)
@@ -154,7 +160,9 @@ def roundTest(request):
         placebo = pageType.placebo
         experiment = pageType.experiment
         print("sneding user", user)
-        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+        if len(Word.objects.filter(user_source=user)) < (pairs * 2):
+            return prevRoundPage(request)
+        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
         context = {
             'page': 'audio',
             'mumbles': mumbles,
@@ -185,6 +193,73 @@ def roundTest(request):
         }
         return render(request, 'ExperimentTemplates/standardPage.html', context)
     return HttpResponse("Error with experiment")
+
+""" def roundTest(request):
+    user = request.user
+    experiment_id = request.GET.get('id')
+    pageNum = request.GET.get('page')
+    if experiment_id is None:
+        experiment_id = fake_experiment.id
+    experiment_id = int(experiment_id)
+    user_experiment_id = request.session.get('experiment_id', experiment_id)
+    sessionNum = request.session.get('sessionNum', 0)
+    print("SESS", request.session)
+    if experiment_id != user_experiment_id and experiment_id != fake_experiment.id:
+        request.session['experiment_id'] = experiment_id
+        request.session['sessionNum'] = 0
+    sessionNum = request.session.get('sessionNum', 0)
+    user_experiment_id = request.session.get('experiment_id', experiment_id)
+    if sessionNum == 0:
+        return nextRoundPage(request)
+    user_id = request.user.id
+    page = getPage(user_experiment_id, sessionNum)
+    if page is None:
+        return HttpResponse("Page " + str(sessionNum) + " does not exist")
+    if page is None:
+        return HttpResponse("ERROR WITH PAGE" + str(sessionNum))
+    pageType = page.content_object
+    #pageType = "survey" ## Determine this by checking page number to experiment pages
+    if isinstance(pageType, AudioRound):
+        print("AUDIO ROUND")
+        mumbles = pageType.mumbles
+        pairs = pageType.pairs
+        placebo = pageType.placebo
+        experiment = pageType.experiment
+        print("sneding user", user)
+        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+        context = {
+            'page': 'audio',
+            'mumbles': mumbles,
+            'pairs': pairs,
+            'placebo': placebo,
+            'sessionNum': sessionNum,
+            'url': url
+        }
+        return render(request, 'ExperimentTemplates/standardPage.html', context)
+    elif isinstance(pageType, TextRound):
+        print("TECT ROD")
+       # url = getRoundFile()
+        context = {
+            'page': 'text',
+            'text': pageType.text,
+            'sessionNum': sessionNum
+        }
+        return render(request, 'ExperimentTemplates/standardPage.html', context)
+    elif isinstance(pageType, SurveyRound):
+        print("SURAV")
+        #url = getRoundFile()
+        questions = getQuestions(pageType.survey)
+        context = {
+            'page': 'survey',
+            'surveyName': pageType.survey.name,
+            'questions': questions,
+            'sessionNum': sessionNum
+        }
+        return render(request, 'ExperimentTemplates/standardPage.html', context)
+    return HttpResponse("Error with experiment") """
+
+
+
 
 @login_required
 def showAudios(request):
