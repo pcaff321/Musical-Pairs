@@ -130,7 +130,7 @@ def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment
 
     wordRoundInstance = UserWordRound(experiment=experiment, audio_ref=wordRoundAudio, for_user=user, associated_audio_round=pageModel.content_object)
 
-    return '/media/1/1_4_Page_3.wav.wav' #wordRoundAudio.file_location.url + ".wav"
+    return wordRoundAudio.file_location.url + ".wav"
 
 
 
