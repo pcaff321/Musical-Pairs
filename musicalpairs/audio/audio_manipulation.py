@@ -1,7 +1,8 @@
+from email.mime import audio
 from django.conf import settings
 
 from pydub import AudioSegment, effects
-from .models import Pair, Word, Audio_store, set_file_name, ExperimentWord
+from .models import Pair, Word, Audio_store, set_file_name, ExperimentWord, UserWordRound, UserPairGuess
 import requests
 import tempfile
 import random
@@ -23,7 +24,9 @@ def getMumbleWords(amount=4):
 
 def getNonWord(mumbles, SPEEDUP_FACTOR=3):
     print("Words 3", len(mumbles))
-    nonWord = AudioSegment.from_wav(mumbles.pop()).speedup(SPEEDUP_FACTOR) - 18
+    mumble = mumbles.pop()
+    print(mumble)
+    nonWord = AudioSegment.from_wav(str(settings.MEDIA_ROOT) + "/" + str(mumble)).speedup(SPEEDUP_FACTOR) - 18
     nonWord += AudioSegment.silent(50)
     return mumbles, nonWord
 
@@ -45,6 +48,7 @@ def makeWordRound(wordsForRound, pairAmount=3, Experiment=None):
         word1 = wordsForRound.pop()
         word2 = wordsForRound.pop()
         pair = Pair(audio1=word1, audio2=word2)
+        pair.save()
         pairs.append(pair)
         word1Location = settings.MEDIA_ROOT + "/" + str(word1.audio_store.file_location)
         word2Location = settings.MEDIA_ROOT + "/" + str(word2.audio_store.file_location)
@@ -60,47 +64,76 @@ def makeWordRound(wordsForRound, pairAmount=3, Experiment=None):
     return fullAudio, pairs
 
 
-def makeBaselineRound(pair, J=None, placebo=False):
-    global words
+def makeBaselineRound(pair, mumbles, J=None, placebo=False, wordRound=None):
     global cling
     global silence
-    wordsList = words.copy()
-    print("Words 1", len(words))
     NON_WORDS_AMOUNT = 4
-    mumbles, firstMask = getMask(wordsList)
+    words = Word.objects.all()
+    mumbles = list() ##  DO THIS - REMOVE / FIX
+    for word in words:
+        mumbles.append(str(word.audio_store.file_location))
+    """mumbles = list()
+    for word in words:
+        mumbles.append(word.audio_ref.file_location.url + ".wav") """
+    mumbles, firstMask = getMask(mumbles)
     mumbles, X = getMask(mumbles)
     if J is not None:
         X = J
-    wordOne = pair[0]
-    firstAudio = AudioSegment.from_wav(wordOne)
+    wordOne = str(pair.audio1.audio_store.file_location)
+    firstAudio = AudioSegment.from_wav(str(settings.MEDIA_ROOT) + "/" + wordOne)
     finalAudio = AudioSegment.silent(2000) + firstMask + X + firstAudio
     if placebo:
         NON_WORDS_AMOUNT -= 1
     for i in range(NON_WORDS_AMOUNT):
         mumbles, mask = getNonWord(mumbles)
         finalAudio += mask
-    wordTwo = pair[1]
-    print("PAir:", wordOne, wordTwo)
-    secondAudio = AudioSegment.from_wav(wordTwo).speedup(1)
+    if placebo:
+        wordTwo = settings.MEDIA_ROOT + "/" + str(pair.audio2.audio_ref.file_location)
+        secondAudio = AudioSegment.from_wav(wordTwo).speedup(1)
+        finalAudio += secondAudio
     finalAudio += firstAudio
     for i in range(NON_WORDS_AMOUNT):
         mumbles, mask = getNonWord(mumbles)
         finalAudio += mask
     finalAudio += silence
-    return finalAudio
+            
+    return finalAudio, mumbles
 
 
-def makeBaselineRounds(pairs):
+def makeBaselineRounds(pairs, wordRound):
     b_rounds = list()
-    for pair in pairs:
-        b_round = makeBaselineRound(pair, J=None, placebo=True)
-        b_rounds.append(b_round)
+    user = wordRound.for_user
+    user_id = user.id
+    pairsList = pairs.copy()
+    random.shuffle(pairsList) # Have pairs in random order
+    mumbles = list()
+    words = Word.objects.all()
+    for word in words:
+        mumbles.append(word.audio_store.file_location)
     roundNum = 0
-    random.shuffle(b_rounds)
-    for round in b_rounds:
+    for pair in pairsList:
+        placebo = False
+        b_round, mumbles = makeBaselineRound(pair, mumbles, J=None, placebo=placebo, wordRound=wordRound)
         roundNum += 1
-        round.export(out_f = "./{}B_Round.wav".format(roundNum), format="wav")
+        pairRoundName = "{}_{}_Round_{}.wav".format(pair.audio1.word, pair.audio2.word, wordRound.id)
+        print("sETINGTSG", settings.MEDIA_ROOT)
+        fileName = str(pairRoundName)
+        print("FILE NAME", fileName)
+        exported = b_round.export(out_f = settings.MEDIA_ROOT + "/" + str(user_id) + "/" + fileName, format="wav").name
+        print("Exported", exported)
+
+        pairGuessAudio = Audio_store(name=fileName, allow_mumble=False, file_location=exported, user_source=user)
+        file_location = set_file_name(pairGuessAudio, user.id)
+        pairGuessAudio.file_location.name = file_location
+        pairGuessAudio.save()
+        
+        userPairGuess = UserPairGuess(pair=pair, audio_ref=pairGuessAudio, associated_word_round=wordRound, placebo_added=placebo)
+        userPairGuess.save()
+
+        b_rounds.append(userPairGuess)
+
     return b_rounds
+        
 
 
 def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment=None, pageModel=None):
@@ -118,12 +151,22 @@ def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment
 
     exported = wordRoundAudio.export(out_f = (settings.MEDIA_ROOT + "/" + str(user_id) + "/" + wordRoundName) + ".wav", format = "wav").name
 
-    audio_store_instance = Audio_store(name=wordRoundName, allow_mumble=False, file_location=exported, user_source=user)
-    file_location = set_file_name(audio_store_instance, user.id)
-    audio_store_instance.file_location.name = file_location
-    audio_store_instance.save()
+    wordRoundAudio = Audio_store(name=wordRoundName, allow_mumble=False, file_location=exported, user_source=user)
+    file_location = set_file_name(wordRoundAudio, user.id)
+    wordRoundAudio.file_location.name = file_location
+    wordRoundAudio.save()
 
-    return audio_store_instance.file_location.url + ".wav"
+    wordRoundInstance = UserWordRound(experiment=experiment, audio_ref=wordRoundAudio, for_user=user, associated_audio_round=pageModel.content_object)
+    wordRoundInstance.save()
+
+    guess_rounds = makeBaselineRounds(pairs, wordRoundInstance)
+
+    roundAudios = list()
+    roundAudios.append(wordRoundInstance)
+    for i in guess_rounds:
+        roundAudios.append(i)
+
+    return roundAudios   #wordRoundAudio.file_location.url + ".wav"
 
 
 

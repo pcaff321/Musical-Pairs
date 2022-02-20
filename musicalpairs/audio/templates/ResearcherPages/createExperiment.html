@@ -13,7 +13,7 @@
         border: 3px solid #666;
         background-color: #ddd;
         border-radius: .5em;
-        padding: 10px;
+        padding: 10px
         cursor: move;
       }
 
@@ -68,6 +68,8 @@
       item.addEventListener('drop', handleDrop);
       
     });
+
+    
   });
         
     function handleDragStart(e) {
@@ -340,7 +342,7 @@
             fd.append('roundInfo', experimentString);
             $.ajax({
                 type: 'POST',
-                url: '/postExperiment/',
+                url: "{% url 'postExperiment' %}",
                 headers: {"X-CSRFToken": "{{ csrf_token }}"},
                 data: fd,
                 processData: false,

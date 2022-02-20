@@ -40,6 +40,7 @@
     <button>Yes</button>
     <button>No</button>
     {% endif %}
+    <br><br>
   {% endfor %}
 </div>
 
@@ -58,9 +59,9 @@
 {% endif %}
 
 
-<a href="/prevRound"> Previous Page </a>
+<a href="{% url 'prevRound' %}"> Previous Page </a>
 <br><br><br>
-<a href="/nextRound"> Next Page </a>
+<a href="{% url 'nextRound' %}"> Next Page </a>
 
 
 {% endblock %}

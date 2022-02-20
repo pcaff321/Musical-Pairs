@@ -1,11 +1,40 @@
+from tkinter import E
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from faker import Faker
 from time import time
+import random
+import string
 
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+
+## James Stuff
+
+def generate_unique_code():
+    length = 6 
+
+    while True:
+        code = ''.join(random.choices(string.ascii_uppercase, k=length))
+        if Survey_James.objects.filter(code=code).count() == 0:
+            break
+    
+    return code
+
+class Survey_James(models.Model):
+    code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
+    host = models.CharField(max_length=50)
+    name = models.CharField(null=False, max_length=50, default="Default")
+    # guest_can_pause = models.BooleanField(null=False, default=False)
+    # votes_to_skip = models.IntegerField(null=False, default=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    round_count = models.IntegerField(null=False, default=2)
+    round_list = models.JSONField(default=dict)
+
+
+## END
 
 
 # Create your models here.
@@ -41,10 +70,11 @@ class User(AbstractUser):
 class Experiment(models.Model):
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=50, null=False)
+    subscribers = models.ManyToManyField(User, related_name="sub")
 
 
 class Audio_store(models.Model):
-    name = models.CharField(max_length=20, null=False, unique=True)
+    name = models.CharField(max_length=20, null=False)
     allow_mumble = models.BooleanField(null=False, default=False)
     file_location=models.FileField(upload_to=set_file_name)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -105,13 +135,6 @@ class SurveyAnswer(models.Model):
 
 
 
-## Audio model for a specific user(when randomly generated audio is made)
-class UserAudioRound(models.Model):
-    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
-    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
-    for_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    roundNum = models.IntegerField(null=False)
-
 
 class AudioRound(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
@@ -119,6 +142,26 @@ class AudioRound(models.Model):
     mumbles = models.BooleanField('mumbles', default=False)
     pairs = models.IntegerField(null=False)
     placebo = models.BooleanField('placebo', default=False)
+
+
+## Audio model for a specific user(when randomly generated audio is made)
+class UserWordRound(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+    for_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    associated_audio_round = models.ForeignKey(AudioRound, on_delete=models.CASCADE)
+
+
+## Model to list the individual audio section to guess the second word in a pair
+class UserPairGuess(models.Model):
+    pair = models.ForeignKey(Pair, on_delete=models.CASCADE)
+    audio_ref = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+    associated_word_round = models.ForeignKey(UserWordRound, on_delete=models.CASCADE)
+    placebo_added = models.BooleanField('placebo_added', default=False)
+    answer = models.CharField(max_length=200, default="NOT_ANSWERED")
+
+
+
 
 
 class TextRound(models.Model):

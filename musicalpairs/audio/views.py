@@ -1,13 +1,16 @@
 ##from curses.ascii import HT
+from collections import UserDict
 from email.mime import audio
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm
-from .models import Survey, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound, TextRound
+from numpy import round_
+from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm
+from .models import Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
+    TextRound, Survey_James, UserWordRound, UserPairGuess
 from .audio_manipulation import getRoundFile
 from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
-from .serializers import Audio_serializer
+from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
 from rest_framework.renderers import JSONRenderer
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -15,6 +18,8 @@ from django.views.generic import CreateView
 from django.db import models
 import json
 import re
+import math
+import string
 
 from .makeFakeModels import create_Fake_Models
 
@@ -24,6 +29,295 @@ fake_user, fake_experiment = create_Fake_Models()
 
 
 from django.template.defaulttags import register
+
+from django.urls import reverse
+from django.core.mail import send_mail
+from pyexpat.errors import messages
+from audioop import reverse
+
+def processPageInfo(page):
+    pageType = page.content_object
+    if isinstance(pageType, AudioRound):
+        mumbles = pageType.mumbles
+        pairs = pageType.pairs
+        placebo = pageType.placebo
+        roundContent = {"pageType":"audio", "mumbles":mumbles, "pairs":pairs, "placebo":placebo}
+    elif isinstance(pageType, TextRound):
+        roundContent = {"pageType":"text", "text": pageType.text}
+    elif isinstance(pageType, SurveyRound):
+        questions = getQuestions(pageType.survey)
+        questionList = list()
+        for question in questions:
+            roundContent = list()
+            questionText = question['questionText']
+            questionType = question['questionType']
+            if questionType == "slider":
+                questionType = "Slider"
+            elif questionType == "text":
+                questionType = "Text"
+            elif questionType == "yesOrNo":
+                questionType = "Yes/No"
+                questionInfo = {"questionText":questionText, "questionType":questionType}
+                questionList.append(questionInfo)
+        roundContent = {"pageType": "survey", "questionList": questionList}
+    return roundContent
+
+##JAMES
+
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def survey_view(request):
+    return render(request, 'mainsurvey.html')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SurveyView(generics.ListAPIView):
+    queryset = Survey_James.objects.all()
+    serializer_class = SurveySerializer
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetRoomView(APIView):
+    serializer_class = SurveySerializer
+    lookup_url_kwarg = 'code'
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            room = Survey_James.objects.filter(code=code)
+            if len(room) > 0:
+                data = SurveySerializer(room[0]).data
+                data['is_host'] = self.request.session.session_key == room[0].host
+                return Response(data, status=status.HTTP_200_OK)
+            return Response({'Room Not Found': 'Invalid Room Code.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'Bad Request': 'Code paramater not found in request'}, status=status.HTTP_400_BAD_REQUEST)
+
+def getResultsByRound(wordRound):
+    user_pair_guesses = list(UserPairGuess.objects.filter(associated_word_round=wordRound))
+
+    guesses_as_dicts = list()
+
+    score = 0
+    amount = len(user_pair_guesses)
+
+    for pair in user_pair_guesses:
+        word1 = str(pair.pair.audio1.word)
+        word2 = str(pair.pair.audio2.word)
+        answer = str(pair.answer)
+        placebo = bool(pair.placebo_added)
+        pair_dict = {
+            "word1": word1,
+            "word2": word2,
+            "answer": answer,
+            "placebo": placebo,
+            "pair_guess_id": pair.id
+        }
+        if word2.lower() == answer.lower():
+            score += 1
+        guesses_as_dicts.append(pair_dict)
+    
+    return guesses_as_dicts, score, amount
+
+def getResultsForUser(user, experiment):
+    pages = Page.objects.filter(experiment=experiment).order_by('page_number')
+    pages = list(pages)
+    pagesList = list()
+    for page in pages:
+        if isinstance(page.content_object, AudioRound):
+            pagesList.append(page)
+
+    wordRounds = list()
+    for page in pagesList:
+        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object)
+        if wordRound is not None:
+            wordRounds.append(wordRound[0])
+        else:
+            print("WORD ROUND NONE")
+    
+    roundLists = list()
+    roundNum = 1
+    for round in wordRounds:
+        pairInfo, score, amount = getResultsByRound(round)
+        roundInfo = {
+            "name": "Round " + str(roundNum),
+            "score": score,
+            "amount": amount,
+            "pairsList": pairInfo
+        }
+        roundLists.append(roundInfo)
+        roundNum += 1
+    print("ROUND LISTS fe ---------- ", roundLists)
+    return roundLists
+
+
+
+@csrf_exempt
+def getRoundList(request):
+    print("HER")     
+    user = request.user
+    print("not here", user)
+    experiments = Experiment.objects.filter(user_source=user)
+    print("expeimernts: ", experiments)
+    experiment = experiments[0]
+    experiment_id = request.GET.get('id', None)
+    if experiment_id is not None:
+        experiment_Check = Experiment.objects.filter(id=experiment_id)
+        if experiment_Check.exists():
+            experiment = experiment_Check[0]
+    pages = Page.objects.filter(experiment=experiment).order_by('page_number')
+    round_list = {}
+    roundPageNum = 1
+    print("At for loop start")
+    for page in pages:
+        roundContent = list()
+        pageType = page.content_object
+        if isinstance(pageType, AudioRound):
+            mumbles = pageType.mumbles
+            pairs = pageType.pairs
+            placebo = pageType.placebo
+            roundFiles = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
+            url = roundFiles[0].audio_ref.file_location.url + ".wav"
+            roundContent = ["audio", mumbles, pairs, placebo, url]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+            
+
+            #add pair guesses
+            guess = 0
+            halfWayPoint = math.floor((len(roundFiles) - 1) / 2 )
+            print("HALFWAY POINT", halfWayPoint)
+            for pairGuess in roundFiles:
+                if guess == 0:
+                    guess += 1
+                    print("Skipping first")
+                else:
+
+                    url = pairGuess.audio_ref.file_location.url
+                    roundContent = ["audio", mumbles, pairs, placebo, url]
+                    round_list[roundPageNum] = roundContent
+                    roundPageNum += 1
+
+                    roundContent = ["question", "What was the second word?", "Text", pairGuess.id]
+                    round_list[roundPageNum] = roundContent
+                    roundPageNum += 1
+
+                    if guess == halfWayPoint:
+                        roundContent = ["question", "How are you finding this round so far?", "Slider", 0]
+                        round_list[roundPageNum] = roundContent
+                        roundPageNum += 1
+
+                    guess += 1
+
+            """ roundContent = ["text", "The following questions concern the round you just completed",
+             "Please answer the following questions honestly to best gauge your experience."]
+
+            roundContent = ["question", "During this round, I was interrupted", "Slider", 0]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            roundContent = ["question", "During this round, I put forward my best effort", "Slider", 0]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            roundContent = ["question", 
+            "During this round, some noises around me made it harder for me to understand the words", 
+            "Slider", 0]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            roundContent = ["question", 
+            "During this round, I felt tired", 
+            "Slider", 0]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1 """
+
+
+        elif isinstance(pageType, TextRound):
+            roundContent = ["text", "Text Round", pageType.text]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+        elif isinstance(pageType, SurveyRound):
+            questions = getQuestions(pageType.survey)
+            for question in questions:
+                roundContent = list()
+                questionText = question['questionText']
+                questionType = question['questionType']
+                if questionType == "slider":
+                    questionType = "Slider"
+                elif questionType == "text":
+                    questionType = "Text"
+                elif questionType == "yesOrNo":
+                    questionType = "Yes/No"
+                roundContent = ["question", questionText, questionType]
+                round_list[roundPageNum] = roundContent
+                roundPageNum += 1
+    print("Round List!", round_list)
+    return round_list
+    
+""" 
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateSurveyView(APIView):
+    print("Top")
+    serializer_class = CreateSurveySerializer
+    def post(self, request, format="None"):
+        print("Post survey")
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            name = serializer.data.get("name")
+            round_count = serializer.data.get("round_count")
+            round_list = serializer.data.get("round_list")
+            host = self.request.session.session_key
+            survey = Survey_James(
+                host = host,
+                name = name,
+                round_count = round_count,
+                #round_list = {
+                #    1: ["text", "Introduction", "Welcome to my study!", "Paragraph 2"],
+                #    2: ["audio", True, 1, False, "/static/door_creak.wav"],
+                #    3: ["question", "Is my survey based?", "Yes/No"],
+                #    4: ["question", "How based?", "Slider"],
+                #    5: ["question", "Describe in your own words how based it was", "Text"]
+                #}
+                round_list = getRoundList(request)
+            )
+            survey.save()
+
+            return Response(SurveySerializer(survey).data, status=status.HTTP_201_CREATED) """
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateSurveyView(APIView):
+    serializer_class = CreateSurveySerializer
+    def post(self, request, format="None"):
+        if not self.request.session.exists(self.request.session.session_key):
+           self.request.session.create()
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            name = serializer.data.get("name")
+            round_count = serializer.data.get("round_count")
+            round_list = serializer.data.get("round_list")
+            host = self.request.session.session_key
+            survey = Survey_James(
+                host = host,
+                name = name,
+                round_count = round_count,
+                round_list = getRoundList(request)
+            )
+            survey.save()
+
+            return Response(SurveySerializer(survey).data, status=status.HTTP_201_CREATED)
+
+
+## END
 
 @register.filter
 def get_item(dictionary, key):
@@ -88,7 +382,7 @@ def Audio_store_view(request):
             return redirect(showAudios)
     else: 
         form = AudioForm() 
-    return render(request, 'aud.htm', {'form' : form}) 
+    return render(request, 'aud.html', {'form' : form}) 
 
 
 @login_required
@@ -115,7 +409,7 @@ def prevRoundPage(request):
     if sessionNum < 0:
         sessionNum = 0
     request.session['sessionInfo'] = [user_experiment_id, sessionNum]
-    return redirect("/playRoundTest/")
+    return redirect('playRoundTest')
 
 def nextRoundPage(request):
     print("next page")
@@ -125,7 +419,7 @@ def nextRoundPage(request):
     sessionNum += 1
     if getPage(user_experiment_id, sessionNum) is not None:
         request.session['sessionInfo'] = [user_experiment_id, sessionNum]
-    return redirect("/playRoundTest/")
+    return redirect('playRoundTest')
 
 
 def roundTest(request):
@@ -272,14 +566,6 @@ def showAudios(request):
     }
     return render(request, 'showAudios.html', context)
 
-def listExperiments(request):
-    user_id = request.user.id
-    experiments = Experiment.objects.all()
-    context = {
-        "object_list": experiments
-    }
-    return render(request, 'listExperiments.html', context)
-
 
 def loginView(request):
     return render(request, 'login.html')
@@ -315,13 +601,13 @@ class researcher_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect("/showAudios/")
+        return redirect('showAudios')
 
 
     
 def logout_view(request):
     logout(request)
-    return redirect("/login")
+    return redirect('login')
 
 def createPostTest(request):
     if request.method == 'POST':
@@ -371,7 +657,7 @@ def createExperiment(request):
 def createExperiment_POST(request):
     if request.method == 'POST':
         global fake_user
-        user = fake_user  # request.user
+        user = request.user
         roundInfo = request.POST.get('roundInfo')
 
         
@@ -439,3 +725,142 @@ def createExperiment_POST(request):
             json.dumps({"nothing to see": "this isn't happening"}),
             content_type="application/json"
         )
+
+def editExperiment(request):
+    experimentID= request.GET.get('id', None)
+    print("ID", experimentID)
+    if experimentID is not None:
+        experiment = Experiment.objects.filter(id=experimentID)
+        if experiment.exists():
+            experiment = experiment[0]
+            pages = Page.objects.filter(experiment=experiment).order_by('page_number')
+            pagesList = list()
+            for page in pages:
+                pagesList.append(processPageInfo(page))
+
+            context = {"experimentName":experiment.title, "experimentList": pagesList}
+            print(context)
+            return render(request, 'ResearcherPages/editExperiment.html', context)
+            
+    return HttpResponse("ID not found")
+
+
+def answerQuestion_POST(request):
+    if request.method == 'POST':
+        global fake_user
+        user = request.user
+        questionInfo = request.POST.get('questionType', 'question')
+        experiment_ID = request.POST.get('experimentID', None)
+        database_ID = request.POST.get('questionID', None)
+        answer = request.POST.get('answer', "NOT_ANSWERED")
+        if database_ID is None:
+            return HttpResponse(
+            json.dumps({"Error": "no ID given"}),
+            content_type="application/json"
+            )
+
+        if questionInfo == "question":
+            if experiment_ID is None:
+                return HttpResponse(
+                json.dumps({"Error": "no experiment ID given"}),
+                content_type="application/json"
+                )
+            print("Question Post")
+            surveyQuestion = SurveyQuestion.objects.get(id=database_ID)
+            experiment = Experiment.objects.get(id=experiment_ID)
+            question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
+            question.save()
+        elif questionInfo == "pair":
+            print("Pair Guess")
+            pairGuess = UserPairGuess.objects.get(id=database_ID)
+            pairGuess.answer = str(answer)
+            pairGuess.save()
+        else:
+            return HttpResponse(
+            json.dumps({"Error": "question Type not recognised"}),
+            content_type="application/json"
+        )
+
+        
+        response_data = dict()
+
+        response_data['result'] = 'Create post successful!'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "this isn't happening"}),
+            content_type="application/json"
+        )
+
+
+def showResults(request):
+    if request.method == 'GET':
+        user = request.user
+        experiment_id = request.GET.get('id', None)
+        experiment = None
+        if experiment_id is not None:
+            experiment = Experiment.objects.filter(id=experiment_id)[0]
+        else:
+            experiment = Experiment.objects.filter(user_source=user)[0]
+        print("EXPERIMENT IS ", experiment)
+        roundInfo = getResultsForUser(user, experiment)
+        context = {"object_list": roundInfo}
+        return render(request, 'showResults.html', context)
+
+
+
+## Craig Stuff
+
+@login_required
+@csrf_exempt
+def publish(request):
+    if request.method=='POST':
+        form = PublishForm(request.POST)
+        if form.is_valid():
+            exp = form.cleaned_data['experiment']
+            name = request.user.username
+            subject = str(exp) + " update: " + form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            emails = []
+            message = "Nobody subscribed to this experiment, therefore no message was sent"
+            if exp.subscribers.all().count() > 0:
+                for user in exp.subscribers.all():
+                    emails.append(getattr(user, "email"))
+                send_mail(subject, body, "musicalpairs123@gmail.com", emails)
+                message = "Message sent successfully"
+            form = PublishForm()
+            return render(request, 'publish.html', {'form':form, 'message': message})
+    else:
+        form = PublishForm()
+        message = ""
+    return render(request, 'publish.html', {'form' : form, 'message': message})
+
+
+def listExperiments(request):
+    if request.method == 'POST':
+        user_id = request.user.id
+        exp_id = int(request.POST.get('experiment_id'))
+        user = User.objects.get(id=user_id)
+        exp = Experiment.objects.get(id=exp_id)
+        title = str(getattr(exp,"title"))
+        message = "You already subscribed to " + title
+        if user not in exp.subscribers.all():
+            exp.subscribers.add(user)
+            message = "Subscription to  " + title + " successful"
+        ctx = {"message": message}
+        return render(request, "subscribe.html", ctx)
+    elif request.method == 'GET':
+        name = request.GET.get('search',None)
+        experiments = Experiment.objects.all()
+        num = experiments.count()
+        if name:
+            experiments = Experiment.objects.filter(title__contains=name)
+            num = experiments.count()
+        context = {"object_list": experiments, "num":num}
+        return render(request, 'listExperiments.html', context)
+
+

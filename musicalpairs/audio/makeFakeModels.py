@@ -1,4 +1,4 @@
-from .models import Audio_store, AudioRound, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion
+from .models import Audio_store, AudioRound, Survey_James, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -43,6 +43,9 @@ def create_Fake_Models():
         new_page = Page(page_number=page_num, experiment=experiment, content_object=round, user_source=user)
         new_page.save()
         page_num += 1
+
+
+
 
     print("Fake models created")
     return user, experiment

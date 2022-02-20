@@ -10,17 +10,31 @@
       {% comment %} <link rel="stylesheet" href="{% static 'assets/css/main.css' %}" /> {% endcomment %}
       <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
       <link rel="stylesheet" href="{% static 'assets/css/bootstrap.css' %}">
+      <script src="{% static 'assets/js/myScript.js' %}"></script>
       <title>Musical Pairs Psychology Experiment</title>
       {% block style %}  {% endblock %}
       
 
       <style>
+        body {
+        margin: 0px;
+        }
+        .restofcontent {
+            margin-left:10px;
+        }
+        form {
+            width:80%;
+        }
         .topnav {
+          list-style-type:none;
           background-color: #333;
+          margin:0;
+          padding:0;
           overflow: hidden;
         }
-        
         .topnav a {
+          margin: 0;
+          display:block;
           float: left;
           color: #f2f2f2;
           text-align: center;
@@ -28,34 +42,41 @@
           text-decoration: none;
           font-size: 17px;
         }
-        
         .topnav a:hover {
           background-color: #ddd;
           color: black;
         }
-        
         .topnav a.active {
           background-color: #04AA6D;
           color: white;
         }
+        .topnav li h1 {
+            float:right;
+            text-align:center;
+            padding: 14px 16px;
+            color:white;
+           }
       </style>
   </head>
 
       <header>
         {% if user.is_authenticated %}
           <h1> Hello {{request.user.first_name}} </h1>
-          <a><button href="/logout">LOGOUT</button></a>
+          <a href="{% url 'logout' %}"><button>LOGOUT</button></a>
         {% else %}
           <h1> You are not logged in </h1>
         {% endif %}
-
         <div class="topnav">
-            <a class="active" href="/login">Home</a>
-            <a href="/uploadAudio">Create Audios</a>
-            <a href="/showAudios">Show Audios</a>
-            <a href="/createExperiment">Create Experiment</a>
-            <a href="/listExperiments">Show Experiments</a>
+            <a class="active" href="{% url 'login' %}">Home</a>
+            <a href="{% url 'uploadAudio' %}">Create Audios</a>
+            <a href="{% url 'showAudios' %}">Show Audios</a>
+            <a href="{% url 'createExperiment' %}">Create Experiment</a>
+            <a href="{% url 'listExperiments' %}">Show Experiments</a>
+            <a href="{% url 'experimentPage' %}">Do Experiment</a>
+            <a href="{% url 'publish' %}">Publish For An Experiment</a>
           </div>
+
+          
 
   </header>
 

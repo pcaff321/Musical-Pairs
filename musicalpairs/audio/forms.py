@@ -55,3 +55,8 @@ class PostForm(forms.ModelForm):
     class Meta:
         # exclude = ['author', 'updated', 'created', ]
         fields = ['text']
+
+class PublishForm(forms.Form):
+    experiment = forms.ModelChoiceField(queryset=Experiment.objects.all().order_by('title'))
+    subject = forms.CharField(label="subject", max_length=100)
+    body = forms.CharField(label="body", max_length=1000)
