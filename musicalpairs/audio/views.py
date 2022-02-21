@@ -1,6 +1,7 @@
 ##from curses.ascii import HT
 from collections import UserDict
 from email.mime import audio
+from msilib import datasizemask
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
@@ -93,6 +94,8 @@ class GetRoomView(APIView):
             room = Survey_James.objects.filter(code=code)
             if len(room) > 0:
                 data = SurveySerializer(room[0]).data
+                print("ROOM", room[0])
+                print("SERIALISER DATA", data)
                 data['is_host'] = self.request.session.session_key == room[0].host
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'Room Not Found': 'Invalid Room Code.'}, status=status.HTTP_404_NOT_FOUND)
@@ -303,9 +306,18 @@ class CreateSurveyView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            name = serializer.data.get("name")
-            round_count = serializer.data.get("round_count")
-            round_list = serializer.data.get("round_list")
+            user = request.user
+            #serializer.data.get("round_count")
+            experiments = Experiment.objects.filter(user_source=user)
+            experiment = experiments[0]
+            experiment_id = request.GET.get('id', None)
+            if experiment_id is not None:
+                experiment_Check = Experiment.objects.filter(id=experiment_id)
+                if experiment_Check.exists():
+                    experiment = experiment_Check[0]
+            name = experiment.title
+            round_list = getRoundList(request)
+            round_count = len(round_list)
             host = self.request.session.session_key
             survey = Survey_James(
                 host = host,
