@@ -1,7 +1,8 @@
 ##from curses.ascii import HT
 from collections import UserDict
 from email.mime import audio
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from numpy import round_
@@ -57,8 +58,8 @@ def processPageInfo(page):
                 questionType = "Text"
             elif questionType == "yesOrNo":
                 questionType = "Yes/No"
-                questionInfo = {"questionText":questionText, "questionType":questionType}
-                questionList.append(questionInfo)
+            questionInfo = {"questionText":questionText, "questionType":questionType}
+            questionList.append(questionInfo)
         roundContent = {"pageType": "survey", "questionList": questionList}
     return roundContent
 
@@ -568,7 +569,17 @@ def showAudios(request):
 
 
 def loginView(request):
-    return render(request, 'login.html')
+    if request.user.is_authenticated:
+        return redirect('uploadAudio')
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('uploadAudio')
+    form = AuthenticationForm()
+    return render(request, 'login.html', {"form": form})
 
 def ajaxTest(request):
     return render(request, 'ajaxTesting.html')

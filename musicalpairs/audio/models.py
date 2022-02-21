@@ -161,9 +161,6 @@ class UserPairGuess(models.Model):
     answer = models.CharField(max_length=200, default="NOT_ANSWERED")
 
 
-
-
-
 class TextRound(models.Model):
     text = models.CharField(max_length=3000, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
