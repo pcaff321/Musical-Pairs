@@ -4,13 +4,14 @@ from django.conf.urls.static import static
 from .views import Audio_store_view, listExperiments, showAudios, createExperiment, createExperiment_POST, \
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
-            showResults, answerQuestion_POST, editExperiment
+            showResults, answerQuestion_POST, editExperiment, createExperimentPage
 from .api import PostAnswer, addAnswer, showAnswers
 
 
 urlpatterns = [
     path('survey', SurveyView.as_view(), name='survey'),
     path('createsurvey', CreateSurveyView.as_view(), name='createsurvey'),
+    path('createExperimentPage', createExperimentPage, name='createExperimentPage'),
     path('get-room', GetRoomView.as_view(), name='get-room'),
     path('uploadAudio/', Audio_store_view, name='uploadAudio'),
     path('playAudio/', playAudioFile, name='playAudio'),

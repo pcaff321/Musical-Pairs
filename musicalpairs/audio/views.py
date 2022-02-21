@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from numpy import round_
 from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm
 from .models import Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
-    TextRound, Survey_James, UserWordRound, UserPairGuess
+    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment
 from .audio_manipulation import getRoundFile
 from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
@@ -35,7 +35,6 @@ from django.template.defaulttags import register
 from django.urls import reverse
 from django.core.mail import send_mail
 from pyexpat.errors import messages
-from audioop import reverse
 
 def processPageInfo(page):
     pageType = page.content_object
@@ -308,7 +307,7 @@ class CreateSurveyView(APIView):
         if serializer.is_valid():
             user = request.user
             #serializer.data.get("round_count")
-            experiments = Experiment.objects.filter(user_source=user)
+            experiments = Experiment.objects.all()
             experiment = experiments[0]
             experiment_id = request.GET.get('id', None)
             if experiment_id is not None:
@@ -323,7 +322,7 @@ class CreateSurveyView(APIView):
                 host = host,
                 name = name,
                 round_count = round_count,
-                round_list = getRoundList(request)
+                round_list = round_list
             )
             survey.save()
 
@@ -331,6 +330,38 @@ class CreateSurveyView(APIView):
 
 
 ## END
+
+
+def createExperimentPage(request):
+    user = request.user
+    experiments = Experiment.objects.all()
+    experiment = experiments[0]
+    experiment_id = request.GET.get('id', None)
+    if experiment_id is not None:
+        experiment_Check = Experiment.objects.filter(id=experiment_id)
+        if experiment_Check.exists():
+            experiment = experiment_Check[0]
+
+    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
+    if len(userUniqueExperiment) > 0:
+        return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
+
+    name = experiment.title
+    round_list = getRoundList(request)
+    round_count = len(round_list)
+    host = request.session.session_key
+    survey = Survey_James(
+        host = host,
+        name = name,
+        round_count = round_count,
+        round_list = round_list
+    )
+    survey.save()
+    print(survey.code, "FJAOPEFHAOFHEAOPHFEOAHEFAO")
+    userUniqueExperiment = UserUniqueExperiment(for_user=user, experiment=experiment, survey_james=survey)
+    userUniqueExperiment.save()
+    return redirect(reverse('surveyPage', kwargs={'roomCode':survey.code}))
+
 
 @register.filter
 def get_item(dictionary, key):

@@ -178,10 +178,17 @@ class Page(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
 
-class UserProgress:
+class UserProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     page_number = models.IntegerField(max_length=100, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     text = models.CharField(max_length=3000, null=False)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+
+
+class UserUniqueExperiment(models.Model):
+    for_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    survey_james = models.ForeignKey(Survey_James, on_delete=models.CASCADE)
