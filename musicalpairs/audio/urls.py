@@ -4,7 +4,8 @@ from django.conf.urls.static import static
 from .views import Audio_store_view, listExperiments, showAudios, createExperiment, createExperiment_POST, \
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
-            showResults, answerQuestion_POST, editExperiment, createExperimentPage
+            showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
+                dataAnalysis
 from .api import PostAnswer, addAnswer, showAnswers
 
 
@@ -20,6 +21,8 @@ urlpatterns = [
     path('answerQuestion_POST/', answerQuestion_POST, name='answerQuestion_POST'),
     path('listExperiments/', listExperiments, name='listExperiments'),
     path('editExperiment/', editExperiment, name='editExperiment'),
+    path('dataAnalysis/', dataAnalysis, name='dataAnalysis'),
+    path('viewExperiment/', viewExperiment_Researcher, name='viewExperiment_Researcher'),
     path('showResults/', showResults, name='showResults'),
     path('login/', loginView, name='login'),
     path('create_post/', createPostTest, name='create_post'),

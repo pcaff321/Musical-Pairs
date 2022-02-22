@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from numpy import round_
 from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm
-from .models import Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
+from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
     TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment
 from .audio_manipulation import getRoundFile
 from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
@@ -25,9 +25,11 @@ import string
 
 from .makeFakeModels import create_Fake_Models
 
-
-print("CALLING CREATE FAKE MODELS")
-fake_user, fake_experiment = create_Fake_Models()
+try:
+    print("CALLING CREATE FAKE MODELS")
+    fake_user, fake_experiment = create_Fake_Models()
+except:
+    print("DB not migrated yet")
 
 
 from django.template.defaulttags import register
@@ -241,6 +243,29 @@ def getRoundList(request):
             roundPageNum += 1 """
 
 
+        elif isinstance(pageType, ImageRound):
+            image = pageType.image.url
+            roundContent = ["image", image]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            question = getQuestions(pageType.survey)[0]
+            roundContent = list()
+            questionText = question['questionText']
+            questionType = question['questionType']
+            if questionType == "slider":
+                questionType = "Slider"
+            elif questionType == "text":
+                questionType = "Text"
+            elif questionType == "yesOrNo":
+                questionType = "Yes/No"
+            roundContent = ["question", questionText, questionType, question['id']]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+
+
+
         elif isinstance(pageType, TextRound):
             roundContent = ["text", "Text Round", pageType.text]
             round_list[roundPageNum] = roundContent
@@ -257,7 +282,7 @@ def getRoundList(request):
                     questionType = "Text"
                 elif questionType == "yesOrNo":
                     questionType = "Yes/No"
-                roundContent = ["question", questionText, questionType]
+                roundContent = ["question", questionText, questionType, question['id']]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
     print("Round List!", round_list)
@@ -914,7 +939,33 @@ def listExperiments(request):
         if name:
             experiments = Experiment.objects.filter(title__contains=name)
             num = experiments.count()
-        context = {"object_list": experiments, "num":num}
+        context = {"user_id":request.user.id,
+        "object_list": experiments, 
+        "num":num}
         return render(request, 'listExperiments.html', context)
 
+def getRoundLength(experiment):
+    return 10
 
+def viewExperiment_Researcher(request):
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    print("EXP", experiment, experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
+    participants = UserUniqueExperiment.objects.filter(experiment=experiment)
+    roundCount = getRoundLength(experiment)
+    completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+
+    context = {
+        "experimentName": experiment.title,
+        "id": experiment_id, 
+        "participant_count": len(participants),
+        "completed_count": len(completed_participants)
+    }
+
+    return render(request, "ResearcherPages/viewExperimentInfo.html", context)
+
+def dataAnalysis(request):
+    return render(request, "ResearcherPages/dataAnalysis.html")

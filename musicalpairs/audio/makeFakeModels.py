@@ -4,9 +4,13 @@ from faker import Faker
 from django.conf import settings
 
 def create_Fake_Models():
+    experiment = Experiment.objects.all()
+    user = User.objects.all()
+    if experiment.exists() and user.exists():
+        return user[0], experiment[0]
 
-    Experiment.objects.all().delete()
-    Audio_store.objects.all().delete()
+    #Experiment.objects.all().delete()
+    #Audio_store.objects.all().delete()
     
     fake = Faker()
     user = User(username=str(time()), password="joe", email=fake.ascii_safe_email(), first_name=fake.first_name_female(), last_name="joe", gender="Female", date_of_birth=fake.date_of_birth())

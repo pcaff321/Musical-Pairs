@@ -81,7 +81,7 @@ def getQuestions(survey):
             questionType = 'slider'
         elif questionType == '3':
             questionType = 'yesOrNo'
-        questionDict = {"questionText": question.questionText, "questionType": questionType}
+        questionDict = {"questionText": question.questionText, "questionType": questionType, "id": question.id}
         questionList.append(questionDict)
     
     return questionList

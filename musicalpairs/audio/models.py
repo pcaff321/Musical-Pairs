@@ -144,6 +144,15 @@ class AudioRound(models.Model):
     placebo = models.BooleanField('placebo', default=False)
 
 
+def set_image_name(instance, user_id):
+    return 'image/{0}/{1}'.format(str(instance.user_source.id), str(instance.name))
+
+class ImageRound(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=set_image_name)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+
 ## Audio model for a specific user(when randomly generated audio is made)
 class UserWordRound(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
@@ -192,3 +201,4 @@ class UserUniqueExperiment(models.Model):
     for_user = models.ForeignKey(User, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     survey_james = models.ForeignKey(Survey_James, on_delete=models.CASCADE)
+    page_num = models.IntegerField(max_length=100, default=0)
