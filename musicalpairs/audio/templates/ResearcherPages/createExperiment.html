@@ -1,0 +1,360 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+  <title>Create Experiments</title>
+  <style>
+    .container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+      }
+      
+      .box {
+        border: 3px solid #666;
+        background-color: #ddd;
+        border-radius: .5em;
+        padding: 10px
+        cursor: move;
+      }
+
+      .box.over {
+        border: 3px dotted #666;
+      }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <button id="addRound" onclick="addRound(this)">Add Round</button>
+  <select name="roundType" id="roundType">
+    <option value="text">Text Round</option>
+    <option value="audio">Audio Round</option>
+    <option value="survey">Survey Round</option>
+  </select><br><br><br>
+
+
+<label for="experimentName">Experiment Name: </label>
+<input id="experimentName"></input><br><br><br>
+
+<label for="roundContainer">Rounds</label>
+  <div class="container" id="roundContainer">
+    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
+
+  </div><br><br><br>
+
+
+
+  <button id="submitButton"onclick="submitExperiment()">
+    Submit Experiment
+    </button>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+
+<script>
+
+  var items;
+
+  document.addEventListener('DOMContentLoaded', (event) => {
+    items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('dragenter', handleDragEnter);
+      item.addEventListener('dragleave', handleDragLeave);
+      item.addEventListener('dragend', handleDragEnd);
+      item.addEventListener('drop', handleDrop);
+      
+    });
+
+    
+  });
+        
+    function handleDragStart(e) {
+        this.style.opacity = '0.4';
+      
+        dragSrcEl = this;
+      
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+      }
+  
+    function handleDragEnd(e) {
+      this.style.opacity = '1';
+  
+      items.forEach(function (item) {
+        item.classList.remove('over');
+      });
+    }
+  
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+  
+      return false;
+    }
+  
+    function handleDragEnter(e) {
+      this.classList.add('over');
+    }
+  
+    function handleDragLeave(e) {
+      this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+      
+        if (dragSrcEl !== this) {
+          dragSrcEl.innerHTML = this.innerHTML;
+          this.innerHTML = e.dataTransfer.getData('text/html');
+
+        }
+      
+        return false;
+      }
+
+  
+  
+  
+
+
+  var questionHtml = `<div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText"></input><br>
+  <select name="questionType" id="questionType" class="questionType">
+    <option value="slider">Slider Bar 1-10</option>
+    <option value="input">Input Box</option>
+    <option value="yesOrNo">Yes Or No Option</option>
+  </select><button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
+
+  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
+
+  var surveyRoundHtml = `<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
+    <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
+
+    <div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText"></input><br>
+    <select name="questionType" id="questionType" class="questionType">
+      <option value="slider">Slider Bar 1-10</option>
+      <option value="input">Input Box</option>
+      <option value="yesOrNo">Yes Or No Option</option>
+    </select><br><br></div>
+  </div>`;
+
+  var audioRoundHtml = `<div draggable="true" class="box audioRound">
+    <h1>Audio Round</h1>
+    <label for="mumbles">Use Mumbles: </label><input id="mumbles" class="mumbles" type="checkbox"><br>
+    <label for="placebo">Use Placebos: </label><input id="placebo" class="placebo" type="checkbox"><br>
+    <label for="pairs">Amount of Pairs: </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
+    </div>`;
+
+
+  var containerBox = document.getElementById("roundContainer");
+
+  function createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+  
+    return div.firstChild;
+  }
+
+  function addQuestion(element){
+    surveyDiv = element.parentNode;
+    //newQuestion = htmlToElement(questionHtml);
+    //console.log(newQuestion);
+
+    //surveyDiv.appendChild(newQuestion);
+    surveyDiv.insertAdjacentHTML('beforeend', questionHtml);
+
+  
+    
+  }
+
+  function removeRound(elem){
+    elem.parentNode.remove()
+  }
+
+  function addRound(){
+    roundHtml = textRoundHtml
+    typeVal = document.getElementById("roundType").value
+
+    if (typeVal == "audio"){
+      roundHtml = audioRoundHtml
+    }else if (typeVal == "survey"){
+      roundHtml = surveyRoundHtml
+      }
+
+      //Add delete button (done in messy way)
+      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound">', '<div draggable="true" class="box audioRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound">', '<div draggable="true" class="box textRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound">', '<div draggable="true" class="box surveyRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
+
+
+    containerBox.insertAdjacentHTML('beforeend',roundHtml)
+    divEl = containerBox.lastChild
+    //divEl = createElementFromHTML(textRoundHtml)
+    //containerBox.appendChild(divEl)
+
+
+    divEl.addEventListener('dragstart', handleDragStart);
+    divEl.addEventListener('dragover', handleDragOver);
+    divEl.addEventListener('dragenter', handleDragEnter);
+    divEl.addEventListener('dragleave', handleDragLeave);
+    divEl.addEventListener('dragend', handleDragEnd);
+    divEl.addEventListener('drop', handleDrop);
+
+    items.push(divEl)
+
+  }
+
+  function hasClass(element, className) {
+      return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
+  }
+
+
+
+  function buildExperimentInfo(){
+    experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
+
+    surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
+    
+    textRound = "$type=text$END$text=This is text for a text round$END"
+    
+    audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+    
+    experimentString = "@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
+    
+    //element.classList.contains(class);
+
+    delimiter = "@@@OBJECT-DELIM@@@"
+
+    experimentString = delimiter + "$type=experiment$END" + "$experimentName=" + document.getElementById('experimentName').value + "$END"
+
+    items.forEach((element, index) => {
+
+      if (hasClass(element, 'audioRound')) {
+        audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+        var type = "audio"
+        var add_mumbles = element.querySelector('.mumbles').checked
+        var pairs = element.querySelector('.pairs').value
+        var placebo = element.querySelector('.placebo').checked
+
+        string = delimiter + "$type=" + type + "$END"
+        string = string + "$add_mumbles=" + add_mumbles.toString() + "$END"
+        string = string + "$pairs=" + pairs.toString() + "$END"
+        string = string + "$placebo=" + placebo.toString() + "$END"
+
+        experimentString = experimentString + string
+
+      }else if (hasClass(element, 'surveyRound')){
+        surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
+        var type = "survey"
+
+        string = delimiter + "$type=" + type + "$END"
+
+        let childrenOfRound = element.children
+        var arr = Array.prototype.slice.call( childrenOfRound ) // make it an array
+
+        /*<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
+          <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
+      
+          <div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText"></input><br>
+          <select name="questionType" id="questionType">
+            <option value="scale">Scale Bar 1-10</option>
+            <option value="input">Input Box</option>
+            <option value="yesOrNo">Yes Or No Option</option>
+          </select><br><br></div>
+        </div>*/
+
+        questionNum = 1
+
+        arr.forEach(function (item, index) {
+          if (hasClass(item, "questionDiv")){
+            var questionDelimiter = "@@@QUESTION@@@"
+            let itemChildren = item.children
+            var itemArr = Array.prototype.slice.call( itemChildren ) 
+
+            string = string + questionDelimiter
+
+
+            itemArr.forEach(function (divItem) {
+              if (hasClass(divItem, "questionText")){
+                string = string + "$questionText=" + divItem.value + "$END"
+              } else if (hasClass(divItem, "questionType")){
+                string = string + "$questionType=" + divItem.value + "$END"
+              }
+            })
+
+
+            string = string + questionDelimiter
+
+          }
+
+
+        });
+
+
+      experimentString = experimentString + string
+
+
+
+      }else if (hasClass(element, 'textRound')){
+        var type = "text"
+        var text = element.querySelector('.text-input').value
+
+
+        string = delimiter + "$type=" + type + "$END"
+        string = string + "$text=" + text + "$END"
+
+        experimentString = experimentString + string
+
+      }
+
+
+    }
+
+    )
+
+
+
+  return experimentString;
+
+
+
+
+
+  }
+
+
+    function submitExperiment() {
+
+              experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
+
+              surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
+
+              textRound = "$type=text$END$text=This is text for a text round$END"
+
+              audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+
+            var fd = new FormData();
+            experimentString = buildExperimentInfo(); //"@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
+            fd.append('roundInfo', experimentString);
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'postExperiment' %}",
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                console.log(data);
+            });
+    }
+
+
+
+
+</script>
+
+{% endblock %}

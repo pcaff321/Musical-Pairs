@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from audioop import reverse
 from pathlib import Path
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +31,13 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "musicalpairs123@gmail.com"
+EMAIL_HOST_PASSWORD = "!bestproject"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'audio.apps.AudioConfig',
-    'rest_framework'
+    'rest_framework',
+    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [
@@ -102,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['audio.authentication.EmailBackend']
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -131,8 +142,8 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/' # new
+LOGIN_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('showAudios')
+LOGOUT_REDIRECT_URL = reverse_lazy('login') # new
 
 AUTH_USER_MODEL = 'audio.User'

@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-8 col-sm-10 col-12">
+      <h2>Send an email update to your subscribers</h2>
+      <form method="post">
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+        <p>{{ message }}</p>
+    </div>
+  </div>
+{% endblock %}
