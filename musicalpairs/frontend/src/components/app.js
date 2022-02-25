@@ -5,8 +5,9 @@ import CreateSurvey from "./createsurvey";
 import JoinSurvey from "./joinsurvey";
 import SurveyTest from "./surveytest";
 import SurveyTest2 from "./surveytest2";
-import Survey from "./surveynewtest"
-import Room from "./room"
+import Survey from "./surveynewtest";
+import Room from "./room";
+import FormTest from "./formtest";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 
@@ -26,6 +27,7 @@ export default class App extends Component {
                     <Route exact path="/create" element={ <CreateSurvey /> }></Route>
                     <Route exact path="/join" element={ <JoinSurvey /> }></Route>
                     <Route exact path="/room/:roomCode" element={ <Room /> }></Route>
+                    <Route exact path="/formtest" element={ <FormTest /> }></Route>
                 </Routes>
             </Router>
         );

@@ -58,7 +58,7 @@ class CreateSurvey extends Component {
     }
 
     handleSurveyButtonPressed = () => {
-        var csrftoken = getCookie('csrftoken');
+        let csrftoken = getCookie('csrftoken');
         const requestOptions = {
             method: "POST",
             headers: {
