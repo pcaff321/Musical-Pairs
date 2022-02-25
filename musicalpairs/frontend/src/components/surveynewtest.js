@@ -38,6 +38,7 @@ function getCookie(name) {
 
 export default function Survey(props) {
     const initialState = {
+        id: 0,
         name: "Default",
         round_count: 0,
         is_host: false
@@ -87,12 +88,14 @@ export default function Survey(props) {
     function handleSubmitButtonPressed() {
         let fd = new FormData();
         let csrftoken = getCookie('csrftoken');
-        console.log("yo", answerValue);
+        questionID = roomData.round_list[displayedTable][3]
+        experimentID = roomData.round_list[displayedTable][4]
+        console.log("yo", answerValue, questionID, experimentID);
         fd.append('answerValue', answerValue);
         fd.append('experimentID', experimentID);
         fd.append('questionID',  questionID);
 
-        fetch('/answerQuestion_POST', {
+        fetch('/audio/answerQuestion_POST/', {
             method: 'POST',
             headers: { "X-CSRFToken": csrftoken },
             body: fd
@@ -109,6 +112,7 @@ export default function Survey(props) {
           .then(data => {
             setRoomData({
                 roomData,
+                id: data.id,
                 name: data.name,
                 round_count: data.round_count,
                 round_list: data.round_list,
