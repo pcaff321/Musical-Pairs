@@ -164,11 +164,8 @@ def getResultsForUser(user, experiment):
 
 @csrf_exempt
 def getRoundList(request):
-    print("HER")     
     user = request.user
-    print("not here", user)
     experiments = Experiment.objects.filter(user_source=user)
-    print("expeimernts: ", experiments)
     experiment = experiments[0]
     experiment_id = request.GET.get('id', None)
     if experiment_id is not None:
@@ -178,7 +175,6 @@ def getRoundList(request):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
     round_list = {}
     roundPageNum = 1
-    print("At for loop start")
     for page in pages:
         roundContent = list()
         pageType = page.content_object
@@ -196,11 +192,9 @@ def getRoundList(request):
             #add pair guesses
             guess = 0
             halfWayPoint = math.floor((len(roundFiles) - 1) / 2 )
-            print("HALFWAY POINT", halfWayPoint)
             for pairGuess in roundFiles:
                 if guess == 0:
                     guess += 1
-                    print("Skipping first")
                 else:
 
                     url = pairGuess.audio_ref.file_location.url
@@ -208,12 +202,14 @@ def getRoundList(request):
                     round_list[roundPageNum] = roundContent
                     roundPageNum += 1
 
-                    roundContent = ["question", "What was the second word?", "Text", pairGuess.id]
+                    question_id = pairGuess.id
+                    roundContent = ["question", "What was the second word?", "Text", question_id, experiment_id]
                     round_list[roundPageNum] = roundContent
                     roundPageNum += 1
 
                     if guess == halfWayPoint:
-                        roundContent = ["question", "How are you finding this round so far?", "Slider", 0]
+                        question_id = 0
+                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id]
                         round_list[roundPageNum] = roundContent
                         roundPageNum += 1
 
@@ -282,7 +278,7 @@ def getRoundList(request):
                     questionType = "Text"
                 elif questionType == "yesOrNo":
                     questionType = "Yes/No"
-                roundContent = ["question", questionText, questionType, question['id']]
+                roundContent = ["question", questionText, questionType, question['id'], experiment_id]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
     print("Round List!", round_list)
