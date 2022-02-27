@@ -914,7 +914,7 @@ def publish(request):
             form = PublishForm()
             return render(request, 'publish.html', {'form':form, 'message': message})
     else:
-        form = PublishForm()
+        form = PublishForm(**{'user': request.user})
         message = ""
     return render(request, 'publish.html', {'form' : form, 'message': message})
 

@@ -4,8 +4,8 @@
 
 <h1>Your audios are listed below </h1>
 {% for instance in object_list %}
-<div class='row'>
-    <h1>{{ instance.name }}
+<div class='row m-1'>
+    <h1>{{ instance.name }}</h1>
     <audio controls>
         <source src="{{ instance.file_location }}" type="audio/wav">
         Your browser does not support the audio element.

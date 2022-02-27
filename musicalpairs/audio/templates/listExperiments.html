@@ -6,20 +6,19 @@
     <input type="text" name="search" placeholder="Search" />
 </form>
 
-<p>{{num}} results found.</p>
+<p class="m-1">{{num}} results found.</p>
 {% for instance in object_list %}
-<div class='row'>
-    <h1>{{ instance.title }}</h1>
-        <p>{{ instance.id }}</p>>
-        <a href="{% url 'createExperimentPage' %}?id={{ instance.id }}"><button>Go To Experiment</button></a>
+<div class="row gx-3 m-1">
+    <h1 class="col">{{ instance.title }}</h1>
+        <a href="{% url 'createExperimentPage' %}?id={{ instance.id }}" class="col"><button class="btn btn-primary">Go To Experiment</button></a>
         {% if user_id == instance.user_source.id %}
-        <a href="{% url 'editExperiment' %}?id={{ instance.id }}"><button>Edit The Experiment</button></a>
-        <a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>View Experiment Info</button></a>
+        <a href="{% url 'editExperiment' %}?id={{ instance.id }}" class="col"><button class="btn btn-primary">Edit The Experiment</button></a>
+        <a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}" class="col"><button class="btn btn-primary">View Experiment Info</button></a>
         {% endif %}
-    <form method="POST" action="{% url 'listExperiments' %}">
+    <form method="POST" action="{% url 'listExperiments' %}" class="col">
         {% csrf_token %}
         <input type="hidden" name="experiment_id" value="{{instance.id}}"/>
-    <input type="submit" value="Subscribe">
+    <input class ="btn btn-primary" type="submit" value="Subscribe">
     </form>
 </div>
 <br><br><br>

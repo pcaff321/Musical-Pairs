@@ -7,7 +7,8 @@ urlpatterns = [
     path('create', app),
     path('join', app),
     path('survey', app),
-    path('survey/<str:roomCode>', app),
+    path('survey/<str:roomCode>', app, name='surveyPage'),
     path('survey2', app),
-    path('room/<str:roomCode>', app)
+    path('room/<str:roomCode>', app),
+    path('formtest', app),
 ]

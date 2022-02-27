@@ -5,7 +5,7 @@
 
   <head>
 
-      <meta charset="UTF-8" />
+      <meta charset="UTF-9" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       {% comment %} <link rel="stylesheet" href="{% static 'assets/css/main.css' %}" /> {% endcomment %}
       <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
@@ -13,77 +13,68 @@
       <script src="{% static 'assets/js/myScript.js' %}"></script>
       <title>Musical Pairs Psychology Experiment</title>
       {% block style %}  {% endblock %}
-      
 
       <style>
-        body {
-        margin: 0px;
+        body{
+        margin: 0;
+        padding: 0;
         }
-        .restofcontent {
-            margin-left:10px;
+        .rest {
+        margin-top:10px;
+        margin-left:10px;
         }
-        form {
-            width:80%;
+        .nav {
+            background-color:black;
+            }
+        .j {
+        padding:5px;
         }
-        .topnav {
-          list-style-type:none;
-          background-color: #333;
-          margin:0;
-          padding:0;
-          overflow: hidden;
-        }
-        .topnav a {
-          margin: 0;
-          display:block;
-          float: left;
-          color: #f2f2f2;
-          text-align: center;
-          padding: 14px 16px;
-          text-decoration: none;
-          font-size: 17px;
-        }
-        .topnav a:hover {
-          background-color: #ddd;
-          color: black;
-        }
-        .topnav a.active {
-          background-color: #04AA6D;
-          color: white;
-        }
-        .topnav li h1 {
-            float:right;
-            text-align:center;
-            padding: 14px 16px;
-            color:white;
-           }
       </style>
   </head>
-
       <header>
-        {% if user.is_authenticated %}
-          <h1> Hello {{request.user.first_name}} </h1>
-          <a href="{% url 'logout' %}"><button>LOGOUT</button></a>
+{% with url_name=request.resolver_match.url_name %}
+          <nav class="nav nav-tabs justify-content-center flex-sm-row flex-column mr-auto">
+        <ul class="nav nav-tabs justify-content-center flex-sm-row flex-column mr-auto" style="margin-left:0px;">
+  <li class="nav-item" style="margin-left:0px;">
+    <a class="nav-link {% if url_name == 'uploadAudio' %}active{% endif %}" href="#" style="margin-left:0px;">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if url_name == 'uploadAudio' %}active{% endif %}" href="{% url 'uploadAudio' %}">Create Audios</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if url_name == 'showAudios' %}active{% endif %}" href="{% url 'showAudios' %}">Show Audios</a>
+  </li>
+            <li class="nav-item">
+    <a class="nav-link {% if url_name == 'createExperiment' %}active{% endif %}" href="{% url 'createExperiment' %}">Create Experiment</a>
+  </li>
+            <li class="nav-item">
+    <a class="nav-link {% if url_name == 'listExperiments' %}active{% endif %}" href="{% url 'listExperiments' %}">Show Experiments</a>
+  </li>
+            <li class="nav-item">
+    <a class="nav-link {% if url_name == 'experimentPage' %}active{% endif %}" href="{% url 'experimentPage' %}">Do an Experiment</a>
+  </li>
+            <li class="nav-item">
+    <a class="nav-link {% if url_name == 'publish' %}active{% endif %}" href="{% url 'publish' %}">Publish Experiment</a>
+  </li>
+        </ul>
+            {% endwith %}
+            <ul class="navbar-nav ml-auto">
+            <li class="navbar-text" style="color:red;margin-right:5px">
+            {% if user.is_authenticated %}
+          Hello {{request.user.username}}
         {% else %}
-          <h1> You are not logged in </h1>
+          You are not logged in
         {% endif %}
-        <div class="topnav">
-            <a class="active" href="{% url 'login' %}">Home</a>
-            <a href="{% url 'uploadAudio' %}">Create Audios</a>
-            <a href="{% url 'showAudios' %}">Show Audios</a>
-            <a href="{% url 'createExperiment' %}">Create Experiment</a>
-            <a href="{% url 'listExperiments' %}">Show Experiments</a>
-            <a href="{% url 'experimentPage' %}">Do Experiment</a>
-            <a href="{% url 'publish' %}">Publish For An Experiment</a>
-          </div>
-
-          
+            </li>
+            </ul>
+          </nav>
 
   </header>
 
 
 
-
       <body>
+      <div class="rest">
     {% block loginForm %} {% endblock %}
     {% block content %} {% endblock %}
     {% block analyse %} {% endblock %}
@@ -104,16 +95,15 @@
     <script src="{% static 'assets/js/util.js' %}"></script>
     <script src="{% static 'assets/js/main.js' %}"></script>
     {% block extrascripts %}
-    
+
     {% endblock %}
-      </body>
+
 
       <footer>
           <nav class="footer-nav">
 
           </nav>
       </footer>
-
-</html>
-
+    </div>
+      </body>
 </html>

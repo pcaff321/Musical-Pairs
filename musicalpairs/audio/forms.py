@@ -57,6 +57,12 @@ class PostForm(forms.ModelForm):
         fields = ['text']
 
 class PublishForm(forms.Form):
-    experiment = forms.ModelChoiceField(queryset=Experiment.objects.all().order_by('title'))
+    experiment = forms.ModelChoiceField(queryset=Experiment.objects.all().order_by('title'), empty_label="Select experiment")
     subject = forms.CharField(label="subject", max_length=100)
     body = forms.CharField(label="body", max_length=1000)
+
+    def __init__(self,*args,**kwargs):
+        user = kwargs.pop('user', None)
+        super(PublishForm,self).__init__(*args,**kwargs)
+        if user is not None:
+            self.fields['experiment'].queryset = Experiment.objects.filter(user_source=user)
