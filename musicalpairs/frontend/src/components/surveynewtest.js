@@ -224,7 +224,7 @@ export default function Survey(props) {
                 } else if (roomData.round_list[i][2] == "Slider") {
                     let max = 10;
                     let min = 0;
-                    question = <Slider value={0} marks valueLabelDisplay="auto"
+                    question = <Slider defaultValue={0} marks valueLabelDisplay="auto"
                                 max={max} min={min} onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
@@ -233,7 +233,7 @@ export default function Survey(props) {
                             inputProps={{style: {textAlign: "center"}}}
                             onChange={handleAnswerChange}
                         />
-                    )
+                    );
                 } else {
                     question = <p>placeholder--unaccounted for question type</p> 
                 }
