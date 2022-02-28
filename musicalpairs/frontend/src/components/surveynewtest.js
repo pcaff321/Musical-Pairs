@@ -78,6 +78,12 @@ export default function Survey(props) {
         setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
+    function handlePairButtonsPressed(e) {
+        setAnswerValue(e.target.getInnerHTML());
+        let input = document.querySelector("input");
+        input.value = e.target.getInnerHTML()
+    }
+
     function handleAnswerChange(e) {
         setAnswerValue(e.target.value);
     }
@@ -263,12 +269,14 @@ export default function Survey(props) {
                                 </Button>
                             </Grid>
                             <Grid item xs={12} align="center">
-                                <Button id="Disturbed" color="secondary" variant="contained">
+                                <Button id="distracted" value="d" color="secondary" variant="contained"
+                                    onClick={handlePairButtonsPressed}>
                                     Distracted
                                 </Button>
                             </Grid>
                             <Grid item xs={12} align="center">
-                                <Button id="No Idea" color="secondary" variant="contained">
+                                <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
+                                    onClick={handlePairButtonsPressed}>
                                     No Idea
                                 </Button>
                             </Grid>
@@ -306,6 +314,7 @@ export default function Survey(props) {
                 <h1>{roomData.name}</h1>
             </Grid>
             {components[displayedTable]}
+            <p>page {displayedTable}/{roomData.round_count}</p>
         </Grid>
     )
   }
