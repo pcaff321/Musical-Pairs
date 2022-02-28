@@ -51,6 +51,7 @@ export default function Survey(props) {
     const [ answerValue, setAnswerValue ] = useState("")
     let experimentID = "";
     let questionID = "";
+    let pair_or_question = "question";
 
     function keyEventListener(e) {
         console.log("oy", answerValue);
@@ -190,7 +191,7 @@ export default function Survey(props) {
                         </RadioGroup>
                     )
                 } else if (roomData.round_list[i][2] == "Slider") {
-                    question = <Slider onChange={handleSliderChange} />
+                    question = <Slider marks onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
                         <TextField 
@@ -218,7 +219,7 @@ export default function Survey(props) {
                     </Grid>
                 );
             } else if (roomData.round_list[i][0] == "image") {
-                initial_components[i] = <img href={roomData.round_list[i][1]}></img>
+                initial_components[i] = <img src={roomData.round_list[i][1]}></img>
             } else {
                 initial_components[i] = (
                     <div>
