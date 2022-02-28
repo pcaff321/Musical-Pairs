@@ -189,9 +189,37 @@ export default function Survey(props) {
                                 label="No" labelPlacement="bottom"
                             />
                         </RadioGroup>
-                    )
+                    );
+                } else if (roomData.round_list[i][2] == "Agree") {
+                    question = (
+                        <RadioGroup row defaultValue="3" onChange={handleAnswerChange}>
+                            <FormControlLabel 
+                                value="1" control={<Radio color="primary" />} 
+                                label="1" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="2" control={<Radio color="secondary" />} 
+                                label="2" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="3" control={<Radio color="secondary" />} 
+                                label="3" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="4" control={<Radio color="secondary" />} 
+                                label="4" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="5" control={<Radio color="secondary" />} 
+                                label="5" labelPlacement="bottom"
+                            />
+                        </RadioGroup>
+                    );
                 } else if (roomData.round_list[i][2] == "Slider") {
-                    question = <Slider marks onChange={handleSliderChange} />
+                    let max = 10;
+                    let min = 0;
+                    question = <Slider value={0} marks valueLabelDisplay="auto"
+                                max={max} min={min} onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
                         <TextField 
@@ -203,21 +231,52 @@ export default function Survey(props) {
                 } else {
                     question = <p>placeholder--unaccounted for question type</p> 
                 }
-                initial_components[i] = (
-                    <Grid item xs={12} align="center">
-                        <FormControl component="fieldset">
-                            <h1>
-                                {roomData.round_list[i][1]}
-                            </h1>
-                            {question}
-                        </FormControl>
+                console.log(roomData.round_list[i][5]);
+                if (roomData.round_list[i][5] == "question") {
+                    initial_components[i] = (
                         <Grid item xs={12} align="center">
-                            <Button id="submit" color="primary" variant="contained">
-                                Submit
-                            </Button>
+                            <FormControl component="fieldset">
+                                <h1>
+                                    {roomData.round_list[i][1]}
+                                </h1>
+                                {question}
+                            </FormControl>
+                            <Grid item xs={12} align="center">
+                                <Button id="submit" color="primary" variant="contained">
+                                    Submit
+                                </Button>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                );
+                    );
+                } else {
+                    initial_components[i] = (
+                        <Grid item xs={12} align="center">
+                            <FormControl component="fieldset">
+                                <h1>
+                                    {roomData.round_list[i][1]}
+                                </h1>
+                                {question}
+                            </FormControl>
+                            <Grid item xs={12} align="center">
+                                <Button id="submit" color="primary" variant="contained">
+                                    Submit
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} align="center">
+                                <Button id="Disturbed" color="secondary" variant="contained">
+                                    Distracted
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} align="center">
+                                <Button id="No Idea" color="secondary" variant="contained">
+                                    No Idea
+                                </Button>
+                            </Grid>
+                            <p>If you were distracted while listening to the audio, press "Distracted".</p>
+                            <p>If had no idea what the answer is, press "No Idea".</p>
+                        </Grid>
+                    );
+                }
             } else if (roomData.round_list[i][0] == "image") {
                 initial_components[i] = <img src={roomData.round_list[i][1]}></img>
             } else {
