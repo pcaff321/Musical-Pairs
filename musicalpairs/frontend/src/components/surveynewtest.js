@@ -90,10 +90,11 @@ export default function Survey(props) {
         let csrftoken = getCookie('csrftoken');
         questionID = roomData.round_list[displayedTable][3]
         experimentID = roomData.round_list[displayedTable][4]
-        console.log("yo", answerValue, questionID, experimentID);
+        pair_or_question = roomData.round_list[displayedTable][5]
         fd.append('answerValue', answerValue);
         fd.append('experimentID', experimentID);
         fd.append('questionID',  questionID);
+        fd.append('pair_or_question', pair_or_question);
 
         fetch('/audio/answerQuestion_POST/', {
             method: 'POST',

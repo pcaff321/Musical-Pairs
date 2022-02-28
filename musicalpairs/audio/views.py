@@ -161,11 +161,15 @@ def getResultsForUser(user, experiment):
     return roundLists
 
 
-
 @csrf_exempt
 def getRoundList(request):
     user = request.user
-    experiments = Experiment.objects.filter(user_source=user)
+    experiment_id = request.GET.get("id", None)
+    if experiment_id is None:
+        return ["text", "Invalid Experiment", "Please Check if experimetn ID is correct"]
+    experiments = Experiment.objects.filter(id=experiment_id)
+    if not experiments.exists():
+        return ["text", "Invalid Experiment", "Please Check if experimetn ID is correct"]
     experiment = experiments[0]
     experiment_id = request.GET.get('id', None)
     if experiment_id is not None:
@@ -179,9 +183,9 @@ def getRoundList(request):
         roundContent = list()
         pageType = page.content_object
         if isinstance(pageType, AudioRound):
-            mumbles = pageType.mumbles
+            mumbles = False
             pairs = pageType.pairs
-            placebo = pageType.placebo
+            placebo = False
             roundFiles = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
             url = roundFiles[0].audio_ref.file_location.url + ".wav"
             roundContent = ["audio", mumbles, pairs, placebo, url]
@@ -203,13 +207,13 @@ def getRoundList(request):
                     roundPageNum += 1
 
                     question_id = pairGuess.id
-                    roundContent = ["question", "What was the second word?", "Text", question_id, experiment_id]
+                    roundContent = ["question", "What was the second word?", "Text", question_id, experiment_id, "pair"]
                     round_list[roundPageNum] = roundContent
                     roundPageNum += 1
 
                     if guess == halfWayPoint:
                         question_id = 0
-                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id]
+                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id, "question"]
                         round_list[roundPageNum] = roundContent
                         roundPageNum += 1
 
@@ -266,6 +270,18 @@ def getRoundList(request):
             roundContent = ["text", "Text Round", pageType.text]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
+        elif isinstance(pageType, ImageRound):
+            roundContent = ["image", pageType.image.url]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            question = getQuestions(pageType.survey)[0]
+            questionText = question['questionText']
+            questionText = question['questionType']
+            roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
         elif isinstance(pageType, SurveyRound):
             questions = getQuestions(pageType.survey)
             for question in questions:
@@ -278,10 +294,10 @@ def getRoundList(request):
                     questionType = "Text"
                 elif questionType == "yesOrNo":
                     questionType = "Yes/No"
-                roundContent = ["question", questionText, questionType, question['id'], experiment_id]
+                roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
-    print("Round List!", round_list)
+    print("ROUND LIST: ", round_list)
     return round_list
     
 """ 
