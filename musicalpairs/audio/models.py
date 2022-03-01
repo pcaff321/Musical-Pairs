@@ -64,6 +64,9 @@ class User(AbstractUser):
             tod = datetime.date.today()
             my_age = (tod.year - dob.year) - int((tod.month, tod.day) < (dob.month, dob.day))
             return my_age
+
+    def full_name(self):
+        return str(self.first_name) + " " + str(self.last_name)
     
 
 
@@ -139,15 +142,15 @@ class SurveyAnswer(models.Model):
 class AudioRound(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
-    mumbles = models.BooleanField('mumbles', default=False)
     pairs = models.IntegerField(null=False)
-    placebo = models.BooleanField('placebo', default=False)
+    prime = models.CharField(max_length=3, null=False, default="X")
 
 
-def set_image_name(instance, user_id):
-    return 'image/{0}/{1}'.format(str(instance.user_source.id), str(instance.name))
+def set_image_name(instance, file_name):
+    return 'image/{0}/{1}'.format(str(instance.user_source.id), str(file_name))
 
 class ImageRound(models.Model):
+    name = models.CharField(max_length=300)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=set_image_name)
@@ -168,6 +171,7 @@ class UserPairGuess(models.Model):
     associated_word_round = models.ForeignKey(UserWordRound, on_delete=models.CASCADE)
     placebo_added = models.BooleanField('placebo_added', default=False)
     answer = models.CharField(max_length=200, default="NOT_ANSWERED")
+    prime = models.CharField(max_length=3, default="X")
 
 
 class TextRound(models.Model):

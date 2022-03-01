@@ -1,7 +1,9 @@
 ##from curses.ascii import HT
 from collections import UserDict
+import csv
 from email.mime import audio
 from msilib import datasizemask
+import os
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
@@ -11,7 +13,7 @@ from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm, Publ
 from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
     TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment
 from .audio_manipulation import getRoundFile
-from .processRoundData import processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
+from .processRoundData import createImageRound, processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
 from rest_framework.renderers import JSONRenderer
 from django.conf import settings
@@ -22,6 +24,9 @@ import json
 import re
 import math
 import string
+from django.core.files.base import ContentFile
+import pandas as pd
+
 
 from .makeFakeModels import create_Fake_Models
 
@@ -95,8 +100,6 @@ class GetRoomView(APIView):
             room = Survey_James.objects.filter(code=code)
             if len(room) > 0:
                 data = SurveySerializer(room[0]).data
-                print("ROOM", room[0])
-                print("SERIALISER DATA", data)
                 data['is_host'] = self.request.session.session_key == room[0].host
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'Room Not Found': 'Invalid Room Code.'}, status=status.HTTP_404_NOT_FOUND)
@@ -110,6 +113,8 @@ def getResultsByRound(wordRound):
 
     score = 0
     amount = len(user_pair_guesses)
+
+    print("usuh paiw guzzes", wordRound, user_pair_guesses)
 
     for pair in user_pair_guesses:
         word1 = str(pair.pair.audio1.word)
@@ -139,8 +144,11 @@ def getResultsForUser(user, experiment):
 
     wordRounds = list()
     for page in pagesList:
-        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object)
-        if wordRound is not None:
+        print("Page exists bro")
+        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object, for_user=user)
+        print("page content", page.content_object)
+        print("wurd wound", wordRound)
+        if wordRound.exists():
             wordRounds.append(wordRound[0])
         else:
             print("WORD ROUND NONE")
@@ -157,7 +165,6 @@ def getResultsForUser(user, experiment):
         }
         roundLists.append(roundInfo)
         roundNum += 1
-    print("ROUND LISTS fe ---------- ", roundLists)
     return roundLists
 
 
@@ -165,7 +172,12 @@ def getResultsForUser(user, experiment):
 @csrf_exempt
 def getRoundList(request):
     user = request.user
-    experiments = Experiment.objects.filter(user_source=user)
+    experiment_id = request.GET.get("id", None)
+    if experiment_id is None:
+        return ["text", "Invalid Experiment", "Please Check if experimetn ID is correct"]
+    experiments = Experiment.objects.filter(id=experiment_id)
+    if not experiments.exists():
+        return ["text", "Invalid Experiment", "Please Check if experimetn ID is correct"]
     experiment = experiments[0]
     experiment_id = request.GET.get('id', None)
     if experiment_id is not None:
@@ -179,9 +191,9 @@ def getRoundList(request):
         roundContent = list()
         pageType = page.content_object
         if isinstance(pageType, AudioRound):
-            mumbles = pageType.mumbles
+            mumbles = False
             pairs = pageType.pairs
-            placebo = pageType.placebo
+            placebo = False
             roundFiles = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
             url = roundFiles[0].audio_ref.file_location.url + ".wav"
             roundContent = ["audio", mumbles, pairs, placebo, url]
@@ -203,13 +215,13 @@ def getRoundList(request):
                     roundPageNum += 1
 
                     question_id = pairGuess.id
-                    roundContent = ["question", "What was the second word?", "Text", question_id, experiment_id]
+                    roundContent = ["question", "What was the second word?", "Text", question_id, experiment_id, "pair"]
                     round_list[roundPageNum] = roundContent
                     roundPageNum += 1
 
                     if guess == halfWayPoint:
                         question_id = 0
-                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id]
+                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id, "question"]
                         round_list[roundPageNum] = roundContent
                         roundPageNum += 1
 
@@ -266,6 +278,18 @@ def getRoundList(request):
             roundContent = ["text", "Text Round", pageType.text]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
+        elif isinstance(pageType, ImageRound):
+            roundContent = ["image", pageType.image.url]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
+            question = getQuestions(pageType.survey)[0]
+            questionText = question['questionText']
+            questionText = question['questionType']
+            roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
+
         elif isinstance(pageType, SurveyRound):
             questions = getQuestions(pageType.survey)
             for question in questions:
@@ -278,10 +302,10 @@ def getRoundList(request):
                     questionType = "Text"
                 elif questionType == "yesOrNo":
                     questionType = "Yes/No"
-                roundContent = ["question", questionText, questionType, question['id'], experiment_id]
+                roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
-    print("Round List!", round_list)
+    print("ROUND LIST: ", round_list)
     return round_list
     
 """ 
@@ -378,7 +402,6 @@ def createExperimentPage(request):
         round_list = round_list
     )
     survey.save()
-    print(survey.code, "FJAOPEFHAOFHEAOPHFEOAHEFAO")
     userUniqueExperiment = UserUniqueExperiment(for_user=user, experiment=experiment, survey_james=survey)
     userUniqueExperiment.save()
     return redirect(reverse('surveyPage', kwargs={'roomCode':survey.code}))
@@ -427,7 +450,7 @@ def Audio_store_view(request):
             word = form.cleaned_data['word']
             audio_name = "{}_{}".format(request.user.id, word)
             audio_file = form.cleaned_data['file']
-            print(audio_name)
+            print("AUDIO FILE", audio_file)
 
             #Make audio store object
             audio_store_instance = Audio_store(name=audio_name, allow_mumble=False, file_location=audio_file, user_source=user)
@@ -435,13 +458,9 @@ def Audio_store_view(request):
             audio_store_instance.file_location.name = file_location
             audio_store_instance.save()
 
-            print("AUDIO STORE URL", audio_store_instance.file_location.url)
-
             # Make associated Word object
             associated_word_instance = Word(word=word, user_source=user, audio_store=audio_store_instance)
             associated_word_instance.save()
-            print("Word created", associated_word_instance, associated_word_instance.user_source)
-            print("Word list", Word.objects.filter(user_source=user))
 
 
             return redirect(showAudios)
@@ -631,6 +650,57 @@ def showAudios(request):
     }
     return render(request, 'showAudios.html', context)
 
+def getQuestionsForExperiment(experiment):
+    
+    surveyRounds = SurveyRound.objects.filter(experiment=experiment).order_by('id')
+    surveys = list()
+    for surveyRound in surveyRounds:
+        survey = surveyRound.survey
+        questions = getQuestions(survey)
+
+        for question in questions:
+            surveyQuestion = SurveyQuestion.objects.filter(id=question['id'])[0]
+            answers = SurveyAnswer.objects.filter(surveyQuestion=surveyQuestion)
+            answerList = list()
+            for answer in answers:
+                answerDict = {
+                    'user_id': answer.user_source.id,
+                    'answer': answer.answer
+                }
+                answerList.append(answerDict)
+            question['answers'] = answerList
+        
+        print("QUESTIONS", questions)
+
+
+        surveys.append(
+            {'survey': survey.id,
+             'questions': questions   
+        })
+
+        return surveys
+
+
+
+def showAnswers(request):
+    user_id = request.user.id
+    experimentID = request.GET.get('id', None)
+    if experimentID is None:
+        return HttpResponse("No ID given")
+    experiment = Experiment.objects.filter(id=experimentID)
+    if experiment.exists():
+        experiment = experiment[0]
+    else:
+        return HttpResponse("Experiment does not exist with given ID")
+    surveys = getQuestionsForExperiment(experiment)
+    context = {
+        "experiment_title": experiment,
+        "creator": experiment.user_source.full_name(),
+        "email": experiment.user_source.email,
+        "surveys": surveys
+    }
+    return render(request, 'showAnswers.html', context)
+
 
 def loginView(request):
     if request.user.is_authenticated:
@@ -734,6 +804,22 @@ def createExperiment_POST(request):
         global fake_user
         user = request.user
         roundInfo = request.POST.get('roundInfo')
+        files = None
+        imageNumber = 0
+
+        if request.FILES is not None and 'images[]' in dict(request.FILES):
+            files = dict(request.FILES)['images[]']
+            print("FILES", files)
+
+        imageList = []
+
+        if files is not None:
+            for image in files:
+                imageList.append(image)
+
+       # print(imageList)
+
+        print(roundInfo)
 
         
         roundInfoSplit = roundInfo.split('@@@OBJECT-DELIM@@@')
@@ -770,13 +856,20 @@ def createExperiment_POST(request):
                     round = createSurveyRound(experiment, survey, user)
 
                 elif data['roundType'] == "audio":
-                    mumbles = bool(data['mumbles'])
+                    prime = str(data['prime'])
                     pairs = int(data['pairs'])
-                    placebo = bool(data['placebo'])
-                    round = createAudioRound(mumbles, pairs, placebo, experiment, user)
+                    round = createAudioRound(pairs, prime, experiment, user)
                 elif data['roundType'] == "text":
                     text = data['text']
                     round = createTextRound(text, experiment, user)
+                elif data['roundType'] == "image":
+                    image = imageList[imageNumber]
+                    name = data['name']
+                    questionText = data['questionText']
+
+                    round = createImageRound(image, experiment, user, questionText, name)
+                    imageNumber += 1
+
 
                 if round is not None:
                     new_page = createPage(experiment, pageNum, round, user)
@@ -824,10 +917,12 @@ def answerQuestion_POST(request):
     if request.method == 'POST':
         global fake_user
         user = request.user
-        questionInfo = request.POST.get('questionType', 'question')
+        questionInfo = request.POST.get('pair_or_question', 'question')
         experiment_ID = request.POST.get('experimentID', None)
         database_ID = request.POST.get('questionID', None)
-        answer = request.POST.get('answer', "NOT_ANSWERED")
+        answer = request.POST.get('answerValue', "NOT_ANSWERED")
+        print("REQUEST POST", request.POST)
+        print("experiment ID", experiment_ID)
         if database_ID is None:
             return HttpResponse(
             json.dumps({"Error": "no ID given"}),
@@ -843,7 +938,12 @@ def answerQuestion_POST(request):
             print("Question Post")
             surveyQuestion = SurveyQuestion.objects.get(id=database_ID)
             experiment = Experiment.objects.get(id=experiment_ID)
-            question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
+            question = SurveyAnswer.objects.filter(user_source=user, surveyQuestion=surveyQuestion)
+            if question.exists():
+                question = question[0]
+                question.answer = str(answer)
+            else:
+                question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
             question.save()
         elif questionInfo == "pair":
             print("Pair Guess")
@@ -881,9 +981,9 @@ def showResults(request):
             experiment = Experiment.objects.filter(id=experiment_id)[0]
         else:
             experiment = Experiment.objects.filter(user_source=user)[0]
-        print("EXPERIMENT IS ", experiment)
         roundInfo = getResultsForUser(user, experiment)
         context = {"object_list": roundInfo}
+        print("CONTEXT", roundInfo)
         return render(request, 'showResults.html', context)
 
 
@@ -946,7 +1046,6 @@ def getRoundLength(experiment):
 def viewExperiment_Researcher(request):
     experiment_id = request.GET.get('id')
     experiment = Experiment.objects.filter(id=experiment_id)
-    print("EXP", experiment, experiment_id)
     if not experiment.exists():
         return HttpResponse("ID not recognised")
     experiment = experiment[0]
@@ -963,5 +1062,195 @@ def viewExperiment_Researcher(request):
 
     return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
+def getGuessesBasedOnPrime(experiment, prime):
+    pairGuessesQuery = UserPairGuess.objects.filter(prime=prime)
+    pairGuesses = list()
+    for guess in pairGuessesQuery:
+        if guess.associated_word_round.experiment == experiment:
+            pairGuesses.append(guess)
+    return pairGuesses
+
+
+def getChartData(guesses):
+    correct = 0
+    total = len(guesses)
+    for guess in guesses:
+        pair = guess.pair
+        word1 = pair.audio1.word
+        word2 = pair.audio2.word
+        answer = guess.answer
+        if word2.lower() == answer.lower():
+            correct += 1
+    scoresData = [correct, (total-correct)]
+    labels = ["Correct", "Incorrect"]
+    percent = 0.0
+    if total > 0:
+        percent = round((correct / total) * 100, 2)
+
+    return scoresData, labels, percent
+
+
 def dataAnalysis(request):
-    return render(request, "ResearcherPages/dataAnalysis.html")
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
+    x_prime = getGuessesBasedOnPrime(experiment, 'X')
+    j_prime = getGuessesBasedOnPrime(experiment, 'K')
+    k_prime = getGuessesBasedOnPrime(experiment, 'J')
+
+    x_scores, x_labels, x_percent = getChartData(x_prime)
+    j_scores, j_labels, j_percent = getChartData(j_prime)
+    k_scores, k_labels, k_percent = getChartData(k_prime)
+
+    print(x_labels)
+
+    chartsData = list()
+
+    x_info = {
+        'title': "X Prime",
+        'data': x_scores,
+        'labels': x_labels,
+        'percent': x_percent
+    }
+    print(x_info)
+    chartsData.append(x_info)
+
+    j_info = {
+        'title': "J Prime",
+        'data': j_scores,
+        'labels': j_labels,
+        'percent': j_percent
+    }
+    chartsData.append(j_info)
+
+    k_info = {
+        'title': "K Prime",
+        'data': k_scores,
+        'labels': k_labels,
+        'percent': k_percent
+    }
+    chartsData.append(k_info)
+    
+
+    context = {
+        'id': experiment_id,
+        'chartsData': chartsData
+    }
+
+
+
+    return render(request, "ResearcherPages/dataAnalysis.html", context)
+
+
+def deleteExperiment(request):
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
+    if request.user != experiment.user_source:
+        return HttpResponse("You do not have permission to delete this experiment")
+    experiment.delete()
+    return redirect('listExperiments')
+
+
+
+def makeCSVforSurveyRound(survey_round):
+    header = ['USER ID']
+    survey = survey_round.survey
+    researcher_id = survey_round.user_source.id
+
+    surveyQs = SurveyQuestion.objects.filter(survey=survey).order_by('questionNumber')
+    usersData = {}
+    for q in surveyQs:
+        header.append(str(q.questionText))
+        ansOfQ = SurveyAnswer.objects.filter(surveyQuestion=q)
+        for ans in ansOfQ:
+            user = ans.user_source
+            if str(user.id) in usersData:
+                usersData[str(user.id)].append(ans.answer)
+            else:
+                usersData[str(user.id)] = [str(user.id), ans.answer]
+    data = list()
+    for user in usersData.values():
+        data.append(user)
+    
+    fileName = str(researcher_id) + "/" + "SurveyRound" + str(survey_round.id) + ".csv"
+    fullFile = os.path.join(settings.MEDIA_ROOT, fileName)
+    with open(fullFile, 'w', encoding='UTF8', newline='') as f:
+
+        writer = csv.writer(f)
+
+        writer.writerow(header)
+
+        for row in data:
+            writer.writerow(row)
+
+    return fullFile
+
+def makeCSVforAudioRound(audio_round):
+    pairGuessesQuery = UserPairGuess.objects.all()
+    researcher_id = audio_round.user_source.id
+    pairGuesses = list()
+    for guessQuery in pairGuessesQuery:
+        if guessQuery.associated_word_round.associated_audio_round == audio_round:
+            pairGuesses.append(guessQuery)
+    data = list()
+    for guess in pairGuesses:
+        pair = guess.pair
+        word1 = pair.audio1.word
+        word2 = pair.audio2.word
+        answer = guess.answer
+        userID = guess.associated_word_round.for_user.id
+        prime = guess.prime
+        pairList = [userID, word1.lower(), word2.lower(), answer.lower(), prime]
+        data.append(pairList)
+    
+    header = ['USER ID', 'WORD ONE', 'WORD TWO', 'GUESS', 'PRIME']
+
+    fileName = str(researcher_id) + "/" + "AudioRound" + str(audio_round.id) + ".csv"
+    fullFile = os.path.join(settings.MEDIA_ROOT, fileName)
+    with open(fullFile, 'w', encoding='UTF8', newline='') as f:
+
+        writer = csv.writer(f)
+
+        writer.writerow(header)
+
+        for row in data:
+            writer.writerow(row)
+
+    return fullFile
+
+
+
+
+def downloadData(request):
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
+    audioRounds = AudioRound.objects.filter(experiment=experiment)
+    a_files = list()
+    for audioR in audioRounds:
+        f = makeCSVforAudioRound(audioR)
+        a_files.append(f)
+
+    surveyRounds = SurveyRound.objects.filter(experiment=experiment)
+    for surveyR in surveyRounds:
+        f = makeCSVforSurveyRound(surveyR)
+        a_files.append(f)
+
+    
+    fileName = str(experiment.user_source.id) + "/" + "Experiment" + str(experiment.id) + ".xlsx"
+    writer = pd.ExcelWriter(os.path.join(settings.MEDIA_ROOT, fileName), engine='xlsxwriter')
+
+    for a_file in a_files:
+        df = pd.read_csv(a_file)
+        df.to_excel(writer, sheet_name=os.path.basename(a_file))
+
+    writer.save()
+    
+    return HttpResponse("No download")

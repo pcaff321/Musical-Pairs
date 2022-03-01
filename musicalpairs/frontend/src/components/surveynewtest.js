@@ -21,8 +21,24 @@ function showPreviousStage(displayedTable) {
     return newStage;
 }
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 export default function Survey(props) {
     const initialState = {
+        id: 0,
         name: "Default",
         round_count: 0,
         is_host: false
@@ -32,10 +48,19 @@ export default function Survey(props) {
     const [ displayedTable, setDisplayedTable ] = useState(1);
     const [ components, setComponents ] = useState({});
     const [ is_components_set, setIsComponentsSet ] = useState(false)
+    const [ answerValue, setAnswerValue ] = useState("")
+    let experimentID = "";
+    let questionID = "";
+    let pair_or_question = "question";
 
     function keyEventListener(e) {
+        console.log("oy", answerValue);
         if (e.keyCode == '39') {
+            if (isQuestion()) {
+                handleSubmitButtonPressed();
+            }
             setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
+            setAnswerValue("");
             /* let audio = document.getElementsByTagName("audio")[0];
             if (typeof(audio) != 'undefined' && audio != null) {
                 if (audio.ended) {
@@ -53,12 +78,34 @@ export default function Survey(props) {
         setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
-    function handleYesNoChange(e) {
-        // this.setState({
-        //     guest_can_pause: e.target.value === true ? true : false
-        // });
-        console.log(e.target.value);
-        return "";
+    function handleAnswerChange(e) {
+        setAnswerValue(e.target.value);
+    }
+
+    function handleSliderChange(e, value) {
+        setAnswerValue(value);
+    }
+
+    function handleSubmitButtonPressed() {
+        let fd = new FormData();
+        let csrftoken = getCookie('csrftoken');
+        questionID = roomData.round_list[displayedTable][3]
+        experimentID = roomData.round_list[displayedTable][4]
+        pair_or_question = roomData.round_list[displayedTable][5]
+        fd.append('answerValue', answerValue);
+        fd.append('experimentID', experimentID);
+        fd.append('questionID',  questionID);
+        fd.append('pair_or_question', pair_or_question);
+
+        fetch('/audio/answerQuestion_POST/', {
+            method: 'POST',
+            headers: { "X-CSRFToken": csrftoken },
+            body: fd
+        });
+    }
+
+    function isQuestion() {
+        return (roomData.round_list[displayedTable][0] == "question")
     }
 
     useEffect(() => {
@@ -67,6 +114,7 @@ export default function Survey(props) {
           .then(data => {
             setRoomData({
                 roomData,
+                id: data.id,
                 name: data.name,
                 round_count: data.round_count,
                 round_list: data.round_list,
@@ -81,15 +129,23 @@ export default function Survey(props) {
             audio.addEventListener("ended", audioSetsNextStage)
         }
 
+        let submitButton = document.getElementById("submit");
+        if (typeof(submitButton) != 'undefined' && submitButton != null) {
+            submitButton.addEventListener("click", handleSubmitButtonPressed);
+        }
+
         // cleanup this component
         return () => {
             window.removeEventListener('keydown', keyEventListener);
             if (typeof(audio) != 'undefined' && audio != null) {
-                audio.removeEventListener("ended", audioSetsNextStage)
+                audio.removeEventListener("ended", audioSetsNextStage);
+            }
+            if (typeof(submitButton) != 'undefined' && submitButton != null) {
+                submitButton.removeEventListener("click", handleSubmitButtonPressed);
             }
         };
 
-    }, [roomCode, setRoomData, roomData.round_count, displayedTable])
+    }, [roomCode, setRoomData, roomData.round_count, displayedTable, answerValue])
 
     if (roomData.round_count != 0 && is_components_set === false) {
         let initial_components = {};
@@ -123,7 +179,7 @@ export default function Survey(props) {
                 let question;
                 if (roomData.round_list[i][2] == "Yes/No") {
                     question = (
-                        <RadioGroup row defaultValue="Yes" onChange={handleYesNoChange}>
+                        <RadioGroup row defaultValue="Yes" onChange={handleAnswerChange}>
                             <FormControlLabel 
                                 value="Yes" control={<Radio color="primary" />} 
                                 label="Yes" labelPlacement="bottom"
@@ -135,12 +191,13 @@ export default function Survey(props) {
                         </RadioGroup>
                     )
                 } else if (roomData.round_list[i][2] == "Slider") {
-                    question = <Slider />
+                    question = <Slider marks onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
                         <TextField 
                             required={true} type="text"
                             inputProps={{style: {textAlign: "center"}}}
+                            onChange={handleAnswerChange}
                         />
                     )
                 } else {
@@ -154,8 +211,15 @@ export default function Survey(props) {
                             </h1>
                             {question}
                         </FormControl>
+                        <Grid item xs={12} align="center">
+                            <Button id="submit" color="primary" variant="contained">
+                                Submit
+                            </Button>
+                        </Grid>
                     </Grid>
                 );
+            } else if (roomData.round_list[i][0] == "image") {
+                initial_components[i] = <img src={roomData.round_list[i][1]}></img>
             } else {
                 initial_components[i] = (
                     <div>

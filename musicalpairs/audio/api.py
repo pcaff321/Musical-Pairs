@@ -14,12 +14,6 @@ from django.db import models
 import json
 import re
 
-def showAnswers(request):
-    audios_of_user = SurveyAnswer.objects.all()
-    context = {
-        "object_list": audios_of_user
-    }
-    return render(request, 'showAnswers.html', context)
 
 def addAnswer(request):
     surveyID = SurveyQuestion.objects.all()[0].id
