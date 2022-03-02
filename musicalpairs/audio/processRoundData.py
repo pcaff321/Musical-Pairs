@@ -1,4 +1,5 @@
-from .models import Experiment, Page, SurveyRound, AudioRound, TextRound, Survey, SurveyQuestion
+from time import process_time
+from .models import Experiment, ImageRound, Page, SurveyRound, AudioRound, TextRound, Survey, SurveyQuestion, set_image_name
 
 ## EXAMPLE STRING:
 experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
@@ -54,16 +55,21 @@ def processRound(string):
         data = {"name": "Survey", "questions": questions}
         
     if roundType == "audio":
-        mumbles = getVar(string, "add_mumbles")
+        prime = getVar(string, "prime")
         pairs = getVar(string, "pairs")
-        placebo = getVar(string, "pairs")
         
-        data = {"mumbles": mumbles, "pairs": pairs, "placebo": placebo}
+        data = {"pairs": pairs, "prime": prime}
         
     if roundType == "text":
         text = getVar(string, "text")
         
         data = {"text": text}
+
+    if roundType == "image":
+        questionText = getVar(string, "questionText")
+        name = getVar(string, "name")
+        
+        data = {"questionText": questionText, "name": name}
         
     data['roundType'] = roundType
     
@@ -71,7 +77,7 @@ def processRound(string):
 
 
 def getQuestions(survey):
-    questions = SurveyQuestion.objects.filter(survey=survey)
+    questions = SurveyQuestion.objects.filter(survey=survey).order_by('questionNumber')
     questionList = list()
     for question in questions:
         questionType = str(question.questionType)
@@ -101,16 +107,20 @@ def createTextRound(text, experiment, user):
     textRound.save()
     return textRound
 
-def createAudioRound(mumbles, pairs, placebo, experiment, user):
-    audioRound = AudioRound(mumbles=mumbles, pairs=pairs, placebo=placebo, experiment=experiment, user_source=user)
+def createImageRound(image, experiment, user, questionText, name):
+    survey = Survey(name="ImageRoundQuestion", user_source=user)
+    survey.save()
+    question = SurveyQuestion(user_source=user, survey=survey, questionText=questionText, questionType=1, questionNumber=1)
+    question.save()
+    imageRound = ImageRound(name=name, experiment=experiment, user_source=user, image=image, survey=survey)
+    imageRound.save()
+    return imageRound
+
+def createAudioRound(pairs, prime, experiment, user):
+    audioRound = AudioRound(pairs=pairs, prime=prime, experiment=experiment, user_source=user)
     audioRound.save()
     return audioRound
 
-    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
-    questionText = models.CharField(max_length=3000, null=False)
-    questionType = models.PositiveSmallIntegerField(choices=questionTypes, default=1)
-    questionNumber
 
 def createSurveyQuestion(user, survey, questionText, questionType, questionNumber):
     question = SurveyQuestion(user_source=user, survey=survey, questionText=questionText, questionType=questionType, questionNumber=questionNumber)

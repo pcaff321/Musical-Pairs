@@ -30,6 +30,7 @@
   <select name="roundType" id="roundType">
     <option value="text">Text Round</option>
     <option value="audio">Audio Round</option>
+    <option value="image">Image Round</option>
     <option value="survey">Survey Round</option>
   </select><br><br><br>
 
@@ -48,7 +49,6 @@
   <button id="submitButton"onclick="submitExperiment()">
     Submit Experiment
     </button>
-</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -127,6 +127,7 @@
     <option value="slider">Slider Bar 1-10</option>
     <option value="input">Input Box</option>
     <option value="yesOrNo">Yes Or No Option</option>
+    <option value="Agree">Agree</option>
   </select><button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
 
   var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
@@ -139,14 +140,25 @@
       <option value="slider">Slider Bar 1-10</option>
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
+      <option value="Agree">Agree</option>
     </select><br><br></div>
   </div>`;
 
   var audioRoundHtml = `<div draggable="true" class="box audioRound">
     <h1>Audio Round</h1>
-    <label for="mumbles">Use Mumbles: </label><input id="mumbles" class="mumbles" type="checkbox"><br>
-    <label for="placebo">Use Placebos: </label><input id="placebo" class="placebo" type="checkbox"><br>
+    <label for="prime">Prime: </label><select name="prime" id="prime" class="prime">
+      <option value="X">X</option>
+      <option value="J">J</option>
+      <option value="K">K</option>
+    </select><br>
     <label for="pairs">Amount of Pairs: </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
+    </div>`;
+
+  var imageRoundHtml = `<div draggable="true" class="box imageRound">
+    <h1>Image Round</h1>
+    <label for="nameText">Name: </label><input id="nameText" class="nameText"></input><br>
+    <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
+    <label for="questionText">Accompanying Question: </label><input id="questionText" class="questionText"></input><br>
     </div>`;
 
 
@@ -183,12 +195,15 @@
       roundHtml = audioRoundHtml
     }else if (typeVal == "survey"){
       roundHtml = surveyRoundHtml
+    }else if (typeVal == "image"){
+      roundHtml = imageRoundHtml
       }
 
       //Add delete button (done in messy way)
       roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound">', '<div draggable="true" class="box audioRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
       roundHtml = roundHtml.replace('<div draggable="true" class="box textRound">', '<div draggable="true" class="box textRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
       roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound">', '<div draggable="true" class="box surveyRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box imageRound">', '<div draggable="true" class="box imageRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
 
 
     containerBox.insertAdjacentHTML('beforeend',roundHtml)
@@ -222,6 +237,8 @@
     textRound = "$type=text$END$text=This is text for a text round$END"
     
     audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
+
+    imageList = []
     
     experimentString = "@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
     
@@ -236,14 +253,12 @@
       if (hasClass(element, 'audioRound')) {
         audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
         var type = "audio"
-        var add_mumbles = element.querySelector('.mumbles').checked
+        var prime = element.querySelector('.prime').value
         var pairs = element.querySelector('.pairs').value
-        var placebo = element.querySelector('.placebo').checked
 
         string = delimiter + "$type=" + type + "$END"
-        string = string + "$add_mumbles=" + add_mumbles.toString() + "$END"
+        string = string + "$prime=" + prime.toString() + "$END"
         string = string + "$pairs=" + pairs.toString() + "$END"
-        string = string + "$placebo=" + placebo.toString() + "$END"
 
         experimentString = experimentString + string
 
@@ -309,6 +324,21 @@
 
         experimentString = experimentString + string
 
+      }else if (hasClass(element, 'imageRound')){
+        var type = "image"
+        var image = element.querySelector('.image-input').files[0]
+        var question = element.querySelector('.questionText').value
+        var name = element.querySelector('.nameText').value
+
+
+        string = delimiter + "$type=" + type + "$END"
+        string = string + "$questionText=" + question + "$END"
+        string = string + "$name=" + name + "$END"
+
+        imageList.push(image)
+
+        experimentString = experimentString + string
+
       }
 
 
@@ -316,9 +346,11 @@
 
     )
 
+  console.log("STUFF", experimentString, imageList);
 
 
-  return experimentString;
+
+  return [experimentString, imageList];
 
 
 
@@ -338,8 +370,14 @@
               audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
 
             var fd = new FormData();
-            experimentString = buildExperimentInfo(); //"@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
+            expInfo = buildExperimentInfo();
+            experimentString = expInfo[0]
+            imageList = expInfo[1]
             fd.append('roundInfo', experimentString);
+            for (const file of imageList) {
+              console.log("file", file)
+              fd.append('images[]', file, file.name);
+            }
             $.ajax({
                 type: 'POST',
                 url: "{% url 'postExperiment' %}",
@@ -350,6 +388,7 @@
             }).done(function(data) {
                 console.log(data);
             });
+            location.href = '../listExperiments';
     }
 
 

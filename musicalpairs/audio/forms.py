@@ -16,6 +16,11 @@ class AudioForm(forms.Form):
     file = forms.FileField()
 
 
+class ImageForm(forms.Form):
+    string = forms.CharField(max_length=40)
+    file = forms.FileField()
+
+
 class ResearcherSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User

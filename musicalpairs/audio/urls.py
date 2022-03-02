@@ -5,8 +5,8 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
             showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
-                dataAnalysis
-from .api import PostAnswer, addAnswer, showAnswers
+                dataAnalysis, showAnswers, deleteExperiment, downloadData
+from .api import PostAnswer, addAnswer
 
 
 urlpatterns = [
@@ -20,8 +20,10 @@ urlpatterns = [
     path('showAnswers/', showAnswers, name='showAnswers'),
     path('answerQuestion_POST/', answerQuestion_POST, name='answerQuestion_POST'),
     path('listExperiments/', listExperiments, name='listExperiments'),
+    path('deleteExperiment/', deleteExperiment, name='deleteExperiment'),
     path('editExperiment/', editExperiment, name='editExperiment'),
     path('dataAnalysis/', dataAnalysis, name='dataAnalysis'),
+    path('downloadData/', downloadData, name='downloadData'),
     path('viewExperiment/', viewExperiment_Researcher, name='viewExperiment_Researcher'),
     path('showResults/', showResults, name='showResults'),
     path('login/', loginView, name='login'),

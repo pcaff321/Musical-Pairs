@@ -7,8 +7,8 @@ import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormC
 
 function showNextStage(displayedTable, room_count) {
     let newStage = displayedTable + 1;
-    if (newStage > room_count) {
-        newStage = room_count;
+    if (newStage > room_count + 1) {
+        newStage = room_count + 1;
     }
     return newStage;
 }
@@ -82,7 +82,7 @@ export default function Survey(props) {
         setAnswerValue(e.target.getInnerHTML());
         let input = document.querySelector("input");
         input.value = e.target.getInnerHTML()
-    }
+   }
 
     function handleAnswerChange(e) {
         setAnswerValue(e.target.value);
@@ -156,8 +156,8 @@ export default function Survey(props) {
     if (roomData.round_count != 0 && is_components_set === false) {
         let initial_components = {};
         console.log("ROOM DATA");
-        console.log(roomData.round_list);
         for (let i = 1; i < roomData.round_count + 1; i++) {
+            console.log(i, roomData.round_list[i][0]);
             if (roomData.round_list[i][0] == "text") {
                 console.log(roomData.round_list[i][1]);
                 initial_components[i] = (
@@ -281,7 +281,7 @@ export default function Survey(props) {
                                 </Button>
                             </Grid>
                             <p>If you were distracted while listening to the audio, press "Distracted".</p>
-                            <p>If had no idea what the answer is, press "No Idea".</p>
+                            <p>If you have no idea what the answer is, press "No Idea".</p>
                         </Grid>
                     );
                 }
@@ -296,6 +296,11 @@ export default function Survey(props) {
                 );
             }
         }
+        let end_page = <p>You have reached the end of the experiment! You can click here to go to the feedback form or 
+            here to subscribe to the experiment for any future updates.
+        </p>
+        initial_components[Object.keys(initial_components).length + 1] = end_page;
+        console.log("INITIAL COMPONENTS", initial_components);
         setIsComponentsSet(true);
         setComponents(initial_components);
     }
@@ -314,7 +319,7 @@ export default function Survey(props) {
                 <h1>{roomData.name}</h1>
             </Grid>
             {components[displayedTable]}
-            <p>page {displayedTable}/{roomData.round_count}</p>
+            <p>page {displayedTable}/{roomData.round_count + 1}</p>
         </Grid>
     )
   }

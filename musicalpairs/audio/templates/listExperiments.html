@@ -8,14 +8,15 @@
 
 <p>{{num}} results found.</p>
 {% for instance in object_list %}
+{% if user_id == instance.user_source.id %}
 <div class='row'>
     <h1>{{ instance.title }}</h1>
         <p>{{ instance.id }}</p>>
         <a href="{% url 'createExperimentPage' %}?id={{ instance.id }}"><button>Go To Experiment</button></a>
-        {% if user_id == instance.user_source.id %}
         <a href="{% url 'editExperiment' %}?id={{ instance.id }}"><button>Edit The Experiment</button></a>
         <a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>View Experiment Info</button></a>
-        {% endif %}
+        <a href="{% url 'showAnswers' %}?id={{ instance.id }}"><button>Show Experiment Answers</button></a>
+        <a href="{% url 'deleteExperiment' %}?id={{ instance.id }}"><button>Delete Experiment</button></a>
     <form method="POST" action="{% url 'listExperiments' %}">
         {% csrf_token %}
         <input type="hidden" name="experiment_id" value="{{instance.id}}"/>
@@ -23,6 +24,7 @@
     </form>
 </div>
 <br><br><br>
+{% endif %}
 {% endfor %}
 
 {% endblock %}
