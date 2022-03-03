@@ -40,7 +40,7 @@
 
 <label for="roundContainer">Rounds</label>
   <div class="container" id="roundContainer">
-    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
+    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title">Title: </label><br><input id="title"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
 
   </div><br><br><br>
 
@@ -128,9 +128,11 @@
     <option value="input">Input Box</option>
     <option value="yesOrNo">Yes Or No Option</option>
     <option value="Agree">Agree</option>
-  </select><button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
+  </select>
+  <label for="answer">Correct Answer(s): </label><input id="answer"></input>
+  <button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title">Title: </label><br><input id="title"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
 
   var surveyRoundHtml = `<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
     <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
@@ -141,7 +143,9 @@
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
       <option value="Agree">Agree</option>
-    </select><br><br></div>
+    </select>
+    <label for="answer">Correct Answer(s): </label><input id="answer"></input>
+    <br><br></div>
   </div>`;
 
   var audioRoundHtml = `<div draggable="true" class="box audioRound">
