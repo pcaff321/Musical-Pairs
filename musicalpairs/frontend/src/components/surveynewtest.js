@@ -159,6 +159,7 @@ export default function Survey(props) {
         for (let i = 1; i < roomData.round_count + 1; i++) {
             console.log(i, roomData.round_list[i][0]);
             if (roomData.round_list[i][0] == "text") {
+                console.log("hello???")
                 console.log(roomData.round_list[i][1]);
                 initial_components[i] = (
                     <h1>{roomData.round_list[i][1]}</h1>

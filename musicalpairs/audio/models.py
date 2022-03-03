@@ -175,7 +175,8 @@ class UserPairGuess(models.Model):
 
 
 class TextRound(models.Model):
-    text = models.CharField(max_length=3000, null=False)
+    title = models.CharField(max_length=500, null=False, default="title")
+    text = models.CharField(max_length=3000, null=False, default="text")
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 

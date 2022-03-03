@@ -61,9 +61,10 @@ def processRound(string):
         data = {"pairs": pairs, "prime": prime}
         
     if roundType == "text":
+        title = getVar(string, "title")
         text = getVar(string, "text")
         
-        data = {"text": text}
+        data = {"title": title, "text": text}
 
     if roundType == "image":
         questionText = getVar(string, "questionText")
@@ -102,8 +103,8 @@ def createPage(experiment, page_num, content_object, user):
     return new_page
 
 
-def createTextRound(text, experiment, user):
-    textRound = TextRound(text=text, experiment=experiment, user_source=user)
+def createTextRound(title, text, experiment, user):
+    textRound = TextRound(title=title, text=text, experiment=experiment, user_source=user)
     textRound.save()
     return textRound
 

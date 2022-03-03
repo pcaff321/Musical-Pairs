@@ -267,7 +267,7 @@ def getRoundList(request):
                 questionType = "Text"
             elif questionType == "yesOrNo":
                 questionType = "Yes/No"
-            roundContent = ["question", questionText, questionType, question['id']]
+            roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
 
@@ -275,7 +275,7 @@ def getRoundList(request):
 
 
         elif isinstance(pageType, TextRound):
-            roundContent = ["text", "Text Round", pageType.text]
+            roundContent = ["text", pageType.title, pageType.text]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
         elif isinstance(pageType, ImageRound):
@@ -776,9 +776,10 @@ def createPostTest(request):
 
 def createTextRound_POST(request):
     if request.method == 'POST':
+        title = request.POST.get('text')
         text = request.POST.get('text')
         experiment_id = request.POST.get('experiment_id')
-        createTextRound(text, experiment_id)
+        createTextRound(title, text, experiment_id)
         response_data = {}
 
 
@@ -833,6 +834,7 @@ def createExperiment_POST(request):
             if roundObj != '':
                 round = None
                 data = processRound(roundObj)
+                print("data\n", data)
                 if data['roundType'] == "experiment":
                     experimentName = data['experimentName']
                     experiment = Experiment(user_source=user, title=experimentName)
@@ -860,8 +862,10 @@ def createExperiment_POST(request):
                     pairs = int(data['pairs'])
                     round = createAudioRound(pairs, prime, experiment, user)
                 elif data['roundType'] == "text":
+                    title = data['title']
+                    print("\nTITLE\n", title, "\n\n")
                     text = data['text']
-                    round = createTextRound(text, experiment, user)
+                    round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
                     image = imageList[imageNumber]
                     name = data['name']

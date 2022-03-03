@@ -40,7 +40,7 @@
 
 <label for="roundContainer">Rounds</label>
   <div class="container" id="roundContainer">
-    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title">Title: </label><br><input id="title"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
+    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title-input">Title: </label><br><input id="title-input"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
 
   </div><br><br><br>
 
@@ -132,7 +132,7 @@
   <label for="answer">Correct Answer(s): </label><input id="answer"></input>
   <button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title">Title: </label><br><input id="title"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title-input">Title: </label><br><input id="title-input"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
 
   var surveyRoundHtml = `<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
     <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
@@ -320,10 +320,13 @@
 
       }else if (hasClass(element, 'textRound')){
         var type = "text"
+        var title = element.querySelector('#title-input').value
+        console.log("title", title)
         var text = element.querySelector('.text-input').value
 
 
         string = delimiter + "$type=" + type + "$END"
+        string = string + "$title=" + title + "$END"
         string = string + "$text=" + text + "$END"
 
         experimentString = experimentString + string
