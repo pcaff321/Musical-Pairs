@@ -108,6 +108,8 @@ export default function Survey(props) {
             headers: { "X-CSRFToken": csrftoken },
             body: fd
         });
+
+        setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
     function isQuestion() {
@@ -205,19 +207,19 @@ export default function Survey(props) {
                                 label="1" labelPlacement="bottom"
                             />
                             <FormControlLabel 
-                                value="2" control={<Radio color="secondary" />} 
+                                value="2" control={<Radio color="primary" />} 
                                 label="2" labelPlacement="bottom"
                             />
                             <FormControlLabel 
-                                value="3" control={<Radio color="secondary" />} 
+                                value="3" control={<Radio color="primary" />} 
                                 label="3" labelPlacement="bottom"
                             />
                             <FormControlLabel 
-                                value="4" control={<Radio color="secondary" />} 
+                                value="4" control={<Radio color="primary" />} 
                                 label="4" labelPlacement="bottom"
                             />
                             <FormControlLabel 
-                                value="5" control={<Radio color="secondary" />} 
+                                value="5" control={<Radio color="primary" />} 
                                 label="5" labelPlacement="bottom"
                             />
                         </RadioGroup>

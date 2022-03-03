@@ -65,6 +65,8 @@ def processPageInfo(page):
                 questionType = "Text"
             elif questionType == "yesOrNo":
                 questionType = "Yes/No"
+            elif questionType == "Agree":
+                questionType = "Agree"
             questionInfo = {"questionText":questionText, "questionType":questionType}
             questionList.append(questionInfo)
         roundContent = {"pageType": "survey", "questionList": questionList}

@@ -45,6 +45,8 @@ def processRound(string):
                     questionType = 2
                 elif questionType == 'yesOrNo':
                     questionType = 3
+                elif questionType == 'Agree':
+                    questionType = 4
                 question = {"questionText": questionText, "questionType": questionType}
                 questions.append(question)
 
@@ -88,6 +90,8 @@ def getQuestions(survey):
             questionType = 'slider'
         elif questionType == '3':
             questionType = 'yesOrNo'
+        elif questionType == '4':
+            questionType = 'Agree'
         questionDict = {"questionText": question.questionText, "questionType": questionType, "id": question.id}
         questionList.append(questionDict)
     
