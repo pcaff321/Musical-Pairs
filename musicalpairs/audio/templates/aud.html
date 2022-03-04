@@ -351,7 +351,7 @@
                     processData: false,
                     contentType: false
                 }).done(function(data) {
-                    var path = '/media/user_' + {{ user.id }} + '/trimmedSounds/trimmedAudio.wav'
+                    var path = '/media/'+{{ user.id }}+'/trimmedSounds/trimmedAudio.wav'
                     wavesurfer.load(path);
                 });
 

@@ -1465,6 +1465,6 @@ def trimAudio(request):
     duration = len(sound)    
     trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
     user_id = request.user.id
-    file_handle = trimmed_sound.export("media/user_{}/trimmedSounds/trimmedAudio.wav".format(user_id), 
+    file_handle = trimmed_sound.export("media/{}/trimmedSounds/trimmedAudio.wav".format(user_id), 
        format="wav",)
     return redirect('uploadAudio')
