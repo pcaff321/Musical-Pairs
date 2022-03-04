@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<a href="{% url 'downloadData' %}?id={{ id }}"><button>Download Data As CSV File</button></a>
+
+{% for chart in chartsData %}
+<div  height="40" width="40">
+    <canvas id="{{ chart.title }}" ></canvas>
+</div>
+<h3> Overall Correct: {{ chart.percent }}% </h3>
+<br><br><br>
+{% endfor %}
+
+{% endblock %}
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+{% for chart in chartsData %}
+labels = [];
+
+{% for label in chart.labels %}
+   labels.push('{{ label }}')
+{% endfor %}
+
+console.log(labels);
+data = {
+  labels: labels,
+  datasets: [{
+    label: "{{ chart.title }}",
+    data: {{ chart.data }},
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+      'rgba(255, 159, 64, 0.2)',
+      'rgba(255, 205, 86, 0.2)',
+      'rgba(75, 192, 192, 0.2)',
+      'rgba(54, 162, 235, 0.2)',
+      'rgba(153, 102, 255, 0.2)',
+      'rgba(201, 203, 207, 0.2)'
+    ],
+    borderColor: [
+      'rgb(255, 99, 132)',
+      'rgb(255, 159, 64)',
+      'rgb(255, 205, 86)',
+      'rgb(75, 192, 192)',
+      'rgb(54, 162, 235)',
+      'rgb(153, 102, 255)',
+      'rgb(201, 203, 207)'
+    ],
+    borderWidth: 1
+  }]
+};
+  
+    
+   config = {
+    type: 'bar',
+    data: data,
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    },
+  };
+     myChart = new Chart(
+        document.getElementById('{{ chart.title }}'),
+        config
+    );
+{% endfor %}
+  </script>
+
+{% endblock %}

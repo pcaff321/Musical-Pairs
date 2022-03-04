@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h1> Experiment Name: {{ experimentTitle }} </h1>
+
+<h2>Invite Link</h2>
+<p> {{ request.get_host }}{% url 'createExperimentPage' %}?id={{ id }} </p>
+
+<br><br><br>
+
+<h2> Total Participants: {{ participant_count }}</h2>
+<h2> Total Completed: {{ completed_count }} </h2>
+
+<a href="{% url 'dataAnalysis' %}?id={{ id }}"><button> View Stats </button></a>
+
+{% endblock %}

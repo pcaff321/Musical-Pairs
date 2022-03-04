@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<form name="myform" method="GET" action="{% url 'listExperiments' %}">
+    <input type="text" name="search" placeholder="Search" />
+</form>
+
+<p>{{num}} results found.</p>
+{% for instance in object_list %}
+<div class='row'>
+    <h1>{{ instance.title }}</h1>
+        <p>{{ instance.id }}</p>>
+        <a href="{% url 'experimentLoad' %}?id={{ instance.id }}"><button>Go To Experiment</button></a>
+        {% if user_id == instance.user_source.id %}
+        <a href="{% url 'editExperiment' %}?id={{ instance.id }}"><button>Edit The Experiment</button></a>
+        <a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>View Experiment Info</button></a>
+        <a href="{% url 'showAnswers' %}?id={{ instance.id }}"><button>Show Experiment Answers</button></a>
+        <a href="{% url 'deleteExperiment' %}?id={{ instance.id }}"><button>Delete Experiment</button></a>
+        {% endif %}
+    <form method="POST" action="{% url 'listExperiments' %}">
+        {% csrf_token %}
+        <input type="hidden" name="experiment_id" value="{{instance.id}}"/>
+    <input type="submit" value="Subscribe">
+    </form>
+</div>
+<br><br><br>
+{% endfor %}
+
+{% endblock %}
