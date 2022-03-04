@@ -1,4 +1,5 @@
 
+
 var recordButton = document.getElementById("recordButton");
 var addButton = document.getElementById("addButton");
 var waveDiv = document.getElementById("waveform");
@@ -7,9 +8,12 @@ var playing = false;
 var paused = false;
 var url;
 
+var fileButton = document.getElementById("file-upload-button");
+var hiddenInput = document.getElementById("file-upload-input");
+fileButton.addEventListener('click', function(){
+    hiddenInput.click();
+});
 
-recordButton.style.backgroundColor = "red";
-addButton.style.backgroundColor = "black";
 
 let regions = WaveSurfer.regions.create({
         regions: [
@@ -22,8 +26,8 @@ let wavesurfer = WaveSurfer.create({
     container: '#waveform',
     waveColor: 'white',
     progressColor: '#FFF',
-    barWidth: 1,
-    barGap: 2,
+    barWidth: 0,
+    barGap: 0,
     height: 130,
     cursorWidth: 1,
     cursorColor: "white",
@@ -54,7 +58,7 @@ function handleFiles(event) {
     wavesurfer.load(url);
 }
 // event listener for pre-recorded audio upload
-document.getElementById("audio").addEventListener("change", handleFiles, false);
+hiddenInput.addEventListener("change", handleFiles, false);
 
 
 function trimLeft() {
@@ -144,11 +148,9 @@ function playRegion() {
 
 function togglePlay() {
     if (playing){
-        playButton.innerText = "▶"
         playing = false;
     }
     else {
-        playButton.innerText = "❚❚"
         playing = true
     }
 }
@@ -268,9 +270,9 @@ function startRecording(event){
     } 
     else {
         player.record().stop();
-        recordButton.style.backgroundColor = "red"
-        recordButton.innerText = "⬤"
-    }
+        recordButton.style.backgroundColor = "transparent"
+        recordButton.innerHTML = '<i class="fa-solid fa-circle fa-lg"</i>'
+}
 }
 
 function add_audio(name){

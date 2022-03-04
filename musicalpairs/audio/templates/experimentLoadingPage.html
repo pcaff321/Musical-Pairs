@@ -1,36 +1,35 @@
 {% extends 'layout.html' %}
 {% load static %}
+{% block content %}
 
-{% block style %}
+
 <style>
   * {
     margin: 0;
     padding: 0;
 }
 .imgbox {
-    display: grid;
-    height: 100%;
+  margin-top: 10%;
 }
-.center-fit {
-    max-width: 100%;
-    max-height: 100vh;
-    margin: auto;
+
+#img {
+  min-width: 400px;
 }
-}
+
+
 </style>
-{% endblock %}
-
-{% block content %}
-
-  <div class="imgbox">
-        <img class="center-fit" src="{% static 'images/BrainGif.gif' %}"></img>
-  </div>
-{% endblock %}
-
-
+<div class="row">
+<div class="col-md-2"></div>
+<div class="col-md-8 d-flex justify-content-center heading">
+<div class="imgbox">
+    <img id="img" class="center-fit" src="{% static 'images/BrainGif.gif' %}"></img>
+</div>
+</div>
+</div>
 
 
-{% block extrascripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
 <script>
   function check(){
     $.ajax({
@@ -46,7 +45,7 @@
         window.location.replace("{% url 'experimentLoad' %}?id={{ id }}");
       }
   });
-  }
+}
                     $.ajax({
                       type: 'POST',
                       url: "{% url 'createExperimentPage' %}?id={{ id }}",
@@ -58,4 +57,6 @@
                   });
                   setInterval(() => check(), 1500)
 </script>
+
+
 {% endblock %}

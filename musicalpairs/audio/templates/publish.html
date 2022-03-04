@@ -2,12 +2,86 @@
 
 
 {% block content %}
+
+<style>
+  .input {
+    padding-top :15px;
+  }
+
+  .label {
+    padding-top :15px;
+    padding-left: 60px;
+    
+  }
+
+  .textArea {
+
+    min-width: 40%;
+
+  }
+
+  #submitBtn {
+    margin:10px;
+    background-color: #4f5d75 !important;
+    border: none !important;
+    padding: 10px 10px 10px 10px !important;
+    font-size: 16px;
+    color: white;
+    border-radius:5px;
+  }
+
+
+  #submitBtn:hover{
+    background-color: #2d3142 !important;
+
+  }
+
+  #submitBtn:focus {
+    box-shadow:none;
+  }
+  
+  
+#selectExp {
+  margin: 30px;
+}
+
+#rowHeading { 
+  margin-top: 30px;
+}
+
+</style>
   <div class="row">
-    <div class="col-md-8 col-sm-10 col-12">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 d-flex justify-content-center" id="rowHeading">
       <h2>Send an email update to your subscribers</h2>
+    </div>
+  </div>
       <form method="post">
-    {{ form }}
-    <input type="submit" value="Submit">
+        <div class="row" id="selectExp">
+          <div class="col-md-4"></div>
+          <div class="col-md-1 label text-right">Experiment:</div>
+          <div class="col-md-2 input">
+              {{ form.experiment }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="col-md-2 input">
+              {{ form.subject }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="col-md-4 input">
+              {{ form.body }}
+        </div>
+      </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="col-md-4 d-flex justify-content-center">
+            <input type="submit" value="Submit" id="submitBtn">
+          </div>
+        </div>
 </form>
         <p>{{ message }}</p>
     </div>

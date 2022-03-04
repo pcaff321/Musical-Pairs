@@ -77,6 +77,14 @@ class Experiment(models.Model):
     j_mask = models.CharField(max_length=50, default="_NONE_")
     k_mask = models.CharField(max_length=50, default="_NONE_")
 
+    def __str__(self):
+        return self.title
+
+class ExperimentUpdate(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    dateSent = models.DateTimeField(auto_now_add=True)
+    subject = models.CharField(max_length=100, null=False)
+    body = models.CharField(max_length=1000, null=False)
 
 class Audio_store(models.Model):
     name = models.CharField(max_length=20, null=False)

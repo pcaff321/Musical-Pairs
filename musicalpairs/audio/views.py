@@ -3,6 +3,7 @@ from collections import UserDict
 import csv
 from email.mime import audio
 import mimetypes
+from pydub import AudioSegment
 from msilib import datasizemask
 import os
 from pickle import FALSE
@@ -11,9 +12,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from numpy import round_
-from .forms import AudioForm, CustomAuthenticationForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm
+from .forms import AudioForm, CustomAuthenticationForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm, PublishForm2
 from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, WordBundle, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
-    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment
+    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment, ExperimentUpdate
 from .audio_manipulation import getRoundFile
 from .processRoundData import createImageRound, processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
@@ -1117,23 +1118,59 @@ def getRoundLength(experiment):
     return 10
 
 def viewExperiment_Researcher(request):
-    experiment_id = request.GET.get('id')
-    experiment = Experiment.objects.filter(id=experiment_id)
-    if not experiment.exists():
-        return HttpResponse("ID not recognised")
-    experiment = experiment[0]
-    participants = UserUniqueExperiment.objects.filter(experiment=experiment)
-    roundCount = getRoundLength(experiment)
-    completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+    if request.method == 'POST':
+        experiment_id = request.POST['experiment_id']
+        experiment = Experiment.objects.filter(id=experiment_id)
+        exp = experiment[0]
+        form = PublishForm2(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            update = ExperimentUpdate(experiment=exp, subject=subject, body=body)
+            name = request.user.username
+            subject = str(exp) + " update: " + subject
+            body = form.cleaned_data['body']
+            emails = []
+            if exp.subscribers.all().count() > 0:
+                for user in exp.subscribers.all():
+                    emails.append(getattr(user, "email"))
+                send_mail(subject, body, "musicalpairs123@gmail.com", emails)
+                update.save()
+                return JsonResponse({'success' : True, 'subject': subject, 'body':body})
+            else:
+                return JsonResponse({'oops':"Nobody subscribed to this experiment, therefore no message was sent."})
 
-    context = {
-        "experimentName": experiment.title,
-        "id": experiment_id, 
-        "participant_count": len(participants),
-        "completed_count": len(completed_participants)
-    }
+        else:
+            data ={'error':form.errors}
+            return JsonResponse(data)
 
-    return render(request, "ResearcherPages/viewExperimentInfo.html", context)
+    else:
+        experiment_id = request.GET.get('id')
+        experiment = Experiment.objects.filter(id=experiment_id)
+        print("EXP", experiment, experiment_id)
+        if not experiment.exists():
+            return HttpResponse("ID not recognised")
+        form = PublishForm2(initial={'experiment':experiment})
+        experiment = experiment[0]
+        updates = ExperimentUpdate.objects.filter(experiment=experiment).order_by('-dateSent')
+        if updates.exists():
+            updates[0]
+        else:
+            updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
+        participants = UserUniqueExperiment.objects.filter(experiment=experiment)
+        roundCount = getRoundLength(experiment)
+        completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+        context = {
+            "experimentName": experiment.title,
+            "id": experiment_id, 
+            "participant_count": len(participants),
+            "completed_count": len(completed_participants),
+            "form" : form,
+            "updates" : updates
+        }
+
+        return render(request, "ResearcherPages/viewExperimentInfo.html", context)
+
 
 def getGuessesBasedOnPrime(experiment, prime):
     pairGuessesQuery = UserPairGuess.objects.filter(prime=prime)
@@ -1403,3 +1440,31 @@ def userResults(request):
 
 
 
+
+def detect_leading_silence(sound, silence_threshold=-40.0, chunk_size=10):
+    '''
+    sound is a pydub.AudioSegment
+    silence_threshold in dB
+    chunk_size in ms
+
+    iterate over chunks until you find the first one with sound
+    '''
+    trim_ms = 0 # ms
+
+    assert chunk_size > 0 # to avoid infinite loop
+    while sound[trim_ms:trim_ms+chunk_size].dBFS < silence_threshold and trim_ms < len(sound):
+        trim_ms += chunk_size
+
+    return trim_ms
+
+def trimAudio(request):
+
+    sound = AudioSegment.from_wav(request.FILES['file'])
+    start_trim = detect_leading_silence(sound)
+    end_trim = detect_leading_silence(sound.reverse())
+    duration = len(sound)    
+    trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
+    user_id = request.user.id
+    file_handle = trimmed_sound.export("media/user_{}/trimmedSounds/trimmedAudio.wav".format(user_id), 
+       format="wav",)
+    return redirect('uploadAudio')

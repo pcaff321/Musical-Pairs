@@ -1,15 +1,110 @@
 {% extends 'layout.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
-        <h2>Log In</h2>
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit">Log In</button>
-        </form>
-        <a href="{% url 'researcher_signup' %}">Sign Up</a>
+<style>
+
+  .heading {
+    padding-bottom: 30px;    
+
+  }
+
+.buttn {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background-color: #4f5d75 !important;
+  border: none;
+  color: white !important;
+  padding: 5px 40px 5px 40px !important;
+
+}
+
+.buttn:focus {
+  box-shadow:none;
+}
+
+
+.buttn:hover {
+  background-color: #2d3142 !important;
+}
+
+
+#signupLink {
+  color: black;
+}
+
+#title { 
+  padding-top: 15px;
+  padding-left: 40px;
+  padding-right: 40px;
+  color: black;
+  font-size: 25px;
+}
+
+.welcomeRow {
+  padding-top: 30px;
+}
+
+
+
+
+
+</style>
+<div class="bg-img" style="background-image: url('{% static "login22.png"%}'); 
+background-position: center;
+background-repeat: no-repeat;
+background-size: 100%;
+position: relative;
+">
+<div class="row welcomeRow">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h1>Welcome Back.</h1>
+  </div>
+</div>
+<div class="row row1">
+  <div class="col-md-4 col1 "></div>
+  <div class="col-md-4 col d-flex justify-content-center heading">
+    <p id="title">Login</p>
+  </div>
+</div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-3 col1"></div>
+      <div class="col-md-6 col input color d-flex justify-content-center">
+        {{ form.username |as_crispy_field}}
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 col1"></div>
+        <div class="col-md-6 col input color d-flex justify-content-center">
+          {{ form.password |as_crispy_field}}
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 col1"></div>
+      <div class="col-md-4 col d-flex justify-content-center">
+          <button type="submit" class="buttn effect effect1">Sign In</button>
+      </div>
+    </div>
+  </form>
+  <div class="row">
+    <div class="col-md-4 col1"></div>
+    <div class="col-md-4 col d-flex justify-content-center">
+         Register As:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a id="signupLink" href="{% url 'researcher_signup' %}"><u>Researcher</u></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a id="signupLink" href="{% url 'experimentee_signup' %}"><u>Experimentee</u></a>
+
+    </div>
+  </div>
+ <div class="row">
+   <div class="col-md-12 col1"><br><br><br><br></div>
+ </div>
+</div>
+</div>
 
 
 {% endblock %}
