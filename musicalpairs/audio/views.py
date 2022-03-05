@@ -190,6 +190,9 @@ def getResultsForUser(user, experiment):
     return roundLists
 
 
+
+
+
 def getTrimmedAudio(user_id, url=False):
     if url:
         return os.path.join(settings.MEDIA_URL, str(user_id), "trimmedSounds", "trimmedAudio.wav").replace("\\","/")
@@ -312,6 +315,8 @@ def getRoundList(request):
                 questionType = "Text"
             elif questionType == "yesOrNo":
                 questionType = "Yes/No"
+            elif questionType == "Agree":
+                questionType = "Agree"
             roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
@@ -347,6 +352,8 @@ def getRoundList(request):
                     questionType = "Text"
                 elif questionType == "yesOrNo":
                     questionType = "Yes/No"
+                elif questionType == "Agree":
+                    questionType = "Agree"
                 roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
@@ -763,6 +770,80 @@ def getQuestionsForExperiment(experiment):
         })
 
         return surveys
+
+def getAnswersFromSurvey(survey):
+    answerList = list()
+    questions = getQuestions(survey)
+
+    for question in questions:
+        surveyQuestion = SurveyQuestion.objects.filter(id=question['id'])[0]
+        answers = SurveyAnswer.objects.filter(surveyQuestion=surveyQuestion)
+        answerList = list()
+        for answer in answers:
+            answerDict = {
+                'user_id': answer.user_source.id,
+                'answer': answer.answer
+            }
+            answerList.append(answerDict)
+        question['answers'] = answerList
+
+        surveyInfo = {'survey': survey.id,
+             'questions': questions   
+        }
+
+        return surveyInfo
+
+def processPageInfoForQuestions(page):
+    pageType = page.content_object
+    roundContent = None
+    if isinstance(pageType, SurveyRound):
+        survey = pageType.survey
+        roundContent = {
+            'type': 'survey',
+            'surveyInfo': getAnswersFromSurvey(survey)
+        }
+    elif isinstance(pageType, ImageRound):
+        survey = pageType.survey
+        url = None
+        questionInfo = getAnswersFromSurvey(survey)
+        question = questionInfo['questions'][0]['questionText']
+        answers = questionInfo['questions'][0]['answers']
+        roundContent = {
+            'type': 'image',
+            'title': pageType.name,
+            'url': pageType.image.url,
+            'questionText': question,
+            'answers': answers
+        }
+    if roundContent:
+        roundContent['id'] = pageType.id
+    
+    return roundContent
+
+
+def getExperimentQuestionInfo(experiment):
+    pages = Page.objects.filter(experiment=experiment).order_by('page_number')
+    pagesList = list()
+    for page in pages:
+        if isinstance(page.content_object, ImageRound) or isinstance(page.content_object, SurveyRound):
+            pagesList.append(processPageInfoForQuestions(page))
+
+    survey = 1
+    image = 1
+    pageNum = 0
+    for page in pagesList:
+        page['num'] = pageNum
+        pageNum += 1
+        if page['type'] == "survey":
+            page['roundName'] = "Survey Round " + str(survey)
+            survey += 1
+        elif page['type'] == "image":
+            page['roundName'] = "Image Round " + str(image)
+            image += 1
+        
+    
+    return pagesList
+
 
 
 
@@ -1207,8 +1288,10 @@ def viewExperiment_Researcher(request):
             "updates" : updates,
             'updates_exist': updates_exist,
             'subscriber_count': subscriber_count,
-            "chartsData": getChartDataContext(request)
+            "chartsData": getChartDataContext(request),
+            'pages_list': getExperimentQuestionInfo(experiment)
         }
+        print(context['pages_list'])
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 

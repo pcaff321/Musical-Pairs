@@ -183,13 +183,13 @@
     <div class="col-md-8 d-flex justify-content-center heading">
 
         <div class="tab">
-            <button class="tablinks active" onclick="openTab(event, 'summary')">Summary</button>
-            <button class="tablinks" onclick="openTab(event, 'graph')">Participation</button>
-            <button class="tablinks" onclick="openTab(event, 'stats')">Stats</button>
-            <button class="tablinks" onclick="openTab(event, 'questions')">Questions</button>
-            <button class="tablinks" onclick="openTab(event, 'publish')">Update Subscribers</button>
-            <button class="tablinks" onclick="openTab(event, 'prevUpdates')">Previous Updates</button>
-            <a href="{% url 'downloadData' %}?id={{ id }}"><button class="tablinks">Download All Data</button></a>
+            <button class="tablinks tablinks1 active" onclick="openTab(event, 'summary')">Summary</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'graph')">Participation</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'stats')">Stats</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'questions')">Questions</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'publish')">Update Subscribers</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'prevUpdates')">Previous Updates</button>
+            <a href="{% url 'downloadData' %}?id={{ id }}"><button class="tablinks tablinks1">Download All Data</button></a>
         </div>
     </div>
 </div>
@@ -198,17 +198,69 @@
 <div class="col-md-1"></div>
 <div class="col-md-10 d-flex justify-content-center heading">
 
-  <div id="summary" class="tabcontent">
+  <div id="summary" class="tabcontent tabcontent1">
     <h2> Total Participants: {{ participant_count }}</h2>
     <h2> Total Subscribers: {{ subscriber_count }} </h2>
     </div>
 
 
-    <div id="questions" class="tabcontent">
-      <h2> QUESTIONS </h2>
-      </div>
+    <div id="questions" class="tabcontent tabcontent1">
+      <div class="tab">
+        {% for page in pages_list %}
+        {% if page.num == 0 %}
+         <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+        {% else %}
+         <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+        {% endif %}
+        {% endfor %}
+    </div>
 
-  <div id="publish" class="tabcontent">
+    <div class="row contentRow">
+      <div class="col-md-1"></div>
+      <div class="col-md-10 d-flex justify-content-center heading">
+    {% for page in pages_list %}
+    <div id="{{ page.id }}" class="tabcontent tabcontent2">
+
+
+      {% if page.type == "image" %}
+      <h2> Image Round: {{ page.title }}</h2>
+      <img src="{{ page.url }}"></img>
+        <h3> Question: {{ page.questionText }} </h3>
+        <h4> Answers: </h4>
+      <div style="overflow-y: scroll; height:400px;">
+        <ul class="list-group">
+          {% for answer in page.answers %}
+          <li class="list-group-item">{{ answer.answer }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if page.type == "survey" %}
+      <h2> Survey Round: </h2>
+      {% for question in page.surveyInfo.questions %}
+        <h3> {{ question.questionText }} </h3>
+        <h4> Answers: </h4>
+        <div style="overflow-y: scroll; height:400px;">
+          <ul class="list-group">
+            {% for answer in question.answers %}
+            <li class="list-group-item">{{ answer.answer }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+      {% endif %}
+
+
+      </div>
+      {% endfor %}
+
+      </div>
+         </div>
+    </div>
+</div>
+
+  <div id="publish" class="tabcontent tabcontent1">
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
         <h2>Send an email update to your subscribers</h2>
     </div>
@@ -276,8 +328,10 @@
       </script>
 
 
-<div class="tabcontent" id="stats">
+<div class="tabcontent tabcontent1" id="stats">
+  <h1> View The Overall Performance For Each Type Of Prime </h1>
   {% for chart in chartsData %}
+  <h2> {{ chart.title }} </h2>
   <div  height="40" width="40">
       <canvas id="{{ chart.title }}" ></canvas>
   </div>
@@ -287,7 +341,7 @@
 </div>
 
 
-<div class="tabcontent" id="prevUpdates">
+<div class="tabcontent tabcontent1" id="prevUpdates">
         {% if update_exists %}
     <table class="table table-md">
       <thead>
@@ -573,23 +627,50 @@ function copy2Clip(){
   <script>
 
     function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    $("#publishForm").removeClass("hidden");
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
-      $("#errorMessage").addClass("hidden");
-      $("#feedbackmessage").addClass("hidden");
+      var i, tabcontent, tablinks;
+      $("#publishForm").removeClass("hidden");
+      tabcontent = document.getElementsByClassName("tabcontent1");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        $("#errorMessage").addClass("hidden");
+        $("#feedbackmessage").addClass("hidden");
+      }
+      tablinks = document.getElementsByClassName("tablinks1");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
     }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
+
+    function openTab2(evt, tabName) {
+      var i, tabcontent, tablinks;
+      $("#publishForm").removeClass("hidden");
+      tabcontent = document.getElementsByClassName("tabcontent2");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        $("#errorMessage").addClass("hidden");
+        $("#feedbackmessage").addClass("hidden");
+      }
+      tablinks = document.getElementsByClassName("tablinks2");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
     }
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-  }
 
   document.onload = document.getElementById('summary').style.display = "block";
+
+  function displayFirstRound_lol(){
+        {% for page in pages_list %}
+          {% if page.num == 0 %}
+           document.getElementById("{{ page.id }}").style.display = "block";
+          {% endif %}
+        {% endfor %}
+  }
+
+  document.onload = displayFirstRound_lol();
 </script>
 
 </html>
