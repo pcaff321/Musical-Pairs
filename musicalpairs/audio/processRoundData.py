@@ -59,8 +59,9 @@ def processRound(string):
     if roundType == "audio":
         prime = getVar(string, "prime")
         pairs = getVar(string, "pairs")
+        bundleID = getVar(string, "bundleID")
         
-        data = {"pairs": pairs, "prime": prime}
+        data = {"pairs": pairs, "prime": prime, "bundleID": bundleID}
         
     if roundType == "text":
         title = getVar(string, "title")
@@ -121,8 +122,8 @@ def createImageRound(image, experiment, user, questionText, name):
     imageRound.save()
     return imageRound
 
-def createAudioRound(pairs, prime, experiment, user):
-    audioRound = AudioRound(pairs=pairs, prime=prime, experiment=experiment, user_source=user)
+def createAudioRound(pairs, prime, experiment, user, wordBundle):
+    audioRound = AudioRound(pairs=pairs, prime=prime, experiment=experiment, user_source=user, word_bundle=wordBundle)
     audioRound.save()
     return audioRound
 

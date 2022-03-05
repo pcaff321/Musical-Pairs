@@ -1,8 +1,9 @@
 from email.mime import audio
+import os
 from django.conf import settings
 
 from pydub import AudioSegment, effects
-from .models import Pair, Word, Audio_store, set_file_name, ExperimentWord, UserWordRound, UserPairGuess
+from .models import Mumble, Pair, User, Word, Audio_store, set_file_name, ExperimentWord, UserWordRound, UserPairGuess
 import requests
 import tempfile
 import random
@@ -14,19 +15,31 @@ silence = AudioSegment.silent(500)
 cling = AudioSegment.from_wav(settings.MEDIA_ROOT + "/roundSounds/bell.wav")
 music = AudioSegment.from_wav(settings.MEDIA_ROOT + "/roundSounds/delay_music_15_seconds.wav")
 
+def makeMask(mumble, SPEEDUP_FACTOR=3):
+    nonWord = AudioSegment.from_wav(str(settings.MEDIA_ROOT) + "/" + str(mumble)).speedup(SPEEDUP_FACTOR) - 18
+    nonWord += AudioSegment.silent(50)
+    return nonWord
+
 
 def getNonWord(mumbles, SPEEDUP_FACTOR=3):
     mumble = mumbles.pop()
-    print(mumble)
     nonWord = AudioSegment.from_wav(str(settings.MEDIA_ROOT) + "/" + str(mumble)).speedup(SPEEDUP_FACTOR) - 18
     nonWord += AudioSegment.silent(50)
-    return mumbles, nonWord
+    return mumbles, nonWord, str(mumble)
 
 
 def getMask(mumbles, SPEEDUP_FACTOR=3):
-    mumbles, mask = getNonWord(mumbles, SPEEDUP_FACTOR)
-    return mumbles, mask
+    mumbles, mask, mumble = getNonWord(mumbles, SPEEDUP_FACTOR)
+    return mumbles, mask, mumble
 
+
+def isWordUsed(experiment, word):
+    experimentWords = ExperimentWord.objects.filter(experiment=experiment)
+    for word in experimentWords:
+        if word.word == word:
+            return True
+    return False
+    
 
 
 def makeWordRound(wordsForRound, pairAmount=3, Experiment=None):
@@ -37,7 +50,11 @@ def makeWordRound(wordsForRound, pairAmount=3, Experiment=None):
     fullAudio = None
     for i in range(pairAmount):
         word1 = wordsForRound.pop()
+        while isWordUsed(Experiment, word1) and (len(wordsForRound) > 0):
+            word1 = wordsForRound.pop()
         word2 = wordsForRound.pop()
+        while isWordUsed(Experiment, word2) and (len(wordsForRound) > 0):
+            word2 = wordsForRound.pop()
         pair = Pair(audio1=word1, audio2=word2)
         pair.save()
         pairs.append(pair)
@@ -59,15 +76,15 @@ def makeBaselineRound(pair, mumbles, J=None, placebo=False, wordRound=None):
     global cling
     global silence
     NON_WORDS_AMOUNT = 4
-    words = Word.objects.all()
-    mumbles = list() ##  DO THIS - REMOVE / FIX
-    for word in words:
-        mumbles.append(str(word.audio_store.file_location))
-    """mumbles = list()
-    for word in words:
-        mumbles.append(word.audio_ref.file_location.url + ".wav") """
-    mumbles, firstMask = getMask(mumbles)
-    mumbles, X = getMask(mumbles)
+    pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    words = Word.objects.filter(user_source=pietro)
+    mumblesSet = Mumble.objects.all() ##  DO THIS - REMOVE / FIX
+    mumbles = list()
+    for mumble in mumblesSet:
+        mumbles.append(str(mumble.audio_store.file_location))
+    random.shuffle(mumbles)
+    mumbles, firstMask, _ = getMask(mumbles)
+    mumbles, X, _ = getMask(mumbles)
     if J is not None:
         X = J
     wordOne = str(pair.audio1.audio_store.file_location)
@@ -76,15 +93,15 @@ def makeBaselineRound(pair, mumbles, J=None, placebo=False, wordRound=None):
     if placebo:
         NON_WORDS_AMOUNT -= 1
     for i in range(NON_WORDS_AMOUNT):
-        mumbles, mask = getNonWord(mumbles)
+        mumbles, mask, _ = getNonWord(mumbles)
         finalAudio += mask
     if placebo:
-        wordTwo = settings.MEDIA_ROOT + "/" + str(pair.audio2.audio_ref.file_location)
+        wordTwo = settings.MEDIA_ROOT + "/" + str(pair.audio2.audio_store.file_location)
         secondAudio = AudioSegment.from_wav(wordTwo).speedup(1)
         finalAudio += secondAudio
     finalAudio += firstAudio
     for i in range(NON_WORDS_AMOUNT):
-        mumbles, mask = getNonWord(mumbles)
+        mumbles, mask, _ = getNonWord(mumbles)
         finalAudio += mask
     finalAudio += silence
             
@@ -98,9 +115,29 @@ def makeBaselineRounds(pairs, wordRound, prime):
     pairsList = pairs.copy()
     random.shuffle(pairsList) # Have pairs in random order
     mumbles = list()
-    words = Word.objects.all()
+    words = Mumble.objects.all()
     for word in words:
         mumbles.append(word.audio_store.file_location)
+    random.shuffle(mumbles)
+    J_exp = None
+    K_exp = None
+    experiment = wordRound.experiment
+    J_loc = experiment.j_mask
+    K_loc = experiment.k_mask
+    if J_loc == "_NONE_":
+        mumbles, J_exp, loc = getMask(mumbles)
+        experiment.j_mask = loc
+        experiment.save()
+    else:
+        J_exp = makeMask(J_loc)
+
+    if K_loc == "_NONE_":
+        mumbles, K_exp, loc = getMask(mumbles)
+        experiment.k_mask = loc
+        experiment.save()
+    else:
+        K_exp = makeMask(K_loc)
+
     roundNum = 0
     for pair in pairsList:
         placebo = False
@@ -110,9 +147,9 @@ def makeBaselineRounds(pairs, wordRound, prime):
             if random.random() <= 0.8:  # 20% chance placebo is used
                 roundPrime = 'J'
         if roundPrime == 'J':
-            J = None
+            J = J_exp
         elif roundPrime == 'K':
-            J = None
+            J = K_exp
             placebo = True
         # J must be sent as a mumbled word
         b_round, mumbles = makeBaselineRound(pair, mumbles, J=J, placebo=placebo, wordRound=wordRound)
@@ -132,7 +169,6 @@ def makeBaselineRounds(pairs, wordRound, prime):
         b_rounds.append(userPairGuess)
 
     return b_rounds
-        
 
 
 def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment=None, pageModel=None):
@@ -143,15 +179,35 @@ def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment
     else:
         user_id = user.id
 
-    prime = pageModel.content_object.prime
+    audioRound = pageModel.content_object
+    prime = audioRound.prime
     experiment_user = experiment.user_source
 
-    words = list(Word.objects.filter(user_source=experiment_user))
+    pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    user_bundle_source = audioRound.word_bundle.user_source
+    words = list(Word.objects.filter(user_source=user_bundle_source))
+    random.shuffle(words)
     wordRoundAudio, pairs = makeWordRound(words, pairAmount=pairs, Experiment=experiment)
 
     wordRoundName = "{}_{}_Page_{}.wav".format(user.id, experiment.id, pageModel.page_number)
 
-    exported = wordRoundAudio.export(out_f = (settings.MEDIA_ROOT + "/" + str(user_id) + "/" + wordRoundName) + ".wav", format = "wav").name
+    joinedPath = os.path.join(settings.MEDIA_ROOT, str(user_id), wordRoundName)
+    print("JOIND PATH", joinedPath)
+
+    
+    path1 = os.path.join(settings.MEDIA_ROOT, str(user_id))
+    #path2 = os.path.join(path1, wordRoundName)
+
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(path1)
+
+    if not isExist:
+    
+        os.makedirs(path1)
+        print("The new directory is created!")
+
+    exported = wordRoundAudio.export(out_f = joinedPath, format = "wav").name
+    #exported = wordRoundAudio.export(out_f = (settings.MEDIA_ROOT + "/" + str(user_id) + "/" + wordRoundName) + ".wav", format = "wav").name
 
     wordRoundAudio = Audio_store(name=wordRoundName, allow_mumble=False, file_location=exported, user_source=user)
     file_location = set_file_name(wordRoundAudio, user.id)
@@ -174,7 +230,6 @@ def makeAudioRounds(mumbles=False, pairs=5, placebo=False, user=None, experiment
 
 #Dumb function, ignore
 def getWord(user, used_words):
-    print("words",  Word.objects.filter(user_source=user))
     return Word.objects.filter(user_source=user)[0]
 
 def getWords(experiment):

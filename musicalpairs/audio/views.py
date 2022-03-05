@@ -2,16 +2,19 @@
 from collections import UserDict
 import csv
 from email.mime import audio
+import mimetypes
+from pydub import AudioSegment
 from msilib import datasizemask
 import os
+from pickle import FALSE
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from numpy import round_
-from .forms import AudioForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm
-from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
-    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment
+from .forms import AudioForm, CustomAuthenticationForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm, PublishForm2
+from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, WordBundle, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
+    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment, ExperimentUpdate
 from .audio_manipulation import getRoundFile
 from .processRoundData import createImageRound, processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
@@ -28,11 +31,13 @@ from django.core.files.base import ContentFile
 import pandas as pd
 
 
-from .makeFakeModels import create_Fake_Models
+from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords
 
 try:
     print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
+    makePietroWords()
+    makeMumbleWords()
 except:
     print("DB not migrated yet")
 
@@ -136,6 +141,15 @@ def getResultsByRound(wordRound):
     
     return guesses_as_dicts, score, amount
 
+def getWordBundle(user):
+    userBundle = WordBundle.objects.filter(user_source=user)
+    if userBundle.exists():
+        userBundle = userBundle[0]
+    else:
+        userBundle = WordBundle(name="Your Audios", public=False, user_source=user)
+        userBundle.save()
+    return userBundle
+
 def getResultsForUser(user, experiment):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
     pages = list(pages)
@@ -146,10 +160,7 @@ def getResultsForUser(user, experiment):
 
     wordRounds = list()
     for page in pagesList:
-        print("Page exists bro")
         wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object, for_user=user)
-        print("page content", page.content_object)
-        print("wurd wound", wordRound)
         if wordRound.exists():
             wordRounds.append(wordRound[0])
         else:
@@ -197,7 +208,7 @@ def getRoundList(request):
             pairs = pageType.pairs
             placebo = False
             roundFiles = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
-            url = roundFiles[0].audio_ref.file_location.url + ".wav"
+            url = roundFiles[0].audio_ref.file_location.url
             roundContent = ["audio", mumbles, pairs, placebo, url]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
@@ -378,20 +389,7 @@ class CreateSurveyView(APIView):
 
 ## END
 
-
-def createExperimentPage(request):
-    user = request.user
-    experiments = Experiment.objects.all()
-    experiment = experiments[0]
-    experiment_id = request.GET.get('id', None)
-    if experiment_id is not None:
-        experiment_Check = Experiment.objects.filter(id=experiment_id)
-        if experiment_Check.exists():
-            experiment = experiment_Check[0]
-
-    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
-    if len(userUniqueExperiment) > 0:
-        return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
+def createExpTask(request, user, experiment, experiment_id):
 
     name = experiment.title
     round_list = getRoundList(request)
@@ -406,7 +404,63 @@ def createExperimentPage(request):
     survey.save()
     userUniqueExperiment = UserUniqueExperiment(for_user=user, experiment=experiment, survey_james=survey)
     userUniqueExperiment.save()
-    return redirect(reverse('surveyPage', kwargs={'roomCode':survey.code}))
+
+
+def createExperimentPage(request):
+    user = request.user
+    userBundle = getWordBundle(user)
+    experiments = Experiment.objects.all()
+    experiment = experiments[0]
+    experiment_id = request.GET.get('id', None)
+    if experiment_id is not None:
+        experiment_Check = Experiment.objects.filter(id=experiment_id)
+        if experiment_Check.exists():
+            experiment = experiment_Check[0]
+
+    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
+    if len(userUniqueExperiment) <= 0:
+        createExpTask(request, user, experiment, experiment_id)
+    return HttpResponse("Request received")
+
+
+def experimentLoad(request):
+    user = request.user
+    userBundle = getWordBundle(user)
+    experiments = Experiment.objects.all()
+    experiment = experiments[0]
+    experiment_id = request.GET.get('id', None)
+    if experiment_id is not None:
+        experiment_Check = Experiment.objects.filter(id=experiment_id)
+        if experiment_Check.exists():
+            experiment = experiment_Check[0]
+
+    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
+    if len(userUniqueExperiment) > 0:
+        return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
+
+    return render(request, "experimentLoadingPage.html", {"id": experiment_id})
+
+
+def checkReady(request):
+    user = request.user
+    userBundle = getWordBundle(user)
+    experiments = Experiment.objects.all()
+    experiment = experiments[0]
+    experiment_id = request.GET.get('id', None)
+    if experiment_id is not None:
+        experiment_Check = Experiment.objects.filter(id=experiment_id)
+        if experiment_Check.exists():
+            experiment = experiment_Check[0]
+
+    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
+    ready = False
+    if len(userUniqueExperiment) > 0:
+        ready = True
+
+    return JsonResponse({"ready": ready})
+
+    
+
 
 
 @register.filter
@@ -714,7 +768,7 @@ def loginView(request):
         if user is not None:
             login(request, user)
             return redirect('uploadAudio')
-    form = AuthenticationForm()
+    form = CustomAuthenticationForm()
     return render(request, 'login.html', {"form": form})
 
 def ajaxTest(request):
@@ -799,7 +853,19 @@ def createTextRound_POST(request):
 
 
 def createExperiment(request):
-    return render(request, "ResearcherPages/createExperiment.html")
+    user = request.user
+    listOfBundles = list()
+    userBundle = getWordBundle(user)
+    listOfBundles.append(userBundle)
+    otherBundles = WordBundle.objects.filter(public=True)
+    
+    for bundle in otherBundles:
+        listOfBundles.append(bundle)
+    context = {
+        "listOfBundles": listOfBundles
+    }
+    print(listOfBundles)
+    return render(request, "ResearcherPages/createExperiment.html", context)
 
 
 def createExperiment_POST(request):
@@ -826,6 +892,7 @@ def createExperiment_POST(request):
 
         
         roundInfoSplit = roundInfo.split('@@@OBJECT-DELIM@@@')
+        print("roundInfoSplit")
 
         experiment = None
 
@@ -836,7 +903,6 @@ def createExperiment_POST(request):
             if roundObj != '':
                 round = None
                 data = processRound(roundObj)
-                print("data\n", data)
                 if data['roundType'] == "experiment":
                     experimentName = data['experimentName']
                     experiment = Experiment(user_source=user, title=experimentName)
@@ -862,7 +928,14 @@ def createExperiment_POST(request):
                 elif data['roundType'] == "audio":
                     prime = str(data['prime'])
                     pairs = int(data['pairs'])
-                    round = createAudioRound(pairs, prime, experiment, user)
+                    bundleId = data['bundleID']
+                    wordBundle = WordBundle.objects.filter(id=bundleId)
+                    if wordBundle.exists():
+                        wordBundle = wordBundle[0]
+                    else:
+                        wordBundle = getWordBundle(user)
+                    print("WOD BUNDLE", wordBundle)
+                    round = createAudioRound(pairs, prime, experiment, user, wordBundle)
                 elif data['roundType'] == "text":
                     title = data['title']
                     print("\nTITLE\n", title, "\n\n")
@@ -872,6 +945,7 @@ def createExperiment_POST(request):
                     image = imageList[imageNumber]
                     name = data['name']
                     questionText = data['questionText']
+                    print("name!,", name)
 
                     round = createImageRound(image, experiment, user, questionText, name)
                     imageNumber += 1
@@ -1050,23 +1124,59 @@ def getRoundLength(experiment):
     return 10
 
 def viewExperiment_Researcher(request):
-    experiment_id = request.GET.get('id')
-    experiment = Experiment.objects.filter(id=experiment_id)
-    if not experiment.exists():
-        return HttpResponse("ID not recognised")
-    experiment = experiment[0]
-    participants = UserUniqueExperiment.objects.filter(experiment=experiment)
-    roundCount = getRoundLength(experiment)
-    completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+    if request.method == 'POST':
+        experiment_id = request.POST['experiment_id']
+        experiment = Experiment.objects.filter(id=experiment_id)
+        exp = experiment[0]
+        form = PublishForm2(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            update = ExperimentUpdate(experiment=exp, subject=subject, body=body)
+            name = request.user.username
+            subject = str(exp) + " update: " + subject
+            body = form.cleaned_data['body']
+            emails = []
+            if exp.subscribers.all().count() > 0:
+                for user in exp.subscribers.all():
+                    emails.append(getattr(user, "email"))
+                send_mail(subject, body, "musicalpairs123@gmail.com", emails)
+                update.save()
+                return JsonResponse({'success' : True, 'subject': subject, 'body':body})
+            else:
+                return JsonResponse({'oops':"Nobody subscribed to this experiment, therefore no message was sent."})
 
-    context = {
-        "experimentName": experiment.title,
-        "id": experiment_id, 
-        "participant_count": len(participants),
-        "completed_count": len(completed_participants)
-    }
+        else:
+            data ={'error':form.errors}
+            return JsonResponse(data)
 
-    return render(request, "ResearcherPages/viewExperimentInfo.html", context)
+    else:
+        experiment_id = request.GET.get('id')
+        experiment = Experiment.objects.filter(id=experiment_id)
+        print("EXP", experiment, experiment_id)
+        if not experiment.exists():
+            return HttpResponse("ID not recognised")
+        form = PublishForm2(initial={'experiment':experiment})
+        experiment = experiment[0]
+        updates = ExperimentUpdate.objects.filter(experiment=experiment).order_by('-dateSent')
+        if updates.exists():
+            updates[0]
+        else:
+            updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
+        participants = UserUniqueExperiment.objects.filter(experiment=experiment)
+        roundCount = getRoundLength(experiment)
+        completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+        context = {
+            "experimentName": experiment.title,
+            "id": experiment_id, 
+            "participant_count": len(participants),
+            "completed_count": len(completed_participants),
+            "form" : form,
+            "updates" : updates
+        }
+
+        return render(request, "ResearcherPages/viewExperimentInfo.html", context)
+
 
 def getGuessesBasedOnPrime(experiment, prime):
     pairGuessesQuery = UserPairGuess.objects.filter(prime=prime)
@@ -1138,11 +1248,34 @@ def dataAnalysis(request):
         'percent': k_percent
     }
     chartsData.append(k_info)
+
+    sampleChartsData = [{
+        'title': "X Prime",
+        'data': [124, 259],
+        'labels': ["Correct", "Incorrect"],
+        'percent': 32.38
+    },
+    {
+        'title': "J Prime",
+        'data': [89, 174],
+        'labels': ["Correct", "Incorrect"],
+        'percent': 33.84
+    },
+    {
+        'title': "K Prime",
+        'data': [35, 23],
+        'labels': ["Correct", "Incorrect"],
+        'percent': 60.34
+    }
+
+
+
+    ]
     
 
     context = {
         'id': experiment_id,
-        'chartsData': chartsData
+        'chartsData': sampleChartsData
     }
 
 
@@ -1251,6 +1384,7 @@ def downloadData(request):
 
     
     fileName = str(experiment.user_source.id) + "/" + "Experiment" + str(experiment.id) + ".xlsx"
+    filePath = os.path.join(settings.MEDIA_ROOT, fileName)
     writer = pd.ExcelWriter(os.path.join(settings.MEDIA_ROOT, fileName), engine='xlsxwriter')
 
     for a_file in a_files:
@@ -1258,5 +1392,85 @@ def downloadData(request):
         df.to_excel(writer, sheet_name=os.path.basename(a_file))
 
     writer.save()
+
+    # Open the file for reading content
+    path = open(filePath, 'rb')
+    # Set the mime type
+    mime_type, _ = mimetypes.guess_type(filePath)
+    # Set the return value of the HttpResponse
+    response = HttpResponse(path, content_type=mime_type)
+    # Set the HTTP header for sending to browser
+    response['Content-Disposition'] = "attachment; filename=%s" % fileName
+    # Return the response value
+    return response
+
+
+
+def userResults(request):
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
+    userWordRounds = UserWordRound.objects.filter(experiment=experiment, for_user=request.user).order_by('id')
+    dataContent = list()
+    roundNum = 0
+    for wordRound in userWordRounds:
+        pairsInfo = list()
+        userPairGuesses = UserPairGuess.objects.filter(associated_word_round=wordRound)
+        total = len(userPairGuesses)
+        correct = 0
+        for guess in userPairGuesses:
+            pair = guess.pair
+            word1 = pair.audio1.word
+            word2 = pair.audio2.word
+            answer = guess.answer
+            if word2.lower() == answer.lower():
+                correct += 1
+            pairInfo = [word1.lower, word2.lower, answer]
+            pairsInfo.append(pairInfo)
+        percent = 0.0
+        if total > 0:
+            percent = round((correct / total) * 100, 2)
+
+        roundNum += 1
+        roundName = "Round " + str(roundNum)
+        dataContent.append([roundName, pairsInfo, correct, total, percent])
+
+    context = {
+        "object_list": dataContent,
+        "id": experiment_id
+    }
     
-    return HttpResponse("No download")
+    return render(request, "userResults.html", context)
+
+
+
+
+def detect_leading_silence(sound, silence_threshold=-40.0, chunk_size=10):
+    '''
+    sound is a pydub.AudioSegment
+    silence_threshold in dB
+    chunk_size in ms
+
+    iterate over chunks until you find the first one with sound
+    '''
+    trim_ms = 0 # ms
+
+    assert chunk_size > 0 # to avoid infinite loop
+    while sound[trim_ms:trim_ms+chunk_size].dBFS < silence_threshold and trim_ms < len(sound):
+        trim_ms += chunk_size
+
+    return trim_ms
+
+def trimAudio(request):
+
+    sound = AudioSegment.from_wav(request.FILES['file'])
+    start_trim = detect_leading_silence(sound)
+    end_trim = detect_leading_silence(sound.reverse())
+    duration = len(sound)    
+    trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
+    user_id = request.user.id
+    file_handle = trimmed_sound.export("media/user_{}/trimmedSounds/trimmedAudio.wav".format(user_id), 
+       format="wav",)
+    return redirect('uploadAudio')

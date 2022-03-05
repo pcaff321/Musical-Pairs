@@ -74,7 +74,17 @@ class Experiment(models.Model):
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=50, null=False)
     subscribers = models.ManyToManyField(User, related_name="sub")
+    j_mask = models.CharField(max_length=50, default="_NONE_")
+    k_mask = models.CharField(max_length=50, default="_NONE_")
 
+    def __str__(self):
+        return self.title
+
+class ExperimentUpdate(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    dateSent = models.DateTimeField(auto_now_add=True)
+    subject = models.CharField(max_length=100, null=False)
+    body = models.CharField(max_length=1000, null=False)
 
 class Audio_store(models.Model):
     name = models.CharField(max_length=20, null=False)
@@ -89,6 +99,17 @@ class Word(models.Model):
     word = models.CharField(max_length=20, null=False, unique=True)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     audio_store = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+
+
+class Mumble(models.Model):
+    mumble = models.CharField(max_length=20, null=False, unique=True)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
+    audio_store = models.ForeignKey(Audio_store, on_delete=models.CASCADE)
+
+class WordBundle(models.Model):
+    name = models.CharField(max_length=20, null=False)
+    public = models.BooleanField('public', default=False)
+    user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class ExperimentWord(models.Model):
@@ -139,11 +160,14 @@ class SurveyAnswer(models.Model):
 
 
 
+
+
 class AudioRound(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     pairs = models.IntegerField(null=False)
     prime = models.CharField(max_length=3, null=False, default="X")
+    word_bundle = models.ForeignKey(WordBundle, on_delete=models.CASCADE)
 
 
 def set_image_name(instance, file_name):

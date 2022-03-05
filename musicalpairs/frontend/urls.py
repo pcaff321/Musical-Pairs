@@ -10,5 +10,5 @@ urlpatterns = [
     path('survey/<str:roomCode>', app, name='surveyPage'),
     path('survey2', app),
     path('room/<str:roomCode>', app),
-    path('formtest', app)
+    path('formtest', app),
 ]

@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block content %}
+
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+}
+.imgbox {
+  margin-top: 10%;
+}
+
+#img {
+  min-width: 400px;
+}
+
+
+</style>
+<div class="row">
+<div class="col-md-2"></div>
+<div class="col-md-8 d-flex justify-content-center heading">
+<div class="imgbox">
+    <img id="img" class="center-fit" src="{% static 'images/BrainGif.gif' %}"></img>
+</div>
+</div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script>
+  function check(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'checkReady' %}?id={{ id }}",
+      headers: {"X-CSRFToken": "{{ csrf_token }}"},
+      processData: false,
+      contentType: false
+  }).done(function(data) {
+      console.log(data);
+      if (data['ready'] == true) {
+        console.log("true");
+        window.location.replace("{% url 'experimentLoad' %}?id={{ id }}");
+      }
+  });
+}
+                    $.ajax({
+                      type: 'POST',
+                      url: "{% url 'createExperimentPage' %}?id={{ id }}",
+                      headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                      processData: false,
+                      contentType: false
+                  }).done(function(data) {
+                      console.log(data);
+                  });
+                  setInterval(() => check(), 1500)
+</script>
+
+
+{% endblock %}

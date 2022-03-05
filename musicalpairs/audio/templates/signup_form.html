@@ -1,16 +1,134 @@
 {% extends 'layout.html' %}
-
+{% load crispy_forms_tags %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-8 col-sm-10 col-12">
-      <h2>Sign up as a {{ user_type }}</h2>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {{ form }}
-        <button type="submit" class="btn btn-success">Sign up</button>
-      </form>
-    </div>
+{% load static %}
+
+<style>
+
+  .heading {
+
+      padding: 100px 50px 50px 50px;
+      color: black;
+  }
+
+  .btn {
+    background-color: #4f5d75 !important;
+    border: none !important;
+    padding: 10px 40px 10px 40px !important;
+    
+  }
+
+  .btn:hover{
+    background-color: #2d3142 !important;
+
+  }
+
+  .btn:focus {
+    box-shadow:none;
+  }
+  
+  .btn:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
+
+
+
+
+  .h2, h2 {
+      font-size: 2rem !important;
+
+  }
+
+  .bg-img {
+    padding-bottom: 40px;
+  }
+
+
+  .submitRow {
+    margin-top:15px;
+    padding-bottom: 110px;
+  }
+
+
+
+  #hint_id_password1 {
+    display:none;
+  }
+
+  #hint_id_password2 {
+    display:none;
+  }
+
+  .form-group {
+    padding-bottom: -30px;
+  }
+</style>
+
+<div class="bg-img" style="background-image: url('{% static "psych-image2.jpg"%}'); 
+background-position: center;
+background-repeat: no-repeat;
+background-size: 105%;
+position: relative;
+background-color: rgba(255,255,255,0.9);
+    background-blend-mode: lighten;
+">
+
+<div class="row row1">
+  <div class="col-md-6"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h2>Sign up as a {{ user_type }}</h2>
   </div>
+</div>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="row">
+        <div class="col-md-6"></div>     
+        <div class="col-md-2">
+          {{ form.first_name|as_crispy_field }}
+        </div>
+          <div class="col-md-2">
+
+            {{ form.last_name|as_crispy_field}}
+          </div>
+      </div>
+    
+    <div class="row emailRow">
+      <div class="col-md-6"></div>
+      <div class="col-md-4">
+        {{ form.email|as_crispy_field }}
+     </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6"></div>
+    <div class="col-md-2">
+      {{ form.password1|as_crispy_field }}
+   </div>
+    <div class="col-md-2">
+      {{ form.password2|as_crispy_field }}
+    </div>
+   </div>
+      <div class="row birthRow1">
+        <div class="col-md-6"></div>
+      </div>
+      <div class="row birthRow2">
+        <div class="col-md-6"></div>
+        <div class="col-md-2">
+          {{ form.date_of_birth|as_crispy_field}}
+        </div>
+        <div class="col-md-1">
+          {{ form.gender|as_crispy_field }}
+        </div>
+      </div>
+      <div class="row submitRow">
+        <div class="col-md-6"></div>
+        <div class="col-md-4 d-flex justify-content-center">
+          <button type="submit" class="btn btn-success">Sign up</button>
+        </div>
+      </div>
+    </form>
+</div>
+</div>
+
 {% endblock %}

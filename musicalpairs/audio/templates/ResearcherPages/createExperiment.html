@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load static %}
 
 {% block style %}
   <title>Create Experiments</title>
@@ -20,35 +21,319 @@
       .box.over {
         border: 3px dotted #666;
       }
+     
 
   </style>
 {% endblock %}
 
 {% block content %}
 
-  <button id="addRound" onclick="addRound(this)">Add Round</button>
-  <select name="roundType" id="roundType">
-    <option value="text">Text Round</option>
-    <option value="audio">Audio Round</option>
-    <option value="image">Image Round</option>
-    <option value="survey">Survey Round</option>
-  </select><br><br><br>
+<style>
+  .row1 {
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    padding-top:30px;
+  }
+
+  #addRound {
+    margin-top: 20px;
+    padding: 4px 10px 4px 10px;
+    background-color: #2d3142;
+    border: none;
+    font-size: 16px;
+    color: white;
+    border-radius:5px;
+    border: none !important;
+    margin-left:-20px;
+  }
+
+  #addRound:hover {
+      background-color:#4f5d75;
+  }
+
+  #addRound:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
 
 
-<label for="experimentName">Experiment Name: </label>
-<input id="experimentName"></input><br><br><br>
 
-<label for="roundContainer">Rounds</label>
-  <div class="container" id="roundContainer">
-    <div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title-input">Title: </label><br><input id="title-input"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>
-
-  </div><br><br><br>
+  .row2 {
+    padding-top:30px;
+  }
 
 
+  .roundRow {
+    padding-top: 30px;
+    margin-left:20px !important;
+    
 
+  }
+
+  #submitButton {
+    padding: 10px;
+    margin-top:15px;
+    background-color: #4f5d75;
+    border: none;
+    font-size: 17px;
+    color: white;
+    border-radius: 10px;
+  }
+
+  #submitButton:focus {
+    box-shadow:none;
+  }
+  
+  #submitButton:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
+
+  #submitButton:hover {
+      background-color: #2d3142;
+
+  }
+
+
+  .textRound {
+    padding: 30px;
+    margin-bottom: 15px;
+      border: 1px dashed darkgray;
+    text-align: center;
+  }
+
+  .audioRound {
+    padding: 30px;
+    margin-bottom: 15px;
+    border: 1px dashed darkgray;
+    text-align: center;
+
+  }
+
+  .imageRound {
+    padding: 30px;
+    margin-bottom: 15px;
+      border: 1px dashed darkgray;
+    text-align: center;
+  }
+
+.surveyRound {
+  padding: 30px;
+  margin-bottom: 15px;
+  border: 1px dashed darkgray;
+  text-align: center;
+
+}
+
+#roundLabel {
+  padding:30px;
+}
+
+#removeBtn {
+    background-color: transparent;
+    border:none;
+
+}
+
+#add_button {
+  margin-top:20px;
+  padding: 5px 10px 5px 10px;
+  background-color: darkgray;
+  border: none;
+  font-size: 15px;
+  color: white;
+  border-radius: 5px;
+}
+
+#add_button:hover {
+  background-color: dimgray;
+}
+
+#add_button:focus {
+  box-shadow:none;
+}
+
+#add_button:active{
+  transform: perspective(20px) translateZ(-1px);
+}
+
+#add_button:hover {
+  background-color:gray;
+  box-shadow: 1px 1px 0px 1px dimgray;
+
+}
+
+#question {
+  margin-bottom:10px;
+}
+
+#checks {
+  margin-top: 20px;
+}
+
+#firstTextRound {
+  padding-top: 25px;
+}
+
+.fa-xmark {
+    color: darkgray;
+
+}
+
+.fa-xmark:hover {
+  color: dimgray;
+
+}
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+
+}
+
+#experimentName {
+  margin-top: 20px;
+}
+
+#roundType {
+  margin-top:15px;
+}
+
+.roundtypeRow {
+  padding-bottom: 10px;
+  margin-top: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.fa-question {
+  color: #2d3142;
+}
+
+#helpButton {
+  background-color: white !important;
+  margin-left: -45px;
+  margin-top: 25px;
+  border: 2px dashed #2d3142 !important;
+}
+
+#helpButton:hover {
+  box-shadow: 3px 3px 3px 1px dimgray;
+}
+
+#helpButton:focus {
+  box-shadow:none;
+}
+
+#helpButton:active{
+  transform: perspective(20px) translateZ(-1px);
+}
+
+#pairs {
+  border: 1px solid lightgray;
+  width:20%;
+}
+
+.popUp {
+  margin-top: 150px;
+  text-align: center;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 20px;
+  left: 30%;
+  top: 0;
+  width: 40%;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.popupContent {
+  font-size: 17px;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 80%;
+}
+.close {
+  color: rgb(255, 65, 65);
+  float: right;
+  font-size: 40px;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: #ff1010;
+  cursor: pointer;
+}
+
+#imageQText {
+  margin-top: 20px;
+}
+
+#labelPrime, #labelName {
+  margin-top :10px;
+}
+
+</style>
+
+<div class="popUp">
+  <div class="popupContent">
+  <span class="close">×</span>
+  <p>Creating An Experiment:</p>
+  <p>An Experiment is made up of <b>rounds</b>.</p>
+  <p>Select from <b>Text</b>, <b>Audio</b>, <b>Survey</b> and <b>Image</b> rounds and click the <i class="fa-plus fa-solid fa-lg"></i> button to add and edit your chosen round.
+   Click on <i class="fa-solid fa-xmark fa-lg" style="color: darkgray !important;"></i> located on the top of a round to delete it. You can also drag each round to change the order of your experiment!
+  </p>
+  <p>When you are happy with your experiment rounds and want to submit, fill in the name of your experiment and click the "Submit Experiment" button.</p>
+
+</div>
+  </div>
+
+<div class="row headingRow">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h1>Create an Experiment</h1>
+  </div>
+</div>
+<div class="row row1">
+  <div class="col-md-7"></div>
+  <div class="col-md-2 col2 form-outline form-group">
+    <input class="form-control" type="text" placeholder="Enter Experiment Name"id="experimentName" name="experimentName" required="true"></input>
+</div>
+  <div class="col-md-2">
   <button id="submitButton"onclick="submitExperiment()">
     Submit Experiment
     </button>
+  </div>
+  <div class="col-md-1 questionCol">
+    <button class="openPopUp" id="helpButton"><i class=" fa-solid fa-question fa-lg"></i></button>
+  </div>
+  
+</div>
+
+<div class="row roundtypeRow">
+
+  <div class="col-md-5"></div>
+  <div class="col-md-2 roundTypeCol d-flex justify-content-center">
+  <select class="form-select"  name="roundType" id="roundType">
+     <option value="selectType" id="default "default >Select Round Type:</option>
+      <option value="text">Text Round</option>
+      <option value="audio">Audio Round</option>
+      <option value="image">Image Round</option>	
+      <option value="survey">Survey Round</option>
+   </select>
+</div>
+<div class="col-md-2 roundTypeCol">
+<button id="addRound" onclick="addRound(this)"><i class="fa-solid fa-plus"></i></button>
+</div>
+</div>
+
+<div class="row roundRow">
+  <div class="col-sm-1"></div>
+  <div class="col-sm-10">
+      <div class="container row" id="roundContainer">
+        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
+
+    </div><br><br><br>
+  </div>
+</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -71,35 +356,36 @@
 
     
   });
+
         
-    function handleDragStart(e) {
-        this.style.opacity = '0.4';
+  function handleDragStart(e) {
+      this.style.opacity = '0.4';
       
-        dragSrcEl = this;
+      dragSrcEl = this;
       
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-      }
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+  }
   
-    function handleDragEnd(e) {
-      this.style.opacity = '1';
+  function handleDragEnd(e) {
+    this.style.opacity = '1';
   
-      items.forEach(function (item) {
-        item.classList.remove('over');
-      });
+    items.forEach(function (item) {
+      item.classList.remove('over');
+    });
+  }
+  
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
     }
-  
-    function handleDragOver(e) {
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-  
+
       return false;
-    }
+  }
   
-    function handleDragEnter(e) {
-      this.classList.add('over');
-    }
+  function handleDragEnter(e) {
+    this.classList.add('over');
+  }
   
     function handleDragLeave(e) {
       this.classList.remove('over');
@@ -119,52 +405,58 @@
 
   
   
-  
 
 
-  var questionHtml = `<div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText"></input><br>
-  <select name="questionType" id="questionType" class="questionType">
+  var questionHtml = `<div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText form-control"></input>
+  <select name="questionType" id="questionType" class="questionType form-select"><br>
+    
     <option value="slider">Slider Bar 1-10</option>
     <option value="input">Input Box</option>
     <option value="yesOrNo">Yes Or No Option</option>
-    <option value="Agree">Agree</option>
-  </select>
-  <label for="answer">Correct Answer(s): </label><input id="answer"></input>
-  <button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
+    <option value="Agree">Agree</option>	
+  </select><button id="removeBtn" onclick="removeRound(this)">&nbsp;<i class="fa-solid fa-xmark"></i></button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="title-input">Title: </label><br><input id="title-input"></input><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input"></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
 
-  var surveyRoundHtml = `<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
-    <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
+  var surveyRoundHtml = `<div draggable="true" class="box surveyRound col-sm-3"><h3>Survey Round</h3>
+    <button id="add_button" onclick="addQuestion(this)">+ question</button><br><br>
 
-    <div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText"></input><br>
-    <select name="questionType" id="questionType" class="questionType">
+    <div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText form-control"></input>
+    <select name="questionType" id="questionType" class="questionType form-select">
       <option value="slider">Slider Bar 1-10</option>
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
       <option value="Agree">Agree</option>
-    </select>
-    <label for="answer">Correct Answer(s): </label><input id="answer"></input>
-    <br><br></div>
+    </select><br><br></div>
   </div>`;
 
-  var audioRoundHtml = `<div draggable="true" class="box audioRound">
-    <h1>Audio Round</h1>
-    <label for="prime">Prime: </label><select name="prime" id="prime" class="prime">
-      <option value="X">X</option>
-      <option value="J">J</option>
-      <option value="K">K</option>
+  var audioRoundHtml = `<div draggable="true" class="box audioRound col-sm-3">
+    <h3>Audio Round</h3>
+    <label id="labelPrime" for="prime">Prime: </label><select name="prime" id="prime" class="prime form-select">
+    <option value="X">X</option>
+    <option value="J">J</option>
+    <option value="K">K</option>
     </select><br>
-    <label for="pairs">Amount of Pairs: </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
-    </div>`;
+    <label for="bundle">Word Bundle: </label><select name="bundle" id="bundle" class="bundle form-select">
+    {% for bundle in listOfBundles %}
+    <option value="{{ bundle.id }}">{{ bundle.name }}</option>
+    {% endfor %}
+    </select><br>
 
-  var imageRoundHtml = `<div draggable="true" class="box imageRound">
-    <h1>Image Round</h1>
-    <label for="nameText">Name: </label><input id="nameText" class="nameText"></input><br>
+    <div id="checks">
+        <input id="mumbles" class="mumbles form-check-input" type="checkbox">    <label for="mumbles" class="form-check-label">Use Mumbles</label><br>
+        <input id="placebo" class="placebo form-check-input" type="checkbox"><label for="placebo" class="form-check-label">Use Placebos</label><br><br>
+    </div>
+    <label for="pairs"># of Pairs:&nbsp;&nbsp;&nbsp; </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
+    </div>`;
+  
+
+  var imageRoundHtml = `<div draggable="true" class="box imageRound col-sm-3">
+    <h3>Image Round</h3>
+    <label id="labelName" for="nameText">Name: </label><input id="nameText" class="nameText form-control"></input><br>
     <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
-    <label for="questionText">Accompanying Question: </label><input id="questionText" class="questionText"></input><br>
+    <label id="imageQText" for="questionText">Accompanying Question: </label><input id="questionText" class="questionText form-control"></input><br>
     </div>`;
-
 
   var containerBox = document.getElementById("roundContainer");
 
@@ -182,10 +474,23 @@
 
     //surveyDiv.appendChild(newQuestion);
     surveyDiv.insertAdjacentHTML('beforeend', questionHtml);
+  }
 
   
-    
-  }
+  var popUp = document.querySelector(".popUp");
+  var btn = document.querySelector(".openPopUp");
+  var span = document.querySelector(".close");
+  btn.addEventListener("click", () => {
+     popUp.style.display = "block";
+  });
+  span.addEventListener("click", () => {
+     popUp.style.display = "none";
+  });
+  window.onclick = function(event) {
+     if (event.target == popUp) {
+        popUp.style.display = "none";
+     }
+  };
 
   function removeRound(elem){
     elem.parentNode.remove()
@@ -199,22 +504,26 @@
       roundHtml = audioRoundHtml
     }else if (typeVal == "survey"){
       roundHtml = surveyRoundHtml
-    }else if (typeVal == "image"){
-      roundHtml = imageRoundHtml
       }
+    else if (typeVal == "text"){
+      roundHtml = textRoundHtml
+    }
+    else if (typeVal == "image"){
+      roundHtml = imageRoundHtml
+    }
+  
 
+  
       //Add delete button (done in messy way)
-      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound">', '<div draggable="true" class="box audioRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound">', '<div draggable="true" class="box textRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound">', '<div draggable="true" class="box surveyRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box imageRound">', '<div draggable="true" class="box imageRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-
+      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound col-sm-3">', '<div draggable="true" class="box audioRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound col-sm-3">', '<div draggable="true" class="box textRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound col-sm-3">', '<div draggable="true" class="box surveyRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box imageRound col-sm-3">', '<div draggable="true" class="box imageRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
 
     containerBox.insertAdjacentHTML('beforeend',roundHtml)
     divEl = containerBox.lastChild
     //divEl = createElementFromHTML(textRoundHtml)
     //containerBox.appendChild(divEl)
-
 
     divEl.addEventListener('dragstart', handleDragStart);
     divEl.addEventListener('dragover', handleDragOver);
@@ -222,9 +531,7 @@
     divEl.addEventListener('dragleave', handleDragLeave);
     divEl.addEventListener('dragend', handleDragEnd);
     divEl.addEventListener('drop', handleDrop);
-
-    items.push(divEl)
-
+    items.push(divEl);
   }
 
   function hasClass(element, className) {
@@ -241,14 +548,14 @@
     textRound = "$type=text$END$text=This is text for a text round$END"
     
     audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
-
-    imageList = []
     
     experimentString = "@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
     
     //element.classList.contains(class);
 
     delimiter = "@@@OBJECT-DELIM@@@"
+
+    imageList = []
 
     experimentString = delimiter + "$type=experiment$END" + "$experimentName=" + document.getElementById('experimentName').value + "$END"
 
@@ -258,10 +565,12 @@
         audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
         var type = "audio"
         var prime = element.querySelector('.prime').value
+        var bundleID = element.querySelector('.bundle').value
         var pairs = element.querySelector('.pairs').value
 
         string = delimiter + "$type=" + type + "$END"
         string = string + "$prime=" + prime.toString() + "$END"
+        string = string + "$bundleID=" + bundleID.toString() + "$END"
         string = string + "$pairs=" + pairs.toString() + "$END"
 
         experimentString = experimentString + string
@@ -348,26 +657,25 @@
 
       }
 
-
     }
 
     )
-
-  console.log("STUFF", experimentString, imageList);
-
+    console.log("STUFF", experimentString, imageList);
 
 
-  return [experimentString, imageList];
-
-
-
+    return [experimentString, imageList];	
 
 
   }
 
+  function submitExperiment() {
+              nameFilled = document.getElementById('experimentName').value
 
-    function submitExperiment() {
-
+              if ((nameFilled == "") || (nameFilled == " ")) {
+                alert("Cannot submit an experiment wihtout a name")
+              }
+              else{
+        
               experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
 
               surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
@@ -376,31 +684,32 @@
 
               audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
 
-            var fd = new FormData();
-            expInfo = buildExperimentInfo();
-            experimentString = expInfo[0]
-            imageList = expInfo[1]
-            fd.append('roundInfo', experimentString);
-            for (const file of imageList) {
-              console.log("file", file)
-              fd.append('images[]', file, file.name);
-            }
-            $.ajax({
-                type: 'POST',
-                url: "{% url 'postExperiment' %}",
-                headers: {"X-CSRFToken": "{{ csrf_token }}"},
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function(data) {
-                console.log(data);
-            });
-            location.href = '../listExperiments';
-    }
-
-
-
+              var fd = new FormData();
+              expInfo = buildExperimentInfo();
+              experimentString = expInfo[0]
+              imageList = expInfo[1]
+              fd.append('roundInfo', experimentString);
+              for (const file of imageList) {
+                console.log("file", file)
+                fd.append('images[]', file, file.name);
+              }
+              $.ajax({
+                  type: 'POST',
+                  url: "{% url 'postExperiment' %}",
+                  headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                  data: fd,
+                  processData: false,
+                  contentType: false
+              }).done(function(data) {
+                  console.log(data);
+              });
+                location.href = '../listExperiments';
+              }
+}
 
 </script>
+
+<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
+
 
 {% endblock %}
