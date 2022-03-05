@@ -350,13 +350,10 @@
                     processData: false,
                     contentType: false
                 }).done(function(data) {
-<<<<<<< HEAD
                     var path = '/media/'+{{ user.id }}+'/trimmedSounds/trimmedAudio.wav'
-=======
                     console.log("trimmedURL")
                     console.log("{{ trimmedUrl }}")
                     var path = '{{ trimmedUrl }}'
->>>>>>> 5169b759ec66ce2d754eaa4db3a2092046f0a20d
                     wavesurfer.load(path);
                 });
 
