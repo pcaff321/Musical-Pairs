@@ -183,11 +183,13 @@
     <div class="col-md-8 d-flex justify-content-center heading">
 
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'summary')">Summary</button>
+            <button class="tablinks active" onclick="openTab(event, 'summary')">Summary</button>
+            <button class="tablinks" onclick="openTab(event, 'graph')">Participation</button>
             <button class="tablinks" onclick="openTab(event, 'stats')">Stats</button>
-            <button class="tablinks" onclick="openTab(event, 'graph')">Graph</button>
+            <button class="tablinks" onclick="openTab(event, 'questions')">Questions</button>
             <button class="tablinks" onclick="openTab(event, 'publish')">Update Subscribers</button>
             <button class="tablinks" onclick="openTab(event, 'prevUpdates')">Previous Updates</button>
+            <a href="{% url 'downloadData' %}?id={{ id }}"><button class="tablinks">Download All Data</button></a>
         </div>
     </div>
 </div>
@@ -196,11 +198,15 @@
 <div class="col-md-1"></div>
 <div class="col-md-10 d-flex justify-content-center heading">
 
-<div id="summary" class="tabcontent">
-<h2> Total Participants: {{ participant_count }}</h2>
-<h2> Total Completed: {{ completed_count }} </h2>
-<h2> Total Subscribed: </h2>
-</div>
+  <div id="summary" class="tabcontent">
+    <h2> Total Participants: {{ participant_count }}</h2>
+    <h2> Total Subscribers: {{ subscriber_count }} </h2>
+    </div>
+
+
+    <div id="questions" class="tabcontent">
+      <h2> QUESTIONS </h2>
+      </div>
 
   <div id="publish" class="tabcontent">
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
@@ -271,11 +277,18 @@
 
 
 <div class="tabcontent" id="stats">
-    <a href="{% url 'dataAnalysis' %}?id={{ id }}"><button> View Stats </button></a>
+  {% for chart in chartsData %}
+  <div  height="40" width="40">
+      <canvas id="{{ chart.title }}" ></canvas>
+  </div>
+  <h3> Overall Correct: {{ chart.percent }}% </h3>
+  <br><br><br>
+  {% endfor %}
 </div>
 
 
 <div class="tabcontent" id="prevUpdates">
+        {% if update_exists %}
     <table class="table table-md">
       <thead>
         <tr class="dflex">
@@ -285,6 +298,7 @@
         </tr>
       </thead>
       <tbody>
+
         {% for u in updates %}
         <tr class="dflex">
           <td>{{ u.dateSent }}</td>
@@ -292,10 +306,12 @@
           <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
         </tr id="content">
         {% endfor %}
-        
     
       </tbody>
     </table>
+    {% else %}
+    <h2> No updates have been made yet </h2>
+    {% endif %}
 </div>
 
 
@@ -573,6 +589,7 @@ function copy2Clip(){
     evt.currentTarget.className += " active";
   }
 
+  document.onload = document.getElementById('summary').style.display = "block";
 </script>
 
 </html>
@@ -581,3 +598,67 @@ function copy2Clip(){
 
 {% endblock %}
 
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+{% for chart in chartsData %}
+labels = [];
+
+{% for label in chart.labels %}
+   labels.push('{{ label }}')
+{% endfor %}
+
+console.log(labels);
+data = {
+  labels: labels,
+  datasets: [{
+    label: "{{ chart.title }}",
+    data: {{ chart.data }},
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+      'rgba(255, 159, 64, 0.2)',
+      'rgba(255, 205, 86, 0.2)',
+      'rgba(75, 192, 192, 0.2)',
+      'rgba(54, 162, 235, 0.2)',
+      'rgba(153, 102, 255, 0.2)',
+      'rgba(201, 203, 207, 0.2)'
+    ],
+    borderColor: [
+      'rgb(255, 99, 132)',
+      'rgb(255, 159, 64)',
+      'rgb(255, 205, 86)',
+      'rgb(75, 192, 192)',
+      'rgb(54, 162, 235)',
+      'rgb(153, 102, 255)',
+      'rgb(201, 203, 207)'
+    ],
+    borderWidth: 1
+  }]
+};
+  
+    
+   config = {
+    type: 'bar',
+    data: data,
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    },
+  };
+     myChart = new Chart(
+        document.getElementById('{{ chart.title }}'),
+        config
+    );
+{% endfor %}
+  </script>
+
+{% endblock %}

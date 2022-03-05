@@ -3,6 +3,7 @@ from collections import UserDict
 import csv
 from email.mime import audio
 import mimetypes
+from msvcrt import getch
 from pydub import AudioSegment
 from msilib import datasizemask
 import os
@@ -14,7 +15,7 @@ from django.http import HttpResponse, JsonResponse
 from numpy import round_
 from .forms import AudioForm, CustomAuthenticationForm, ResearcherSignUpForm, ExperimenteeSignUpForm, PublishForm, PublishForm2
 from .models import ImageRound, Survey, SurveyAnswer, SurveyQuestion, User, WordBundle, set_file_name, Audio_store, Word, Experiment, Page, SurveyRound, AudioRound,\
-    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment, ExperimentUpdate
+    TextRound, Survey_James, UserWordRound, UserPairGuess, UserUniqueExperiment, ExperimentUpdate, AssociatedSurvey
 from .audio_manipulation import getRoundFile
 from .processRoundData import createImageRound, processRound, getVar, createPage, createAudioRound, createSurveyRound, getQuestions, createTextRound, createSurveyQuestion
 from .serializers import Audio_serializer, SurveySerializer, CreateSurveySerializer
@@ -29,7 +30,6 @@ import math
 import string
 from django.core.files.base import ContentFile
 import pandas as pd
-
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords
 
@@ -121,7 +121,6 @@ def getResultsByRound(wordRound):
     score = 0
     amount = len(user_pair_guesses)
 
-    print("usuh paiw guzzes", wordRound, user_pair_guesses)
 
     for pair in user_pair_guesses:
         word1 = str(pair.pair.audio1.word)
@@ -149,6 +148,16 @@ def getWordBundle(user):
         userBundle = WordBundle(name="Your Audios", public=False, user_source=user)
         userBundle.save()
     return userBundle
+
+
+def createPath(path):
+
+    isExist = os.path.exists(path)
+
+    if not isExist:
+        print("DOESN'T EXIST")
+        os.makedirs(path)
+
 
 def getResultsForUser(user, experiment):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
@@ -179,6 +188,12 @@ def getResultsForUser(user, experiment):
         roundLists.append(roundInfo)
         roundNum += 1
     return roundLists
+
+
+def getTrimmedAudio(user_id, url=False):
+    if url:
+        return os.path.join(settings.MEDIA_URL, str(user_id), "trimmedSounds", "trimmedAudio.wav").replace("\\","/")
+    return os.path.join(settings.MEDIA_ROOT, str(user_id), "trimmedSounds", "trimmedAudio.wav").replace("\\","/")
 
 
 
@@ -232,14 +247,31 @@ def getRoundList(request):
                     round_list[roundPageNum] = roundContent
                     roundPageNum += 1
 
-                    if guess == halfWayPoint:
-                        question_id = 0
-                        roundContent = ["question", "How are you finding this round so far?", "Slider", question_id, experiment_id, "question"]
-                        round_list[roundPageNum] = roundContent
-                        roundPageNum += 1
-
+                    if guess == halfWayPoint:	
+                        user_source = experiment.user_source	
+                        question_id = 0	
+                        halfWaySurvey = Survey.objects.filter(name=str(pageType.id), user_source=experiment.user_source)	
+                        if halfWaySurvey.exists():	
+                            halfWaySurvey = halfWaySurvey[0]	
+                        else:	
+                            halfWaySurvey = Survey(name=str(pageType.id), user_source=user_source)	
+                            halfWaySurvey.save()	
+                        questionText = "How are you finding this round so far?"	
+                        surveyQuestion = SurveyQuestion.objects.filter(user_source=user_source, survey=halfWaySurvey, questionText=questionText)	
+                        if surveyQuestion.exists():	
+                            surveyQuestion = surveyQuestion	
+                        else:	
+                            surveyQuestion = createSurveyQuestion(user_source, halfWaySurvey, questionText, 2, 1)	
+                        associatedSurvey = AssociatedSurvey.objects.filter(survey=halfWaySurvey, content_object=pageType)	
+                        if associatedSurvey.exists():	
+                            associatedSurvey = associatedSurvey[0]	
+                        else:	
+                            associatedSurvey = AssociatedSurvey(survey=halfWaySurvey, content_object=pageType)	
+                            associatedSurvey.save()	
+                        roundContent = ["question", questionText, "Slider", question_id, experiment_id, "question"]	
+                        round_list[roundPageNum] = roundContent	
+                        roundPageNum += 1	
                     guess += 1
-
             """ roundContent = ["text", "The following questions concern the round you just completed",
              "Please answer the following questions honestly to best gauge your experience."]
 
@@ -496,17 +528,12 @@ def Audio_store_view(request):
     print("Success ATTEMPT")
     if request.method == 'POST': 
         form = AudioForm(request.POST,request.FILES or None) 
-        print("POSTED")
-        print(request.POST)
-        print("Files:", request.FILES)
         if form.is_valid(): 
             global fake_user
             user = request.user
-            print("stuff: \n")
             word = form.cleaned_data['word']
             audio_name = "{}_{}".format(request.user.id, word)
             audio_file = form.cleaned_data['file']
-            print("AUDIO FILE", audio_file)
 
             #Make audio store object
             audio_store_instance = Audio_store(name=audio_name, allow_mumble=False, file_location=audio_file, user_source=user)
@@ -522,7 +549,8 @@ def Audio_store_view(request):
             return redirect(showAudios)
     else: 
         form = AudioForm() 
-    return render(request, 'aud.html', {'form' : form}) 
+    trimmedUrl = str(getTrimmedAudio(request.user.id, url=True))
+    return render(request, 'aud.html', {'form' : form, 'trimmedUrl': trimmedUrl}) 
 
 
 @login_required
@@ -963,6 +991,7 @@ def createExperiment_POST(request):
 
 
         response_data['result'] = 'Create post successful!'
+        response_data['id'] = experiment.id
 
         return HttpResponse(
             json.dumps(response_data),
@@ -1159,20 +1188,26 @@ def viewExperiment_Researcher(request):
         form = PublishForm2(initial={'experiment':experiment})
         experiment = experiment[0]
         updates = ExperimentUpdate.objects.filter(experiment=experiment).order_by('-dateSent')
+        updates_exist = False
         if updates.exists():
             updates[0]
+            updates_exist = True
         else:
             updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
         participants = UserUniqueExperiment.objects.filter(experiment=experiment)
         roundCount = getRoundLength(experiment)
-        completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+        subscriber_count = experiment.subscribers.count()
+        #completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
         context = {
             "experimentName": experiment.title,
             "id": experiment_id, 
             "participant_count": len(participants),
-            "completed_count": len(completed_participants),
+            #"completed_count": len(completed_participants),
             "form" : form,
-            "updates" : updates
+            "updates" : updates,
+            'updates_exist': updates_exist,
+            'subscriber_count': subscriber_count,
+            "chartsData": getChartDataContext(request)
         }
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
@@ -1206,7 +1241,7 @@ def getChartData(guesses):
     return scoresData, labels, percent
 
 
-def dataAnalysis(request):
+def getChartDataContext(request):
     experiment_id = request.GET.get('id')
     experiment = Experiment.objects.filter(id=experiment_id)
     if not experiment.exists():
@@ -1220,7 +1255,6 @@ def dataAnalysis(request):
     j_scores, j_labels, j_percent = getChartData(j_prime)
     k_scores, k_labels, k_percent = getChartData(k_prime)
 
-    print(x_labels)
 
     chartsData = list()
 
@@ -1230,7 +1264,6 @@ def dataAnalysis(request):
         'labels': x_labels,
         'percent': x_percent
     }
-    print(x_info)
     chartsData.append(x_info)
 
     j_info = {
@@ -1272,10 +1305,19 @@ def dataAnalysis(request):
 
     ]
     
+    return sampleChartsData #chartsData
+
+
+def dataAnalysis(request):    
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if not experiment.exists():
+        return HttpResponse("ID not recognised")
+    experiment = experiment[0]
 
     context = {
         'id': experiment_id,
-        'chartsData': sampleChartsData
+        'chartsData': getChartDataContext(request)
     }
 
 
@@ -1363,6 +1405,34 @@ def makeCSVforAudioRound(audio_round):
     return fullFile
 
 
+def makeCSVforImageRound(image_round):	
+    header = ['USER ID']	
+    survey = image_round.survey	
+    researcher_id = image_round.user_source.id	
+    surveyQs = SurveyQuestion.objects.filter(survey=survey).order_by('questionNumber')	
+    usersData = {}	
+    for q in surveyQs:	
+        header.append(str(q.questionText))	
+        ansOfQ = SurveyAnswer.objects.filter(surveyQuestion=q)	
+        for ans in ansOfQ:	
+            user = ans.user_source	
+            if str(user.id) in usersData:	
+                usersData[str(user.id)].append(ans.answer)	
+            else:	
+                usersData[str(user.id)] = [str(user.id), ans.answer]	
+    data = list()	
+    for user in usersData.values():	
+        data.append(user)	
+    	
+    fileName = str(researcher_id) + "/" + "Image" + str(image_round.id) + ".csv"	
+    fullFile = os.path.join(settings.MEDIA_ROOT, fileName)	
+    with open(fullFile, 'w', encoding='UTF8', newline='') as f:	
+        writer = csv.writer(f)	
+        writer.writerow(header)	
+        for row in data:	
+            writer.writerow(row)	
+    return fullFile
+
 
 
 def downloadData(request):
@@ -1380,6 +1450,11 @@ def downloadData(request):
     surveyRounds = SurveyRound.objects.filter(experiment=experiment)
     for surveyR in surveyRounds:
         f = makeCSVforSurveyRound(surveyR)
+        a_files.append(f)
+
+    imageRounds = ImageRound.objects.filter(experiment=experiment)
+    for imageR in imageRounds:
+        f = makeCSVforImageRound(imageR)
         a_files.append(f)
 
     
@@ -1466,11 +1541,19 @@ def detect_leading_silence(sound, silence_threshold=-40.0, chunk_size=10):
 def trimAudio(request):
 
     sound = AudioSegment.from_wav(request.FILES['file'])
+    print("LENGTH OF SOUND", len(sound))
     start_trim = detect_leading_silence(sound)
     end_trim = detect_leading_silence(sound.reverse())
-    duration = len(sound)    
+    duration = len(sound) 
     trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
+    print("NOW", len(trimmed_sound))
     user_id = request.user.id
-    file_handle = trimmed_sound.export("media/user_{}/trimmedSounds/trimmedAudio.wav".format(user_id), 
-       format="wav",)
+    try:
+        createPath(os.path.join(settings.MEDIA_ROOT, str(user_id)))
+        createPath(os.path.join(settings.MEDIA_ROOT, str(user_id), "trimmedSounds"))
+    except:
+        print("Error creating paths in getTrimmedAudio() in views.py")
+    file_location = getTrimmedAudio(user_id) + str(user_id)
+    file_handle = sound.export(file_location, 
+       format="wav")
     return redirect('uploadAudio')

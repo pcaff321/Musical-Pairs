@@ -26,20 +26,27 @@
       <!-- Responsive navbar-->
       <nav class="navbar navbar-expand-lg navbar-dark">
           <div class="container">
-              <a class="navbar-brand" href="#">Musical Pairs Experiment</a>
+              <a class="navbar-brand" href="#">
+                <img src="{% static "gears.png"%}" width="30" height="30" class="d-inline-block align-top" alt="">
+                Musical Pairs Experiment
+              </a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
               <div class="collapse navbar-collapse" id="navbarSupportedContent">
                   <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
                       <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'login' %}">Home</a></li>
+                      {% if user.is_authenticated != True %}
+                      <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a></li>
+                      {% endif %}
+                      {% if user.is_authenticated %}
                       <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                               <li><a class="dropdown-item" href="{% url 'listExperiments' %}">All Experiments</a></li>
                               <li><a class="dropdown-item" href="{% url 'experimentPage' %}">Do Experiment</a></li>
                           </ul>
-                      </li>
-                              <li class="nav-item dropdown">
+                       </li>
+                        <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Your Account</a>
                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{% url 'createExperiment' %}">Create Experiment</a></li>
@@ -50,6 +57,7 @@
                               <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                           </ul>
                       </li>
+                      {% endif %}
                   </ul>
               </div>
           </div>

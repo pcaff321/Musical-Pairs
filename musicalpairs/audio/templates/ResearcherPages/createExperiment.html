@@ -702,8 +702,8 @@
                   contentType: false
               }).done(function(data) {
                   console.log(data);
+                  location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
               });
-                location.href = '../listExperiments';
               }
 }
 
