@@ -207,30 +207,30 @@
     {% if page.pageType == "survey" %}
     <h2>SURVEY ROUND</h2>
       {% for question in page.questionList %}
-      <h3> question.questionText <h3>
-      <h3> question.questionType </h3>
+      <h3> {{ question.questionText }}  <h3>
+      <h3> {{ question.questionType }} </h3>
       {% endfor %}
     {% endif %}
 
     {% if page.pageType == "text" %}
     <h2>TEXT ROUND</h2>
-    <h3> page.title <h3>
-    <p> page.text </p>
+    <h3> {{ page.title }} <h3>
+    <p> {{ page.text }} </p>
     {% endif %}
 
     {% if page.pageType == "audio" %}
     <h2>AUDIO ROUND</h2>
-    <h3> Prime: page.prime <h3>
-    <h3> Pair Amount: page.pairs </h3>
+    <h3> Prime: {{ page.prime }} <h3>
+    <h3> Pair Amount: {{ page.pairs }} </h3>
     {% endif %}
 
     {% if page.pageType == "image" %}
     <h2>IMAGE ROUND</h2>
-    <h3> Associated Question: page.questionText <h3>
+    <h3> Associated Question: {{ page.questionText }}<h3>
     <img src="{{ page.url }}"></img>
     {% endif %}
 
-
+    <br><br>
     {% endfor %}
   </div>
 
