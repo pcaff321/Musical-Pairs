@@ -45,6 +45,8 @@ def processRound(string):
                     questionType = 2
                 elif questionType == 'yesOrNo':
                     questionType = 3
+                elif questionType == 'Agree':
+                    questionType = 4
                 question = {"questionText": questionText, "questionType": questionType}
                 questions.append(question)
 
@@ -62,9 +64,10 @@ def processRound(string):
         data = {"pairs": pairs, "prime": prime, "bundleID": bundleID}
         
     if roundType == "text":
+        title = getVar(string, "title")
         text = getVar(string, "text")
         
-        data = {"text": text}
+        data = {"title": title, "text": text}
 
     if roundType == "image":
         questionText = getVar(string, "questionText")
@@ -88,6 +91,8 @@ def getQuestions(survey):
             questionType = 'slider'
         elif questionType == '3':
             questionType = 'yesOrNo'
+        elif questionType == '4':
+            questionType = 'Agree'
         questionDict = {"questionText": question.questionText, "questionType": questionType, "id": question.id}
         questionList.append(questionDict)
     
@@ -103,8 +108,8 @@ def createPage(experiment, page_num, content_object, user):
     return new_page
 
 
-def createTextRound(text, experiment, user):
-    textRound = TextRound(text=text, experiment=experiment, user_source=user)
+def createTextRound(title, text, experiment, user):
+    textRound = TextRound(title=title, text=text, experiment=experiment, user_source=user)
     textRound.save()
     return textRound
 

@@ -50,7 +50,7 @@ class ResearcherSignUpForm(UserCreationForm):
         user = super().save(commit=False)
         user.is_experimentee = True
         user.is_researcher = True
-        user.username = time()
+        user.username = user.email
         if commit:
             user.save()
         
@@ -59,15 +59,16 @@ class ResearcherSignUpForm(UserCreationForm):
 class ExperimenteeSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'gender', 'password1', 'password2']
-    class Meta:
+        fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'gender']
+
         widgets = {
-            'first_name' : forms.TextInput(attrs={'class':'form-control input'}),
-            'last_name' : forms.TextInput(attrs={'class':'form-control'}),
-            'email' : forms.TextInput(attrs={'class':'form-control'}),
-            'date_of_birth' : DateInput(attrs={'class':'form-control'}),
-            'gender' : forms.TextInput(attrs={'class':'form-control'}),
+            'first_name' : forms.TextInput(attrs={'placeholder':'First Name'}),
+            'last_name' : forms.TextInput(attrs={ 'placeholder':'Last Name'}),
+            'email' : forms.EmailInput(attrs={ 'placeholder':'Your Email'}),
+            'date_of_birth' : DateInput(),
+            'gender' : forms.TextInput(attrs={'placeholder':'Gender'})
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget = forms.PasswordInput(attrs={'placeholder': ("Password")})
@@ -79,10 +80,11 @@ class ExperimenteeSignUpForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_experimentee = True
+        user.username = user.email
         if commit:
             user.save()
+        
         return user
-
 
 class PostForm(forms.ModelForm):
     class Meta:

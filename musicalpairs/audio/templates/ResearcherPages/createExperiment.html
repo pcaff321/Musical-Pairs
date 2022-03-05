@@ -329,7 +329,7 @@
   <div class="col-sm-1"></div>
   <div class="col-sm-10">
       <div class="container row" id="roundContainer">
-        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
+        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
 
     </div><br><br><br>
   </div>
@@ -403,7 +403,6 @@
         return false;
       }
 
-
   
   
 
@@ -417,7 +416,7 @@
     <option value="Agree">Agree</option>	
   </select><button id="removeBtn" onclick="removeRound(this)">&nbsp;<i class="fa-solid fa-xmark"></i></button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
 
   var surveyRoundHtml = `<div draggable="true" class="box surveyRound col-sm-3"><h3>Survey Round</h3>
     <button id="add_button" onclick="addQuestion(this)">+ question</button><br><br>
@@ -427,6 +426,7 @@
       <option value="slider">Slider Bar 1-10</option>
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
+      <option value="Agree">Agree</option>
     </select><br><br></div>
   </div>`;
 
@@ -443,10 +443,6 @@
     {% endfor %}
     </select><br>
 
-    <div id="checks">
-        <input id="mumbles" class="mumbles form-check-input" type="checkbox">    <label for="mumbles" class="form-check-label">Use Mumbles</label><br>
-        <input id="placebo" class="placebo form-check-input" type="checkbox"><label for="placebo" class="form-check-label">Use Placebos</label><br><br>
-    </div>
     <label for="pairs"># of Pairs:&nbsp;&nbsp;&nbsp; </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
     </div>`;
   
@@ -629,10 +625,13 @@
 
       }else if (hasClass(element, 'textRound')){
         var type = "text"
+        var title = element.querySelector('#title-input').value
+        console.log("title", title)
         var text = element.querySelector('.text-input').value
 
 
         string = delimiter + "$type=" + type + "$END"
+        string = string + "$title=" + title + "$END"
         string = string + "$text=" + text + "$END"
 
         experimentString = experimentString + string
@@ -699,6 +698,7 @@
                   contentType: false
               }).done(function(data) {
                   console.log(data);
+                  location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
               });
               }
 }

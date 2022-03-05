@@ -55,7 +55,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=30, null=False)
     first_name = models.CharField(max_length=30, null=False)
     last_name = models.CharField(max_length=30)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     REQUIRED_FIELDS = ['date_of_birth', 'gender', 'first_name']
 
     def age(self):
@@ -136,13 +136,21 @@ class SurveyQuestion(models.Model):
     questionTypes = (
       (1, 'text'),
       (2, 'slider'),
-      (3, 'yesOrNo')
+      (3, 'yesOrNo'),
+      (4, 'agree')
     )
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     questionText = models.CharField(max_length=3000, null=False)
     questionType = models.PositiveSmallIntegerField(choices=questionTypes, default=1)
     questionNumber = models.IntegerField(max_length=100, null=False)
+
+
+class AssociatedSurvey(models.Model):
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
 
 class SurveyRound(models.Model):
@@ -174,7 +182,7 @@ def set_image_name(instance, file_name):
     return 'image/{0}/{1}'.format(str(instance.user_source.id), str(file_name))
 
 class ImageRound(models.Model):
-    name = models.CharField(max_length=300)
+    name = models.CharField(max_length=300, default="image")
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=set_image_name)
@@ -199,7 +207,8 @@ class UserPairGuess(models.Model):
 
 
 class TextRound(models.Model):
-    text = models.CharField(max_length=3000, null=False)
+    title = models.CharField(max_length=500, null=False, default="title")
+    text = models.CharField(max_length=3000, null=False, default="text")
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     user_source = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -230,3 +239,4 @@ class UserUniqueExperiment(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     survey_james = models.ForeignKey(Survey_James, on_delete=models.CASCADE)
     page_num = models.IntegerField(max_length=100, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)

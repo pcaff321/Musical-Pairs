@@ -156,26 +156,25 @@
   }
 
   .popUp {
-    margin-top: 150px;
     text-align: center;
     display: none;
     position: fixed;
-    z-index: 1;
-    padding-top: 20px;
-    left: 18%;
+    padding-top: 170px;
     top: 0;
-    width: 65%;
-    height: 75%;
+    width: 100%;
+    height: 175%;
     background-color: rgba(0, 0, 0, 0.4);
+    z-index: 99999;
   }
   .popupContent {
+    margin-top: 150px;
     font-size: 17px;
     background-color: #fefefe;
     margin: auto;
     padding: 30px;
     padding-right: 25px;
     border: 1px solid #888;
-    width: 90%;
+    width: 65%;
   }
   .close {
     color: rgb(255, 65, 65);
@@ -351,7 +350,13 @@
                     processData: false,
                     contentType: false
                 }).done(function(data) {
+<<<<<<< HEAD
                     var path = '/media/'+{{ user.id }}+'/trimmedSounds/trimmedAudio.wav'
+=======
+                    console.log("trimmedURL")
+                    console.log("{{ trimmedUrl }}")
+                    var path = '{{ trimmedUrl }}'
+>>>>>>> 5169b759ec66ce2d754eaa4db3a2092046f0a20d
                     wavesurfer.load(path);
                 });
 

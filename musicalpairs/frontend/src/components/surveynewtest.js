@@ -7,8 +7,8 @@ import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormC
 
 function showNextStage(displayedTable, room_count) {
     let newStage = displayedTable + 1;
-    if (newStage > room_count) {
-        newStage = room_count;
+    if (newStage > room_count + 1) {
+        newStage = room_count + 1;
     }
     return newStage;
 }
@@ -78,6 +78,12 @@ export default function Survey(props) {
         setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
+    function handlePairButtonsPressed(e) {
+        setAnswerValue(e.target.getInnerHTML());
+        let input = document.querySelector("input");
+        input.value = e.target.getInnerHTML()
+   }
+
     function handleAnswerChange(e) {
         setAnswerValue(e.target.value);
     }
@@ -102,6 +108,8 @@ export default function Survey(props) {
             headers: { "X-CSRFToken": csrftoken },
             body: fd
         });
+
+        setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
     function isQuestion() {
@@ -150,9 +158,10 @@ export default function Survey(props) {
     if (roomData.round_count != 0 && is_components_set === false) {
         let initial_components = {};
         console.log("ROOM DATA");
-        console.log(roomData.round_list);
         for (let i = 1; i < roomData.round_count + 1; i++) {
+            console.log(i, roomData.round_list[i][0]);
             if (roomData.round_list[i][0] == "text") {
+                console.log("hello???")
                 console.log(roomData.round_list[i][1]);
                 initial_components[i] = (
                     <h1>{roomData.round_list[i][1]}</h1>
@@ -189,9 +198,37 @@ export default function Survey(props) {
                                 label="No" labelPlacement="bottom"
                             />
                         </RadioGroup>
-                    )
+                    );
+                } else if (roomData.round_list[i][2] == "Agree") {
+                    question = (
+                        <RadioGroup row defaultValue="3" onChange={handleAnswerChange}>
+                            <FormControlLabel 
+                                value="1" control={<Radio color="primary" />} 
+                                label="1" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="2" control={<Radio color="primary" />} 
+                                label="2" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="3" control={<Radio color="primary" />} 
+                                label="3" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="4" control={<Radio color="primary" />} 
+                                label="4" labelPlacement="bottom"
+                            />
+                            <FormControlLabel 
+                                value="5" control={<Radio color="primary" />} 
+                                label="5" labelPlacement="bottom"
+                            />
+                        </RadioGroup>
+                    );
                 } else if (roomData.round_list[i][2] == "Slider") {
-                    question = <Slider marks onChange={handleSliderChange} />
+                    let max = 10;
+                    let min = 0;
+                    question = <Slider defaultValue={0} marks valueLabelDisplay="auto"
+                                max={max} min={min} onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
                         <TextField 
@@ -199,25 +236,58 @@ export default function Survey(props) {
                             inputProps={{style: {textAlign: "center"}}}
                             onChange={handleAnswerChange}
                         />
-                    )
+                    );
                 } else {
                     question = <p>placeholder--unaccounted for question type</p> 
                 }
-                initial_components[i] = (
-                    <Grid item xs={12} align="center">
-                        <FormControl component="fieldset">
-                            <h1>
-                                {roomData.round_list[i][1]}
-                            </h1>
-                            {question}
-                        </FormControl>
+                console.log(roomData.round_list[i][5]);
+                if (roomData.round_list[i][5] == "question") {
+                    initial_components[i] = (
                         <Grid item xs={12} align="center">
-                            <Button id="submit" color="primary" variant="contained">
-                                Submit
-                            </Button>
+                            <FormControl component="fieldset">
+                                <h1>
+                                    {roomData.round_list[i][1]}
+                                </h1>
+                                {question}
+                            </FormControl>
+                            <Grid item xs={12} align="center">
+                                <Button id="submit" color="primary" variant="contained">
+                                    Submit
+                                </Button>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                );
+                    );
+                } else {
+                    initial_components[i] = (
+                        <Grid item xs={12} align="center">
+                            <FormControl component="fieldset">
+                                <h1>
+                                    {roomData.round_list[i][1]}
+                                </h1>
+                                {question}
+                            </FormControl>
+                            <Grid item xs={12} align="center">
+                                <Button id="submit" color="primary" variant="contained">
+                                    Submit
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} align="center">
+                                <Button id="distracted" value="d" color="secondary" variant="contained"
+                                    onClick={handlePairButtonsPressed}>
+                                    Distracted
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} align="center">
+                                <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
+                                    onClick={handlePairButtonsPressed}>
+                                    No Idea
+                                </Button>
+                            </Grid>
+                            <p>If you were distracted while listening to the audio, press "Distracted".</p>
+                            <p>If you have no idea what the answer is, press "No Idea".</p>
+                        </Grid>
+                    );
+                }
             } else if (roomData.round_list[i][0] == "image") {
                 initial_components[i] = <img src={roomData.round_list[i][1]}></img>
             } else {
@@ -229,6 +299,11 @@ export default function Survey(props) {
                 );
             }
         }
+        let end_page = <p>You have reached the end of the experiment! You can click here to go to the feedback form or 
+            here to subscribe to the experiment for any future updates.
+        </p>
+        initial_components[Object.keys(initial_components).length + 1] = end_page;
+        console.log("INITIAL COMPONENTS", initial_components);
         setIsComponentsSet(true);
         setComponents(initial_components);
     }
@@ -247,6 +322,7 @@ export default function Survey(props) {
                 <h1>{roomData.name}</h1>
             </Grid>
             {components[displayedTable]}
+            <p>page {displayedTable}/{roomData.round_count + 1}</p>
         </Grid>
     )
   }
