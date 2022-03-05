@@ -5,11 +5,12 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
             showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
-                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio
+                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio, home
 from .api import PostAnswer, addAnswer
 
 
 urlpatterns = [
+    path('', home, name='home'),
     path('survey', SurveyView.as_view(), name='survey'),
     path('createsurvey', CreateSurveyView.as_view(), name='createsurvey'),
     path('createExperimentPage', createExperimentPage, name='createExperimentPage'),

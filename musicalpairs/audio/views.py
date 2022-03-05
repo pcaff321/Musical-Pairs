@@ -150,6 +150,10 @@ def getWordBundle(user):
     return userBundle
 
 
+def home(request):
+    return HttpResponse("You're Home")
+
+
 def createPath(path):
 
     isExist = os.path.exists(path)
@@ -876,7 +880,7 @@ def loginView(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('uploadAudio')
+            return redirect('home')
     form = CustomAuthenticationForm()
     return render(request, 'login.html', {"form": form})
 

@@ -568,7 +568,7 @@
         // {{ request.get_host }}{% url 'createExperimentPage' %}?id={{ id }}<script>
 function copy2Clip(){
     //the text that is to be copied to the clipboard
-    var theText = "{{ request.get_host }}{% url 'createExperimentPage' %}?id={{ id }}";
+    var theText = "{{ request.get_host }}{% url 'experimentLoad' %}?id={{ id }}";
 
     //create our hidden div element
     var hiddenCopy = document.createElement('div');

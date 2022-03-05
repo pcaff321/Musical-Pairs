@@ -1,9 +1,10 @@
 from django.urls import path, include
-from .views import index, app
+from .views import index, app, home
 
 urlpatterns = [
-    path('', app, name='experimentPage'),
-    path('', app, name='playExperiment'),
+    path('', home),
+    #path('', app, name='experimentPage'),
+    #path('', app, name='playExperiment'),
     path('create', app),
     path('join', app),
     path('survey', app),
