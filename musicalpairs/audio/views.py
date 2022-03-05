@@ -51,12 +51,14 @@ from pyexpat.errors import messages
 def processPageInfo(page):
     pageType = page.content_object
     if isinstance(pageType, AudioRound):
-        mumbles = pageType.mumbles
         pairs = pageType.pairs
-        placebo = pageType.placebo
-        roundContent = {"pageType":"audio", "mumbles":mumbles, "pairs":pairs, "placebo":placebo}
+        prime = pageType.prime
+        roundContent = {"pageType":"audio", "pairs":pairs, "prime": prime}
     elif isinstance(pageType, TextRound):
-        roundContent = {"pageType":"text", "text": pageType.text}
+        roundContent = {"pageType":"text", "text": pageType.text, "title": pageType.title}
+    elif isinstance(pageType, ImageRound):
+        question = SurveyQuestion.objects.filter(survey=pageType.survey)[0].questionText
+        roundContent = {"pageType":"image", "url": pageType.image.url, "questionText": question}
     elif isinstance(pageType, SurveyRound):
         questions = getQuestions(pageType.survey)
         questionList = list()
@@ -1283,6 +1285,12 @@ def viewExperiment_Researcher(request):
         roundCount = getRoundLength(experiment)
         subscriber_count = experiment.subscribers.count()
         #completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
+        pages = Page.objects.filter(experiment=experiment).order_by('page_number')
+        pagesList = list()
+        for page in pages:
+            pagesList.append(processPageInfo(page))
+
+            context = {"experimentName":experiment.title, "experimentList": pagesList}
         context = {
             "experimentName": experiment.title,
             "id": experiment_id, 
@@ -1293,7 +1301,8 @@ def viewExperiment_Researcher(request):
             'updates_exist': updates_exist,
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
-            'pages_list': getExperimentQuestionInfo(experiment)
+            'pages_list': getExperimentQuestionInfo(experiment),
+            "experimentList": pagesList
         }
         print(context['pages_list'])
 

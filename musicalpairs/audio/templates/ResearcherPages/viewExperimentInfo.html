@@ -6,6 +6,7 @@
 <style>
 
 
+  
     .input {
         padding-top :15px;
       }
@@ -201,7 +202,37 @@
   <div id="summary" class="tabcontent tabcontent1">
     <h2> Total Participants: {{ participant_count }}</h2>
     <h2> Total Subscribers: {{ subscriber_count }} </h2>
-    </div>
+    {% for page in experimentList %}
+
+    {% if page.pageType == "survey" %}
+    <h2>SURVEY ROUND</h2>
+      {% for question in page.questionList %}
+      <h3> question.questionText <h3>
+      <h3> question.questionType </h3>
+      {% endfor %}
+    {% endif %}
+
+    {% if page.pageType == "text" %}
+    <h2>TEXT ROUND</h2>
+    <h3> page.title <h3>
+    <p> page.text </p>
+    {% endif %}
+
+    {% if page.pageType == "audio" %}
+    <h2>AUDIO ROUND</h2>
+    <h3> Prime: page.prime <h3>
+    <h3> Pair Amount: page.pairs </h3>
+    {% endif %}
+
+    {% if page.pageType == "image" %}
+    <h2>IMAGE ROUND</h2>
+    <h3> Associated Question: page.questionText <h3>
+    <img src="{{ page.url }}"></img>
+    {% endif %}
+
+
+    {% endfor %}
+  </div>
 
 
     <div id="questions" class="tabcontent tabcontent1">
@@ -256,7 +287,6 @@
       {% endfor %}
 
       </div>
-         </div>
     </div>
 </div>
 
@@ -369,8 +399,6 @@
 </div>
 
 
-
-
 <link rel="apple-touch-icon" href="/docs/5.0/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -402,7 +430,7 @@
   <body>
     
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent" id="graph">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent tabcontent1" id="graph">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
