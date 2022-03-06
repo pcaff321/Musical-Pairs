@@ -31,7 +31,7 @@ import string
 from django.core.files.base import ContentFile
 import pandas as pd
 
-from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords
+from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
 try:
     print("CALLING CREATE FAKE MODELS")
@@ -42,6 +42,7 @@ except:
     print("DB not migrated yet")
 
 makePietroWords()
+replicateMusicalPairs()
 
 
 from django.template.defaulttags import register
@@ -1147,8 +1148,9 @@ def answerQuestion_POST(request):
             experiment = Experiment.objects.get(id=experiment_ID)
             question = SurveyAnswer.objects.filter(user_source=user, surveyQuestion=surveyQuestion)
             if question.exists():
-                question = question[0]
-                question.answer = str(answer)
+                if not (str(answer) == "NOT_ANSWERED"):
+                    question = question[0]
+                    question.answer = str(answer)
             else:
                 question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
             print("ANSWER POST", answer)
@@ -1156,9 +1158,10 @@ def answerQuestion_POST(request):
             question.save()
         elif questionInfo == "pair":
             print("Pair Guess")
-            pairGuess = UserPairGuess.objects.get(id=database_ID)
-            pairGuess.answer = str(answer)
-            pairGuess.save()
+            if not (str(answer) == "NOT_ANSWERED"):
+                pairGuess = UserPairGuess.objects.get(id=database_ID)
+                pairGuess.answer = str(answer)
+                pairGuess.save()
         else:
             return HttpResponse(
             json.dumps({"Error": "question Type not recognised"}),
