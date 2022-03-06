@@ -58,7 +58,8 @@ def processPageInfo(page):
         roundContent = {"pageType":"text", "text": pageType.text, "title": pageType.title}
     elif isinstance(pageType, ImageRound):
         question = SurveyQuestion.objects.filter(survey=pageType.survey)[0].questionText
-        roundContent = {"pageType":"image", "url": pageType.image.url, "questionText": question}
+        questionType = SurveyQuestion.objects.filter(survey=pageType.survey)[0].questionType
+        roundContent = {"pageType":"image", "url": pageType.image.url, "questionText": question, "questionType": questionType}
     elif isinstance(pageType, SurveyRound):
         questions = getQuestions(pageType.survey)
         questionList = list()
@@ -66,10 +67,10 @@ def processPageInfo(page):
             roundContent = list()
             questionText = question['questionText']
             questionType = question['questionType']
-            if questionType == "slider":
-                questionType = "Slider"
-            elif questionType == "text":
+            if questionType == "text":
                 questionType = "Text"
+            elif questionType == "slider":
+                questionType = "Slider"
             elif questionType == "yesOrNo":
                 questionType = "Yes/No"
             elif questionType == "Agree":
@@ -315,6 +316,7 @@ def getRoundList(request):
             roundContent = list()
             questionText = question['questionText']
             questionType = question['questionType']
+            print("\n QUESTION TYPE\n", questionType, "\n\n")
             if questionType == "slider":
                 questionType = "Slider"
             elif questionType == "text":
@@ -334,17 +336,17 @@ def getRoundList(request):
             roundContent = ["text", pageType.title, pageType.text]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
-        elif isinstance(pageType, ImageRound):
-            roundContent = ["image", pageType.image.url]
-            round_list[roundPageNum] = roundContent
-            roundPageNum += 1
+        # elif isinstance(pageType, ImageRound):
+        #     roundContent = ["image", pageType.image.url]
+        #     round_list[roundPageNum] = roundContent
+        #     roundPageNum += 1
 
-            question = getQuestions(pageType.survey)[0]
-            questionText = question['questionText']
-            questionText = question['questionType']
-            roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
-            round_list[roundPageNum] = roundContent
-            roundPageNum += 1
+        #     question = getQuestions(pageType.survey)[0]
+        #     questionText = question['questionText']
+        #     questionType = question['questionType']
+        #     roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
+        #     round_list[roundPageNum] = roundContent
+        #     roundPageNum += 1
 
         elif isinstance(pageType, SurveyRound):
             questions = getQuestions(pageType.survey)
@@ -1034,6 +1036,7 @@ def createExperiment_POST(request):
                     for question in questions:
                         questionText = question['questionText']
                         questionType = question['questionType']
+                        print("\n\nQUESTIONTYPE AAAAH\n", questionType, "\n\n")
                         question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
                         questionNumber += 1
 
@@ -1059,9 +1062,19 @@ def createExperiment_POST(request):
                     image = imageList[imageNumber]
                     name = data['name']
                     questionText = data['questionText']
+                    questionType = data['questionType']
+                    if questionType == "input":
+                        questionType = 1
+                    elif questionType == "slider":
+                        questionType = 2
+                    elif questionType == "yesOrNo":
+                        questionType = 3
+                    elif questionType == "Agree":
+                        questionType = 4
+                    print("\n\nIMAGE QUESTIONTYPE AAAAH\n", questionType, "\n\n")
                     print("name!,", name)
 
-                    round = createImageRound(image, experiment, user, questionText, name)
+                    round = createImageRound(image, experiment, user, questionText, questionType, name)
                     imageNumber += 1
 
 
@@ -1643,7 +1656,6 @@ def trimAudio(request):
     trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
     print("NOW", len(trimmed_sound))
     user_id = request.user.id
-
     try:
         createPath(os.path.join(settings.MEDIA_ROOT, str(user_id)))
         createPath(os.path.join(settings.MEDIA_ROOT, str(user_id), "trimmedSounds"))
