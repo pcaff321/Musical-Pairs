@@ -4,6 +4,31 @@ import { useParams } from 'react-router-dom'
 import SurveyTest from './surveytest';
 // import SurveyTest2 from './surveytest2';
 import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormControlLabel, Radio, RadioGroup, Slider} from '@material-ui/core'
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import { purple } from '@material-ui/core/colors';
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+document.body.style = 'background: #f0ffff ;';
+
+var all = document.getElementsByTagName("*");
+
+for (var i=0, max=all.length; i < max; i++) {
+ all[i].style.color = "#000000";
+} 
+
+const theme = createTheme({
+    palette: {
+        primary: {
+          main: '#1a237e',
+        },
+        secondary: {
+          main: '#0d47a1',
+        },
+      },
+  });
+
 
 function showNextStage(displayedTable, room_count) {
     let newStage = displayedTable + 1;
@@ -49,6 +74,7 @@ export default function Survey(props) {
     const [ components, setComponents ] = useState({});
     const [ is_components_set, setIsComponentsSet ] = useState(false)
     const [ answerValue, setAnswerValue ] = useState("")
+    const audioElement = null;
     let experimentID = "";
     let questionID = "";
     let pair_or_question = "question";
@@ -71,6 +97,12 @@ export default function Survey(props) {
             } */
         } else if (e.keyCode == '37') {
             setDisplayedTable(showPreviousStage(displayedTable));
+        } else if (e.keyCode == '82') {
+            let audioElement = document.querySelector('audioElementTest');
+            if (audioElement != null){
+            audioElement.currentTime=0;
+            audioElement.play();
+            }
         }
     }
 
@@ -81,7 +113,32 @@ export default function Survey(props) {
     function handlePairButtonsPressed(e) {
         setAnswerValue(e.target.getInnerHTML());
         let input = document.querySelector("input");
-        input.value = e.target.getInnerHTML()
+        let choice = e.target.getInnerHTML();
+        if (choice == "Was Distracted"){
+            input.value = "WAS_DISTRACTED"
+        }else{
+            input.value = "NO_IDEA"
+        }
+   }
+
+   function subscribeToExperiment(){
+    var fd = new FormData();
+    fd.append('experiment_id', experimentID)
+    let csrftoken = getCookie('csrftoken');
+    let subscribeUrl = "FIX_THIS IN SUBSCRIBETOEXPERIMENT()";
+    let element = document.querySelector('subscribeBtn');
+    console.log("ELE", element)
+    $.ajax({
+        type: 'POST',
+        url: subscribeUrl,
+        headers: {"X-CSRFToken": csrftoken},
+        processData: false,
+        data: fd,
+        contentType: false
+    }).done(function(data) {
+        console.log(data);
+        element.innerHTML = "SUBSCRIBED"
+    });
    }
 
     function handleAnswerChange(e) {
@@ -95,13 +152,14 @@ export default function Survey(props) {
     function handleSubmitButtonPressed() {
         let answer = answerValue;
         if (answer == "") {
-            if (roomData.round_list[displayedTable][2] == "Yes/No") {
+            /* if (roomData.round_list[displayedTable][2] == "Yes/No") {
                 answer = "Yes";
             } else if (roomData.round_list[displayedTable][2] == "Slider") {
                 answer = "0";
             } else if (roomData.round_list[displayedTable][2] == "Agree") {
                 answer = "3";
-            }
+            } */
+            answer = "NOT_ANSWERED"
         }
         let fd = new FormData();
         let csrftoken = getCookie('csrftoken');
@@ -184,18 +242,28 @@ export default function Survey(props) {
                     <div align="center">
                         {initial_components[i]}
                         {paragraph_list.map((item, index) => (
-                            <p style={{ marginLeft: "10%", marginRight: "10%" }}>{item}</p>
+                            <p>{item}</p>
                         ))}
                     </div>
                 )
             } else if (roomData.round_list[i][0] == "audio") {
                 initial_components[i] = (
-                    <div align="center">
-                        <img src="https://www.freeiconspng.com/uploads/sound-png-icon-0.png" width="200" alt="sound png icon" />
+                    <div>
                         <p>Please Close Your Eyes</p>
                         <audio controls autoPlay hidden src={roomData.round_list[i][4]}>
                             <source src={roomData.round_list[i][4]} type="audio/wav"></source>
                         </audio>
+                    </div>
+                );
+            } else if (roomData.round_list[i][0] == "audioTest") {
+                initial_components[i] = (
+                    <div>
+                        <p>Please adjust your audio to hear this sound clearly</p>
+                        <br></br>
+                        <p>Press R to repeat the sound</p>
+                        audioElement = <audio id="audioElementTest" controls autoPlay hidden src={roomData.round_list[i][4]}>
+                            <source src={roomData.round_list[i][4]} type="audio/wav"></source>
+                        </audio>;
                     </div>
                 );
             } else if (roomData.round_list[i][0] == "question") {
@@ -286,33 +354,35 @@ export default function Survey(props) {
                     );
                 } else {
                     initial_components[i] = (
+                        <ThemeProvider theme={theme}>
                         <Grid item xs={12} align="center">
                             <FormControl component="fieldset">
                                 <h1>
                                     {roomData.round_list[i][1]}
                                 </h1>
                                 {question}
-                            </FormControl>
-                            <Grid item xs={12} align="center">
-                                <Button id="submit" color="primary" variant="contained">
-                                    Submit
-                                </Button>
-                            </Grid>
+                            </FormControl><br></br><br></br><br></br>
                             <Grid item xs={12} align="center">
                                 <Button id="distracted" value="d" color="secondary" variant="contained"
                                     onClick={handlePairButtonsPressed}>
-                                    Distracted
+                                    Was Distracted
                                 </Button>
-                            </Grid>
-                            <Grid item xs={12} align="center">
                                 <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
                                     onClick={handlePairButtonsPressed}>
                                     No Idea
                                 </Button>
                             </Grid>
+                            <br></br>
+                            <Grid item xs={12} align="center">
+                                <Button id="submit" color="primary" variant="contained">
+                                    Submit
+                                </Button>
+                            </Grid>
+                            <br></br><br></br>
                             <p>If you were distracted while listening to the audio, press "Distracted".</p>
                             <p>If you have no idea what the answer is, press "No Idea".</p>
                         </Grid>
+                        </ThemeProvider>
                     );
                 }
             } else if (roomData.round_list[i][0] == "image") {
@@ -326,9 +396,31 @@ export default function Survey(props) {
                 );
             }
         }
-        let end_page = <p>You have reached the end of the experiment! You can click here to go to the feedback form or 
+        let reviewUrl = "FIX THIS reviewUrl VARIABLE"
+        let end_page = <ThemeProvider theme={theme}>
+        <Grid item xs={12} align="center">
+                <h1>
+                    Experiment Complete
+            </h1><br></br><br></br><br></br>
+            <br></br><br></br>
+            <p>Thank you for partaking in this experiment!</p>
+            <p>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</p>
+            <Grid item xs={12} align="center">
+               <Button id="subscribeBtn" name="subscribeBtn" value="subscribe" color="secondary" variant="contained"
+               onClick={subscribeToExperiment}>
+                    Subscribe To Updates
+                </Button>
+                <a href={reviewUrl}><Button id="view-results" value="view-results" color="secondary" variant="contained">
+                    View Your Results
+                </Button></a>
+            </Grid>
+        </Grid>
+        </ThemeProvider>;
+       /*  let end_page = <div><p>You have reached the end of the experiment! You can click here to go to the feedback form or 
             here to subscribe to the experiment for any future updates.
-        </p>
+        </p><br></br>
+        <a href="poo"><button>Subscribe To Experiment</button></a><br></br>
+        <a href="cum"><button>View Your Results</button></a></div> */
         initial_components[Object.keys(initial_components).length + 1] = end_page;
         console.log("INITIAL COMPONENTS", initial_components);
         setIsComponentsSet(true);
@@ -353,7 +445,7 @@ export default function Survey(props) {
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em" }}>
-                <p>page {displayedTable}/{roomData.round_count + 1}</p>
+                <p>{displayedTable}/{roomData.round_count + 1}</p>
             </Grid>
         </Grid>
     )
