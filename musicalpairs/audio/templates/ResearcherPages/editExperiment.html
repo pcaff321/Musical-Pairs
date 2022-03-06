@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load static %}
 
 {% block style %}
   <title>Create Experiments</title>
@@ -13,40 +14,323 @@
         border: 3px solid #666;
         background-color: #ddd;
         border-radius: .5em;
-        padding: 10px;
+        padding: 10px
         cursor: move;
       }
 
       .box.over {
         border: 3px dotted #666;
       }
+     
 
   </style>
 {% endblock %}
 
 {% block content %}
 
-  <button id="addRound" onclick="addRound(this)">Add Round</button>
-  <select name="roundType" id="roundType">
-    <option value="text">Text Round</option>
-    <option value="audio">Audio Round</option>
-    <option value="survey">Survey Round</option>
-  </select><br><br><br>
+<style>
+  .row1 {
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    padding-top:30px;
+  }
+
+  #addRound {
+    margin-top: 20px;
+    padding: 4px 10px 4px 10px;
+    background-color: #2d3142;
+    border: none;
+    font-size: 16px;
+    color: white;
+    border-radius:5px;
+    border: none !important;
+    margin-left:-20px;
+  }
+
+  #addRound:hover {
+      background-color:#4f5d75;
+  }
+
+  #addRound:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
 
 
-<label for="experimentName">Experiment Name: </label>
-<input id="experimentName" value="{{ experimentName }}"></input><br><br><br>
 
-<label for="roundContainer">Rounds</label>
-  <div class="container" id="roundContainer">
-
-  </div><br><br><br>
+  .row2 {
+    padding-top:30px;
+  }
 
 
+  .roundRow {
+    padding-top: 30px;
+    margin-left:20px !important;
+  
+  }
 
+  #submitButton {
+    padding: 10px;
+    margin-top:15px;
+    background-color: #4f5d75;
+    border: none;
+    font-size: 17px;
+    color: white;
+    border-radius: 10px;
+  }
+
+  #submitButton:focus {
+    box-shadow:none;
+  }
+  
+  #submitButton:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
+
+  #submitButton:hover {
+      background-color: #2d3142;
+
+  }
+
+
+  .textRound {
+    padding: 30px;
+    margin-bottom: 15px;
+      border: 1px dashed darkgray;
+    text-align: center;
+  }
+
+  .audioRound {
+    padding: 30px;
+    margin-bottom: 15px;
+    border: 1px dashed darkgray;
+    text-align: center;
+
+  }
+
+  .imageRound {
+    padding: 30px;
+    margin-bottom: 15px;
+      border: 1px dashed darkgray;
+    text-align: center;
+  }
+
+.surveyRound {
+  padding: 30px;
+  margin-bottom: 15px;
+  border: 1px dashed darkgray;
+  text-align: center;
+
+}
+
+#roundLabel {
+  padding:30px;
+}
+
+#removeBtn {
+    background-color: transparent;
+    border:none;
+
+}
+
+#add_button {
+  margin-top:20px;
+  padding: 5px 10px 5px 10px;
+  background-color: darkgray;
+  border: none;
+  font-size: 15px;
+  color: white;
+  border-radius: 5px;
+}
+
+
+#add_button:focus {
+  box-shadow:none;
+}
+
+#add_button:active{
+  transform: perspective(20px) translateZ(-1px);
+}
+
+#add_button:hover {
+  background-color:gray;
+  box-shadow: 1px 1px 0px 1px dimgray;
+
+}
+
+
+
+#question {
+  margin-bottom:10px;
+}
+
+#checks {
+  margin-top: 20px;
+}
+
+#firstTextRound {
+  padding-top: 25px;
+}
+
+.fa-xmark {
+    color: darkgray;
+
+}
+
+.fa-xmark:hover {
+  color: dimgray;
+
+}
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+
+}
+
+#experimentName {
+  margin-top: 20px;
+}
+
+#roundType {
+  margin-top:15px;
+}
+
+.roundtypeRow {
+  padding-bottom: 10px;
+  margin-top: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.fa-question {
+  color: #2d3142;
+}
+
+#helpButton {
+  background-color: white !important;
+  margin-left: -45px;
+  margin-top: 25px;
+  border: 2px dashed #2d3142 !important;
+}
+
+#helpButton:hover {
+  box-shadow: 3px 3px 3px 1px dimgray;
+}
+
+#helpButton:focus {
+  box-shadow:none;
+}
+
+#helpButton:active{
+  transform: perspective(20px) translateZ(-1px);
+}
+
+#pairs {
+  border: 1px solid lightgray;
+  width:20%;
+}
+
+.popUp {
+  margin-top: 150px;
+  text-align: center;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 20px;
+  left: 30%;
+  top: 0;
+  width: 40%;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.popupContent {
+  font-size: 17px;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 80%;
+}
+.close {
+  color: rgb(255, 65, 65);
+  float: right;
+  font-size: 40px;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: #ff1010;
+  cursor: pointer;
+}
+
+
+#labelPrime, #labelName {
+  margin-top :10px;
+}
+
+select{
+  -webkit-appearance: listbox !important
+  }
+
+</style>
+
+<div class="popUp">
+  <div class="popupContent">
+  <span class="close">×</span>
+  <p>Creating An Experiment:</p>
+  <p>An Experiment is made up of <b>rounds</b>.</p>
+  <p>Select from <b>Text</b>, <b>Audio</b>, <b>Survey</b> and <b>Image</b> rounds and click the <i class="fa-plus fa-solid fa-lg"></i> button to add and edit your chosen round.
+   Click on <i class="fa-solid fa-xmark fa-lg" style="color: darkgray !important;"></i> located on the top of a round to delete it. You can also drag each round to change the order of your experiment!
+  </p>
+  <p>When you are happy with your experiment rounds and want to submit, fill in the name of your experiment and click the "Submit Experiment" button.</p>
+
+</div>
+  </div>
+
+<div class="row headingRow">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h1>Create an Experiment</h1>
+  </div>
+</div>
+<div class="row row1">
+  <div class="col-md-7"></div>
+  <div class="col-md-2 col2 form-outline form-group">
+    <input class="form-control" type="text" placeholder="Enter Experiment Name"id="experimentName" name="experimentName" required="true"></input>
+</div>
+  <div class="col-md-2">
   <button id="submitButton"onclick="submitExperiment()">
     Submit Experiment
     </button>
+  </div>
+  <div class="col-md-1 questionCol">
+    <button class="openPopUp" id="helpButton"><i class=" fa-solid fa-question fa-lg"></i></button>
+  </div>
+  
+</div>
+
+<div class="row roundtypeRow">
+
+  <div class="col-md-5"></div>
+  <div class="col-md-2 roundTypeCol d-flex justify-content-center">
+  <select class="form-select"  name="roundType" id="roundType">
+     <option value="" disabled selected>Select Round Type</option>
+      <option value="text">Text Round</option>
+      <option value="audio">Audio Round</option>
+      <option value="image">Image Round</option>	
+      <option value="survey">Survey Round</option>
+   </select>
+</div>
+<div class="col-md-2 roundTypeCol">
+<button id="addRound" onclick="addRound(this)"><i class="fa-solid fa-plus"></i></button>
+</div>
+</div>
+
+<div class="row roundRow">
+  <div class="col-sm-1"></div>
+  <div class="col-sm-10">
+      <div class="container row" id="roundContainer">
+        
+    </div><br><br><br>
+  </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -68,55 +352,67 @@
       
     });
 
-    {% for page in experimentList %}
-      pageInfo = 0;
-      typeVal = "{{ page.pageType }}"
-      if (typeVal == "audio"){
-        pageInfo = {"pageType": "audio", "pairAmt": "{{ page.pairs }}", "mumbles": "{{ page.mumbles }}", "placebo":"{{ page.placebo }}"}
-        console.log(pageInfo)
-      }else if (typeVal == "survey"){
-        var questionsList = []
-        {% for question in page.questionList %}
-          console.log("QUESTION")
-          questionsList.push({"questionText":"{{ question.questionText }}", "questionType": "{{ question.questionType }}"})
-        {% endfor %}
-        pageInfo = {"pageType": "survey", "questionList": questionsList}
+    pageNumTest = 0;
+
+    		
+    {% for page in experimentList %}	
+      pageInfo = 0;	
+      typeVal = "{{ page.pageType }}"	
+      if (typeVal == "audio"){	
+        pageInfo = {"pageType": "audio", "pairs": "{{ page.pairs }}", "prime": "{{ page.prime }}", "bundle_id": "{{ page.bundle_id }}"}	
+        console.log(pageInfo)	
+      }else if (typeVal == "survey"){	
+        var questionsList = []	
+        {% for question in page.questionList %}	
+          console.log("QUESTION")	
+          questionsList.push({"questionText":"{{ question.questionText }}", "questionType": "{{ question.questionType }}"})	
+        {% endfor %}	
+        pageInfo = {"pageType": "survey", "questionList": questionsList}	
+      }	
+      else if (typeVal == "text"){	
+        pageInfo = {"pageType":"text", "text": "{{ page.text }}", "title": "{{ page.title }}"}	
+      }	
+      else if (typeVal == "image"){	
+        pageInfo = {"pageType":"image", "url": "{{ page.url }}", "questionText": "{{ page.questionText }}", "questionType": "{{ page.questionType }}", "title": "{{ page.title }}"}	
+      }	
+      divEl = addRoundFunc(pageInfo, pageNumTest)	
+      if (pageNumTest == 0) {
+        pageNumTest = 1;
       }
-      else if (typeVal == "text"){
-        pageInfo = {"pageType":"text", "text": "{{ page.text }}"}
-      }
-      divEl = addRoundFunc(pageInfo)
     {% endfor %}
+
+    
   });
+
         
-    function handleDragStart(e) {
-        this.style.opacity = '0.4';
+  function handleDragStart(e) {
+      this.style.opacity = '0.4';
       
-        dragSrcEl = this;
+      dragSrcEl = this;
       
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-      }
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+  }
   
-    function handleDragEnd(e) {
-      this.style.opacity = '1';
+  function handleDragEnd(e) {
+    this.style.opacity = '1';
   
-      items.forEach(function (item) {
-        item.classList.remove('over');
-      });
+    items.forEach(function (item) {
+      item.classList.remove('over');
+    });
+  }
+  
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
     }
-  
-    function handleDragOver(e) {
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-  
+
       return false;
-    }
+  }
   
-    function handleDragEnter(e) {
-      this.classList.add('over');
-    }
+  function handleDragEnter(e) {
+    this.classList.add('over');
+  }
   
     function handleDragLeave(e) {
       this.classList.remove('over');
@@ -124,8 +420,6 @@
 
     function handleDrop(e) {
         e.stopPropagation();
-
-        console.log(this.innerHTML);
       
         if (dragSrcEl !== this) {
           dragSrcEl.innerHTML = this.innerHTML;
@@ -138,29 +432,63 @@
 
   
   
-  
 
 
-  var questionHtml = `<div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText" value="---QUESTION---"></input><br>
-  <select name="questionType" id="questionType" class="questionType" selected="yesOrNo">
+  var questionHtml = `<div class="questionDiv"><input placeholder="Question:"id="question" class="questionText form-control" ></input>
+  <select name="questionType" id="questionType" class="questionType form-select" selected="yesOrNo">
+    <option value="" disabled selected>Select Answer Type</option>
     <option value="slider" ---SLIDER--- >Slider Bar 1-10</option>
-    <option value="input" ---INPUT--- >Input Box</option>
-    <option value="yesOrNo" ---YESORNO--- >Yes Or No Option</option>
-  </select><button id="removeBtn" onclick="removeRound(this)">Remove Question</button><br><br></div>`;
+    <option value="input" ---INPUT--->Input Box</option>
+    <option value="yesOrNo" ---YESORNO--->Yes Or No Option</option>
+    <option value="Agree" ---AGREE--->Agree</option>	
+  </select><button id="removeBtn" onclick="removeRound(this)">&nbsp;<i class="fa-solid fa-xmark"></i></button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound"><h1>Text Round</h1><label for="text-input">Text: </label><br><textarea id="text-input" class="text-input">---REPLACE_THIS---</textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><input id="title-input" class="form-control" placeholder="Title:"><br></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
 
-  var surveyRoundHtml = `<div draggable="true" class="box surveyRound"><h1>Survey Round</h1>This is a survey box<br>
-    <button id="add_button" onclick="addQuestion(this)">Add Question</button><br><br><br>
+  var surveyRoundHtml = `<div draggable="true" class="box surveyRound col-sm-3"><h3>Survey Round</h3>
+    <button id="add_button" onclick="addQuestion(this)">+ question</button><br><br>
+
+    <div class="questionDiv"><input id="question" placeholder="Question:" class="questionText form-control"></input>
+    <select name="questionType" id="questionType" class="questionType form-select mb-3">
+      <option value="" disabled selected>Select Answer Type</option>
+      <option value="slider">Slider Bar 1-10</option>
+      <option value="input">Input Box</option>
+      <option value="yesOrNo">Yes Or No Option</option>
+      <option value="Agree">Agree</option>
+    </select><br></div>
   </div>`;
 
-  var audioRoundHtml = `<div draggable="true" class="box audioRound">
-    <h1>Audio Round</h1>
-    <label for="mumbles">Use Mumbles: </label><input id="mumbles" class="mumbles" type="checkbox" ---MUMBLES---><br>
-    <label for="placebo">Use Placebos: </label><input id="placebo" class="placebo" type="checkbox" ---PLACEBO---><br>
-    <label for="pairs">Amount of Pairs: </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="---PAIR_VALUE---"><br>
-    </div>`;
+  var audioRoundHtml = `<div draggable="true" class="box audioRound col-sm-3">
+    <h3>Audio Round</h3><br>
+    <select name="prime" id="prime" class="prime form-select">
+    <option value="" disabled selected>Select Prime Type</option>
+    <option value="X">X</option>
+    <option value="J">J</option>
+    <option value="K">K</option>
+    </select><br>
+    <select name="bundle" id="bundle" class="bundle form-select">
+    <option value="" disabled selected>Choose Word Bundle</option>
+    {% for bundle in listOfBundles %}
+    <option value="{{ bundle.id }}">{{ bundle.name }}</option>
+    {% endfor %}
+    </select><br>
 
+    <label for="pairs"># of Pairs:&nbsp;&nbsp;&nbsp; </label><input id="pairs" class="pairs" type="number" min="1" max="20" value="1"><br>
+    </div>`;
+  
+
+  var imageRoundHtml = `<div draggable="true" class="box imageRound col-sm-3">
+    <h3>Image Round</h3>
+    <input placeholder="Title:" id="nameText" class="nameText form-control" ></input><br>
+    <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
+    <div class="questionDiv"><label for="question">Accompanying Question: </label><input id="question" class="questionText form-control"></input>
+      <select name="questionType" id="questionType" class="questionType form-select">
+        <option value="slider">Slider Bar 1-10</option>
+        <option value="input">Input Box</option>
+        <option value="yesOrNo">Yes Or No Option</option>
+        <option value="Agree">Agree</option>
+      </select><br><br></div>
+    </div>`;
 
   var containerBox = document.getElementById("roundContainer");
 
@@ -171,25 +499,34 @@
     return div.firstChild;
   }
 
-  function addQuestion(element, questionInfo){
+  function addQuestionFunc(element, questionInfo){
     questionText = questionInfo["questionText"];
     questionType = questionInfo["questionType"];
     surveyDiv = element;
     //newQuestion = htmlToElement(questionHtml);
     //console.log(newQuestion);
-    questionHtmlChanged = questionHtml.replace("---QUESTION---", questionText)
+    question_val = 'id="question"'	
+    questionHtmlChanged = questionHtml.replace(question_val, question_val + 'value="' + questionText + '"')	
     if (questionType === "Slider"){
       questionHtmlChanged = questionHtmlChanged.replace("---SLIDER---", "selected")
       questionHtmlChanged = questionHtmlChanged.replace("---YESORNO---", "")
       questionHtmlChanged = questionHtmlChanged.replace("---INPUT---", "")
+      questionHtmlChanged = questionHtmlChanged.replace("---AGREE---", "")
     }else if (questionType === "Yes/No"){
       questionHtmlChanged = questionHtmlChanged.replace("---SLIDER---", "")
       questionHtmlChanged = questionHtmlChanged.replace("---YESORNO---", "selected")
       questionHtmlChanged = questionHtmlChanged.replace("---INPUT---", "")
+      questionHtmlChanged = questionHtmlChanged.replace("---AGREE---", "")
+    }else if (questionType === "Agree"){
+      questionHtmlChanged = questionHtmlChanged.replace("---SLIDER---", "")
+      questionHtmlChanged = questionHtmlChanged.replace("---YESORNO---", "")
+      questionHtmlChanged = questionHtmlChanged.replace("---INPUT---", "")
+      questionHtmlChanged = questionHtmlChanged.replace("---AGREE---", "selected")
     }else{
       questionHtmlChanged = questionHtmlChanged.replace("---SLIDER---", "")
       questionHtmlChanged = questionHtmlChanged.replace("---YESORNO---", "")
       questionHtmlChanged = questionHtmlChanged.replace("---INPUT---", "selected")
+      questionHtmlChanged = questionHtmlChanged.replace("---AGREE---", "")
     }
 
     //surveyDiv.appendChild(newQuestion);
@@ -198,6 +535,31 @@
   
     
   }
+
+  function addQuestion(element){
+    surveyDiv = element.parentNode;
+    //newQuestion = htmlToElement(questionHtml);
+    //console.log(newQuestion);
+
+    //surveyDiv.appendChild(newQuestion);
+    surveyDiv.insertAdjacentHTML('beforeend', questionHtml);
+  }
+
+  
+  var popUp = document.querySelector(".popUp");
+  var btn = document.querySelector(".openPopUp");
+  var span = document.querySelector(".close");
+  btn.addEventListener("click", () => {
+     popUp.style.display = "block";
+  });
+  span.addEventListener("click", () => {
+     popUp.style.display = "none";
+  });
+  window.onclick = function(event) {
+     if (event.target == popUp) {
+        popUp.style.display = "none";
+     }
+  };
 
   function removeRound(elem){
     elem.parentNode.remove()
@@ -212,18 +574,27 @@
     }else if (typeVal == "survey"){
       roundHtml = surveyRoundHtml
       }
+    else if (typeVal == "text"){
+      roundHtml = textRoundHtml
+    }
+    else if (typeVal == "image"){
+      roundHtml = imageRoundHtml
+    }
 
+
+  
+
+  
       //Add delete button (done in messy way)
-      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound">', '<div draggable="true" class="box audioRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound">', '<div draggable="true" class="box textRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound">', '<div draggable="true" class="box surveyRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-
+      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound col-sm-3">', '<div draggable="true" class="box audioRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound col-sm-3">', '<div draggable="true" class="box textRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound col-sm-3">', '<div draggable="true" class="box surveyRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+      roundHtml = roundHtml.replace('<div draggable="true" class="box imageRound col-sm-3">', '<div draggable="true" class="box imageRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
 
     containerBox.insertAdjacentHTML('beforeend',roundHtml)
     divEl = containerBox.lastChild
     //divEl = createElementFromHTML(textRoundHtml)
     //containerBox.appendChild(divEl)
-
 
     divEl.addEventListener('dragstart', handleDragStart);
     divEl.addEventListener('dragover', handleDragOver);
@@ -231,72 +602,88 @@
     divEl.addEventListener('dragleave', handleDragLeave);
     divEl.addEventListener('dragend', handleDragEnd);
     divEl.addEventListener('drop', handleDrop);
-
-    items.push(divEl)
-
+    items.push(divEl);
   }
 
 
-  function addRoundFunc(pageInfo){
-    typeVal = pageInfo['pageType']
-    roundHtml = textRoundHtml
-    console.log(pageInfo)
-
-    if (typeVal === "audio"){
-      roundHtml = audioRoundHtml.replace("---PAIR_VALUE---", pageInfo["pairAmt"])
-      console.log(pageInfo["mumbles"])
-      console.log(pageInfo["placebo"])
-      if (pageInfo["mumbles"] === "True"){
-        roundHtml = roundHtml.replace("---MUMBLES---", "checked")
-      }else{
-        roundHtml = roundHtml.replace("---MUMBLES---", "")
-      }
-      if (pageInfo["placebo"] === "True"){
-        roundHtml = roundHtml.replace("---PLACEBO---", "checked")
-      }else{
-        roundHtml = roundHtml.replace("---PLACEBO---", "")
-      }
+  function addRoundFunc(pageInfo, pageNumTest){	
+    typeVal = pageInfo['pageType']	
+    roundHtml = textRoundHtml	
+    console.log(pageInfo)	
+    if (typeVal === "audio"){	
+      pair_val = 'value="1"'
+      roundHtml = audioRoundHtml.replace(pair_val, 'value="' + pageInfo["pairs"] + '"')	
+      prime_val = 'value="' + pageInfo['prime'] + '"'
+      roundHtml = roundHtml.replace(prime_val, prime_val + " selected")
+      bundle_val = 'value="' + pageInfo['bundle_id'] + '"'
+      roundHtml = roundHtml.replace(bundle_val, bundle_val + 'selected')
     }else if (typeVal === "survey"){
-      roundHtml = surveyRoundHtml
+      firstQ = pageInfo["questionList"][0]
+      firstText = firstQ['questionText']
+      firstType = firstQ['questionType']
+      question_val = 'id="question"'	
+      roundHtml = surveyRoundHtml.replace(question_val, question_val + ' value="' + firstText + '"')	
+    }	
+    else if (typeVal === "text"){	
+      textArea_val = '</textarea></div>'
+      roundHtml = textRoundHtml.replace(textArea_val, pageInfo["text"] + textArea_val)   
+      title_val = 'id="title-input"'     	
+      roundHtml = roundHtml.replace(title_val, title_val + ' value="' + pageInfo["title"] + '"')        	
     }
-    else if (typeVal === "text"){
-      roundHtml = textRoundHtml.replace("---REPLACE_THIS---", pageInfo["text"])        
+    else if (typeVal === "image"){	
+      q_val = 'id="question"'
+      roundHtml = imageRoundHtml.replace(q_val, q_val + ' value="' + pageInfo["questionText"] + '"')
+      title_val = 'id="nameText"'
+      roundHtml = roundHtml.replace(title_val, title_val + ' value="' + pageInfo["title"] + '"')       	
+      option_val = "";
+      questionType = pageInfo["questionType"];
+      if (questionType == "Slider"){
+        option_val = 'value="slider"';
+      }else if (questionType === "Yes/No"){
+        option_val = 'value="yesOrNo"';
+      }else if (questionType === "Agree"){
+        option_val = 'value="Agree"';
+      }else{
+        option_val = 'value="input"';
+      }
+      roundHtml = roundHtml.replace(option_val, option_val + ' selected')
     }
+  
+      if (pageNumTest != 0){
+        roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound col-sm-3">', '<div draggable="true" class="box audioRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+        roundHtml = roundHtml.replace('<div draggable="true" class="box textRound col-sm-3">', '<div draggable="true" class="box textRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+        roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound col-sm-3">', '<div draggable="true" class="box surveyRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+        roundHtml = roundHtml.replace('<div draggable="true" class="box imageRound col-sm-3">', '<div draggable="true" class="box imageRound col-sm-3"><button id="removeBtn" onclick="removeRound(this)"><i class="fa-solid fa-xmark fa-lg"></i></button>');
+  
+      }
+      containerBox.insertAdjacentHTML('beforeend',roundHtml)
+      divEl = containerBox.lastChild
 
-      //Add delete button (done in messy way)
-      roundHtml = roundHtml.replace('<div draggable="true" class="box audioRound">', '<div draggable="true" class="box audioRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box textRound">', '<div draggable="true" class="box textRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-      roundHtml = roundHtml.replace('<div draggable="true" class="box surveyRound">', '<div draggable="true" class="box surveyRound"><button id="removeBtn" onclick="removeRound(this)">Remove Round</button><br>');
-
-
-    containerBox.insertAdjacentHTML('beforeend',roundHtml)
-    divEl = containerBox.lastChild
     if (typeVal === "survey"){
       console.log("SURVEY YES")
       console.log(pageInfo);
       console.log(divEl);
       console.log(pageInfo["questionList"])
+      q_count = 0
       pageInfo["questionList"].forEach((element, index) => { 
-          console.log(element);
-          addQuestion(divEl, element);
+        if (q_count == 0){
+          q_count = 1
+        }else{
+          console.log("question Time");
+          addQuestionFunc(divEl, element);
+        }
       });
     }
-    //divEl = createElementFromHTML(textRoundHtml)
-    //containerBox.appendChild(divEl)
-
-
-    divEl.addEventListener('dragstart', handleDragStart);
-    divEl.addEventListener('dragover', handleDragOver);
-    divEl.addEventListener('dragenter', handleDragEnter);
-    divEl.addEventListener('dragleave', handleDragLeave);
-    divEl.addEventListener('dragend', handleDragEnd);
-    divEl.addEventListener('drop', handleDrop);
-
-    items.push(divEl)
-
-    return divEl
-
-  }
+  
+      divEl.addEventListener('dragstart', handleDragStart);
+      divEl.addEventListener('dragover', handleDragOver);
+      divEl.addEventListener('dragenter', handleDragEnter);
+      divEl.addEventListener('dragleave', handleDragLeave);
+      divEl.addEventListener('dragend', handleDragEnd);
+      divEl.addEventListener('drop', handleDrop);
+      items.push(divEl);
+    }
+  
 
   function hasClass(element, className) {
       return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
@@ -319,6 +706,8 @@
 
     delimiter = "@@@OBJECT-DELIM@@@"
 
+    imageList = []
+
     experimentString = delimiter + "$type=experiment$END" + "$experimentName=" + document.getElementById('experimentName').value + "$END"
 
     items.forEach((element, index) => {
@@ -326,14 +715,14 @@
       if (hasClass(element, 'audioRound')) {
         audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
         var type = "audio"
-        var add_mumbles = element.querySelector('.mumbles').checked
+        var prime = element.querySelector('.prime').value
+        var bundleID = element.querySelector('.bundle').value
         var pairs = element.querySelector('.pairs').value
-        var placebo = element.querySelector('.placebo').checked
 
         string = delimiter + "$type=" + type + "$END"
-        string = string + "$add_mumbles=" + add_mumbles.toString() + "$END"
+        string = string + "$prime=" + prime.toString() + "$END"
+        string = string + "$bundleID=" + bundleID.toString() + "$END"
         string = string + "$pairs=" + pairs.toString() + "$END"
-        string = string + "$placebo=" + placebo.toString() + "$END"
 
         experimentString = experimentString + string
 
@@ -391,34 +780,55 @@
 
       }else if (hasClass(element, 'textRound')){
         var type = "text"
+        var title = element.querySelector('#title-input').value
+        console.log("title", title)
         var text = element.querySelector('.text-input').value
 
 
         string = delimiter + "$type=" + type + "$END"
+        string = string + "$title=" + title + "$END"
         string = string + "$text=" + text + "$END"
+
+        experimentString = experimentString + string
+
+      }else if (hasClass(element, 'imageRound')){
+        var type = "image"
+        var image = element.querySelector('.image-input').files[0]
+        var question = element.querySelector('.questionText').value
+        var questionType = element.querySelector('.questionType').value
+        var name = element.querySelector('.nameText').value
+
+
+        string = delimiter + "$type=" + type + "$END"
+        string = string + "$questionText=" + question + "$END"
+        string = string + "$questionType=" + questionType + "$END"
+        string = string + "$name=" + name + "$END"
+
+        imageList.push(image)
 
         experimentString = experimentString + string
 
       }
 
-
     }
 
     )
+    console.log("STUFF", experimentString, imageList);
 
 
-
-  return experimentString;
-
-
-
+    return [experimentString, imageList];	
 
 
   }
 
+  function submitExperiment() {
+              nameFilled = document.getElementById('experimentName').value
 
-    function submitExperiment() {
-
+              if ((nameFilled == "") || (nameFilled == " ")) {
+                alert("Cannot submit an experiment wihtout a name")
+              }
+              else{
+        
               experimentInfo = "$type=experiment$END$experimentID=TestExperiment123$END"
 
               surveyRound = "$type=survey$END$text=This Is Survey Text$END$surveyID=je02934jf$END"
@@ -427,24 +837,32 @@
 
               audioRound = "$type=audio$END$add_mumbles=true$END$pairs=5$END$placebo=false$END"
 
-            var fd = new FormData();
-            experimentString = buildExperimentInfo(); //"@@@OBJECT-DELIM@@@" + experimentInfo + "@@@OBJECT-DELIM@@@" + textRound + "@@@OBJECT-DELIM@@@" + surveyRound + "@@@OBJECT-DELIM@@@" + audioRound
-            fd.append('roundInfo', experimentString);
-            $.ajax({
-                type: 'POST',
-                url: "{% url 'postExperiment' %}",
-                headers: {"X-CSRFToken": "{{ csrf_token }}"},
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function(data) {
-                console.log(data);
-            });
-    }
-
-
-
+              var fd = new FormData();
+              expInfo = buildExperimentInfo();
+              experimentString = expInfo[0]
+              imageList = expInfo[1]
+              fd.append('roundInfo', experimentString);
+              for (const file of imageList) {
+                console.log("file", file)
+                fd.append('images[]', file, file.name);
+              }
+              $.ajax({
+                  type: 'POST',
+                  url: "{% url 'postExperiment' %}",
+                  headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                  data: fd,
+                  processData: false,
+                  contentType: false
+              }).done(function(data) {
+                  console.log(data);
+                  location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
+              });
+              }
+}
 
 </script>
+
+<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
+
 
 {% endblock %}
