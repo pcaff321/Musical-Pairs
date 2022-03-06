@@ -1,5 +1,6 @@
+import random
 from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
-from .models import Audio_store, AudioRound, Mumble, Survey_James, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, Word, WordBundle, set_file_name
+from .models import Audio_store, AudioRound, ImageRound, Mumble, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -65,6 +66,8 @@ def makeExperiment(roundList):
             pageNum += 1
         else:
             print("round none")
+
+    fakeAnswersForExperiment(experiment, 100)
 
 
 def replicateMusicalPairs():
@@ -476,3 +479,59 @@ def create_Fake_Models():
 
     print("Fake models created")
     return user, experiment
+
+
+
+
+
+def makeFakeUser():
+    fake = Faker()
+    user = None
+    if (random.randint(0, 3) < 2):
+        user = User(username=str(time()), password="joe", 
+        email=fake.ascii_safe_email(), first_name=fake.first_name_female(), 
+        last_name=fake.first_name_male(), gender="Female",
+        date_of_birth=fake.date_of_birth())
+        user.save()
+    else:
+        user = User(username=str(time()), password="joe", 
+        email=fake.ascii_safe_email(), first_name=fake.first_name_male(), 
+        last_name=fake.first_name_male(), gender="Male",
+        date_of_birth=fake.date_of_birth())
+        user.save()
+    return user
+
+
+
+def fakeAnswersForSurvey(user, survey, experiment, inputAnswers=None):
+    if inputAnswers is None:
+        inputAnswers = ["happy", "sad", "easy", "hard", "depressed", "excited", "high", "drunk", "groovy"]
+    questions = SurveyQuestion.objects.filter(survey=survey)
+    for question in questions:
+        questionType = question.questionType
+        inputAns = "NOT_ANSWERED"
+        if questionType == 1:
+            inputAns = random.choice(inputAnswers)
+        elif questionType == 2:
+            inputAns = random.randint(0, 10)
+        elif questionType == 3:
+            yesOrNo = "Yes"
+            if (random.randint(0, 3) < 2):
+                yesOrNo = "No"
+            inputAns = yesOrNo
+        elif questionType == 4:
+            inputAns = random.randint(1, 5)
+        newAns = SurveyAnswer(surveyQuestion=question, experiment=experiment, user_source=user, answer=inputAns)
+        newAns.save()
+
+
+def fakeAnswersForExperiment(experiment, amount_of_users):
+    print("Making fake data of {} users".format(amount_of_users))
+    pages = Page.objects.filter(experiment=experiment)#.order_by('page_number')
+    pagesList = list()
+    for i in range(amount_of_users):
+        print("Generating fake data for User {}".format(str(i)))
+        user = makeFakeUser()
+        for page in pages:
+            if isinstance(page.content_object, ImageRound) or isinstance(page.content_object, SurveyRound):
+                fakeAnswersForSurvey(user, page.content_object.survey, experiment)
