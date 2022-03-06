@@ -60,7 +60,6 @@ export default function Survey(props) {
                 handleSubmitButtonPressed();
             }
             setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
-            setAnswerValue("");
             /* let audio = document.getElementsByTagName("audio")[0];
             if (typeof(audio) != 'undefined' && audio != null) {
                 if (audio.ended) {
@@ -93,12 +92,22 @@ export default function Survey(props) {
     }
 
     function handleSubmitButtonPressed() {
+        let answer = answerValue;
+        if (answer == "") {
+            if (roomData.round_list[displayedTable][2] == "Yes/No") {
+                answer = "Yes";
+            } else if (roomData.round_list[displayedTable][2] == "Slider") {
+                answer = "0";
+            } else if (roomData.round_list[displayedTable][2] == "Agree") {
+                answer = "3";
+            }
+        }
         let fd = new FormData();
         let csrftoken = getCookie('csrftoken');
         questionID = roomData.round_list[displayedTable][3]
         experimentID = roomData.round_list[displayedTable][4]
         pair_or_question = roomData.round_list[displayedTable][5]
-        fd.append('answerValue', answerValue);
+        fd.append('answerValue', answer);
         fd.append('experimentID', experimentID);
         fd.append('questionID',  questionID);
         fd.append('pair_or_question', pair_or_question);
@@ -108,7 +117,7 @@ export default function Survey(props) {
             headers: { "X-CSRFToken": csrftoken },
             body: fd
         });
-
+        setAnswerValue("");
         setDisplayedTable(showNextStage(displayedTable, roomData.round_count));
     }
 
