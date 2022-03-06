@@ -621,8 +621,19 @@ select{
       firstQ = pageInfo["questionList"][0]
       firstText = firstQ['questionText']
       firstType = firstQ['questionType']
+      if (firstType == "Slider") {
+        firstType = "slider"
+      } else if (firstType == "Text") {
+        firstType = "input"
+      } else if (firstType == "Yes/No") {
+        firstType = "yesOrNo"
+      }
+      console.log("firstType", firstType)
       question_val = 'id="question"'	
-      roundHtml = surveyRoundHtml.replace(question_val, question_val + ' value="' + firstText + '"')	
+      roundHtml = surveyRoundHtml.replace(question_val, question_val + ' value="' + firstText + '"')
+      roundHtml = roundHtml.replace("selected", "")
+      roundHtml = roundHtml.replace('option value="' + firstType + '"', 'option value="' + firstType + '" selected')
+      console.log("RoundHTML", roundHtml)
     }	
     else if (typeVal === "text"){	
       textArea_val = '</textarea></div>'
