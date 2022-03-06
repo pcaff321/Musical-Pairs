@@ -65,8 +65,7 @@
   .roundRow {
     padding-top: 30px;
     margin-left:20px !important;
-    
-
+  
   }
 
   #submitButton {
@@ -143,9 +142,6 @@
   border-radius: 5px;
 }
 
-#add_button:hover {
-  background-color: dimgray;
-}
 
 #add_button:focus {
   box-shadow:none;
@@ -160,6 +156,8 @@
   box-shadow: 1px 1px 0px 1px dimgray;
 
 }
+
+
 
 #question {
   margin-bottom:10px;
@@ -263,13 +261,14 @@
   cursor: pointer;
 }
 
-#imageQText {
-  margin-top: 20px;
-}
 
 #labelPrime, #labelName {
   margin-top :10px;
 }
+
+select{
+  -webkit-appearance: listbox !important
+  }
 
 </style>
 
@@ -313,7 +312,7 @@
   <div class="col-md-5"></div>
   <div class="col-md-2 roundTypeCol d-flex justify-content-center">
   <select class="form-select"  name="roundType" id="roundType">
-     <option value="selectType" id="default "default >Select Round Type:</option>
+     <option value="" disabled selected>Select Round Type</option>
       <option value="text">Text Round</option>
       <option value="audio">Audio Round</option>
       <option value="image">Image Round</option>	
@@ -329,7 +328,7 @@
   <div class="col-sm-1"></div>
   <div class="col-sm-10">
       <div class="container row" id="roundContainer">
-        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><input id="title-input" placeholder="Write Your Title Here"></input><br><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
+        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><input id="title-input" class="form-control" placeholder="Title:"><br></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div>
     </div><br><br><br>
   </div>
 </div>
@@ -406,37 +405,40 @@
   
 
 
-  var questionHtml = `<div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText form-control"></input>
-  <select name="questionType" id="questionType" class="questionType form-select"><br>
-    
+  var questionHtml = `<div class="questionDiv"><input placeholder="Question:"id="question" class="questionText form-control"></input>
+  <select name="questionType" id="questionType" class="questionType form-select">
+    <option value="" disabled selected>Select Answer Type</option>
     <option value="slider">Slider Bar 1-10</option>
     <option value="input">Input Box</option>
     <option value="yesOrNo">Yes Or No Option</option>
     <option value="Agree">Agree</option>	
   </select><button id="removeBtn" onclick="removeRound(this)">&nbsp;<i class="fa-solid fa-xmark"></i></button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><input id="title-input" placeholder="Write Your Title Here"></input><br><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><input id="title-input" class="form-control" placeholder="Title:"><br></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
 
   var surveyRoundHtml = `<div draggable="true" class="box surveyRound col-sm-3"><h3>Survey Round</h3>
     <button id="add_button" onclick="addQuestion(this)">+ question</button><br><br>
 
-    <div class="questionDiv"><label for="question">Question: </label><input id="question" class="questionText form-control"></input>
-    <select name="questionType" id="questionType" class="questionType form-select">
+    <div class="questionDiv"><input id="question" placeholder="Question:" class="questionText form-control"></input>
+    <select name="questionType" id="questionType" class="questionType form-select mb-3">
+      <option value="" disabled selected>Select Answer Type</option>
       <option value="slider">Slider Bar 1-10</option>
       <option value="input">Input Box</option>
       <option value="yesOrNo">Yes Or No Option</option>
       <option value="Agree">Agree</option>
-    </select><br><br></div>
+    </select><br></div>
   </div>`;
 
   var audioRoundHtml = `<div draggable="true" class="box audioRound col-sm-3">
-    <h3>Audio Round</h3>
-    <label id="labelPrime" for="prime">Prime: </label><select name="prime" id="prime" class="prime form-select">
+    <h3>Audio Round</h3><br>
+    <select name="prime" id="prime" class="prime form-select">
+    <option value="" disabled selected>Select Prime Type</option>
     <option value="X">X</option>
     <option value="J">J</option>
     <option value="K">K</option>
     </select><br>
-    <label for="bundle">Word Bundle: </label><select name="bundle" id="bundle" class="bundle form-select">
+    <select name="bundle" id="bundle" class="bundle form-select">
+    <option value="" disabled selected>Choose Word Bundle</option>
     {% for bundle in listOfBundles %}
     <option value="{{ bundle.id }}">{{ bundle.name }}</option>
     {% endfor %}
@@ -448,7 +450,7 @@
 
   var imageRoundHtml = `<div draggable="true" class="box imageRound col-sm-3">
     <h3>Image Round</h3>
-    <label id="labelName" for="nameText">Name: </label><input id="nameText" class="nameText form-control"></input><br>
+    <input placeholder="Name:" id="nameText" class="nameText form-control"></input><br>
     <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
     <div class="questionDiv"><label for="question">Accompanying Question: </label><input id="question" class="questionText form-control"></input>
       <select name="questionType" id="questionType" class="questionType form-select">

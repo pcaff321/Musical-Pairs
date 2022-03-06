@@ -163,6 +163,43 @@
 .prevUpdates {
     max-width:80%;
 }
+
+.chartTitle, .chartCorrect {
+  padding: 50px;
+}
+
+
+.chartRow{
+  margin-top: 100px;
+}
+
+img {
+  max-width:90%;
+}
+
+.box {
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 1px solid darkgray;
+  text-align: left;
+}
+
+.box p {
+  font-size: 18px;
+}
+.roundRow {
+  padding-top: 30px;
+  margin-left:20px !important;
+
+}
+
+.pageNum {
+  font-size:20px;
+  color: darkgray;
+  text-align:center;
+  margin-bottom:10px;
+}
+
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -180,8 +217,8 @@
     </div>
 </div>
 <div class="row tabRow">
-    <div class="col-md-2"></div>
-    <div class="col-md-8 d-flex justify-content-center heading">
+    <div class="col-md-1"></div>
+    <div class="col-md-10 d-flex justify-content-center heading">
 
         <div class="tab">
             <button class="tablinks tablinks1 active" onclick="openTab(event, 'summary')">Summary</button>
@@ -200,42 +237,69 @@
 <div class="col-md-10 d-flex justify-content-center heading">
 
   <div id="summary" class="tabcontent tabcontent1">
-    <h2> Total Participants: {{ participant_count }}</h2>
-    <h2> Total Subscribers: {{ subscriber_count }} </h2>
-    {% for page in experimentList %}
+    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+      <h2>Overview</h2>
+    </div>
+    <div class="row roundRow">
+      <div class="col-sm-12">
+          <div class="container row" id="roundContainer">
+            {% for page in experimentList %}
+            <div class="box col-sm-3">
 
-    {% if page.pageType == "survey" %}
-    <h2>SURVEY ROUND</h2>
-      {% for question in page.questionList %}
-      <h3> {{ question.questionText }}  <h3>
-      <h3> {{ question.questionType }} </h3>
-      {% endfor %}
-    {% endif %}
+            {% if page.pageType == "survey" %}
+            <div class="pageNum">{{forloop.counter}}</div>
+            <h3 style="text-align:center">SURVEY ROUND</h3>
+            <br>
+              {% for question in page.questionList %}
+              <p><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
+              <p><b>Answer Type:</b>  {{ question.questionType }}</p>
+              <hr>
+              {% endfor %}
+            {% endif %}
+        
+            {% if page.pageType == "text" %}
+            <div class="pageNum">{{forloop.counter}}</div>
+            <h3 style="text-align:center">TEXT ROUND</h3>
+            <br>
+            <p><b>Title:</b> {{ page.title }}</p>
+            <p style="word-wrap: break-word;max-width: 350px;"><b>Text:</b><br>{{ page.text }}</p>
 
-    {% if page.pageType == "text" %}
-    <h2>TEXT ROUND</h2>
-    <h3> {{ page.title }} <h3>
-    <p> {{ page.text }} </p>
-    {% endif %}
+            {% endif %}
+        
+            {% if page.pageType == "audio" %}
+            <div class="pageNum">{{forloop.counter}}</div>
 
-    {% if page.pageType == "audio" %}
-    <h2>AUDIO ROUND</h2>
-    <h3> Prime: {{ page.prime }} <h3>
-    <h3> Pair Amount: {{ page.pairs }} </h3>
-    {% endif %}
+            <h3 style="text-align:center">AUDIO ROUND</h3>
+            <br>
+            <p><b>Prime:</b> {{ page.prime }}<p>
+        
+            <p><b>Pair Amount:</b> {{ page.pairs }}</p>
+            {% endif %}
+        
+            {% if page.pageType == "image" %}
+            <div class="pageNum">{{forloop.counter}}</div>
 
-    {% if page.pageType == "image" %}
-    <h2>IMAGE ROUND</h2>
-    <h3> Associated Question: {{ page.questionText }}<h3>
-    <img src="{{ page.url }}"></img>
-    {% endif %}
+            <h3 style="text-align:center">IMAGE ROUND</h3>
+            <br>
 
-    <br><br>
-    {% endfor %}
-  </div>
+            <p><b>Associated Question:</b><br>{{ page.questionText }}<p>
+              <br>
+              <div style="text-align:center">
+                <img src="{{ page.url }}"></img>
+              </div>
+            {% endif %}
+          </div>
 
+            <br><br>
+            {% endfor %}
+    
+        </div>
+      </div></div></div>
 
     <div id="questions" class="tabcontent tabcontent1">
+      <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+        <h2> Questions</h2>
+      </div>
       <div class="tab">
         {% for page in pages_list %}
         {% if page.num == 0 %}
@@ -359,14 +423,20 @@
 
 
 <div class="tabcontent tabcontent1" id="stats">
-  <h1> View The Overall Performance For Each Type Of Prime </h1>
-  {% for chart in chartsData %}
-  <h2> {{ chart.title }} </h2>
-  <div  height="40" width="40">
-      <canvas id="{{ chart.title }}" ></canvas>
+  <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <h2> View The Overall Performance For Each Type Of Prime </h2>
   </div>
-  <h3> Overall Correct: {{ chart.percent }}% </h3>
+  {% for chart in chartsData %}
+  <div class="row chartRow">
+  <div class="col-md-12 d-flex justify-content-center">
+  <h2 class="chartTitle" style="text-align:center"> {{ chart.title }} </h2><br>
+  <div  height="40" width="40">
+      <canvas class="chart" id="{{ chart.title }}" ></canvas>
+  </div><br>
+  <h3 class="chartCorrect"> Overall Correct: {{ chart.percent }}% </h3>
   <br><br><br>
+  </div>
+</div>
   {% endfor %}
 </div>
 
@@ -394,7 +464,9 @@
       </tbody>
     </table>
     {% else %}
-    <h2> No updates have been made yet </h2>
+    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+      <h2> No updates have been made yet </h2>
+    </div>
     {% endif %}
 </div>
 
@@ -430,9 +502,9 @@
   <body>
     
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent tabcontent1" id="graph">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent tabcontent1" id="graph"  style="text-align:center;">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
+          <h2> Participation</h2>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
@@ -445,6 +517,8 @@
         </div>
       </div>
 
+      <h3> Total Participants: {{ participant_count }}</h3>
+      <h3> Total Subscribers: {{ subscriber_count }} </h3><br><br><hr>
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 
       <h2>Section title</h2>

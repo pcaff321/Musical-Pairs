@@ -560,7 +560,6 @@ def Audio_store_view(request):
             associated_word_instance = Word(word=word, user_source=user, audio_store=audio_store_instance)
             associated_word_instance.save()
 
-
             return redirect(showAudios)
     else: 
         form = AudioForm() 
@@ -1662,7 +1661,6 @@ def trimAudio(request):
         createPath(os.path.join(settings.MEDIA_ROOT, str(user_id), "trimmedSounds"))
     except:
         print("Error creating paths in getTrimmedAudio() in views.py")
-    file_location = getTrimmedAudio(user_id) + str(user_id)
-    file_handle = sound.export(file_location, 
-       format="wav")
+    file_location = getTrimmedAudio(user_id)
+    file_handle = trimmed_sound.export(file_location, format="wav",)
     return redirect('uploadAudio')
