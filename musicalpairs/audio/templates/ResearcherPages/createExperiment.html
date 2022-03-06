@@ -329,8 +329,7 @@
   <div class="col-sm-1"></div>
   <div class="col-sm-10">
       <div class="container row" id="roundContainer">
-        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
-
+        <div draggable="true" class="box textRound col-sm-3"><h3 id="firstTextRound">Text Round</h3><br><input id="title-input" placeholder="Write Your Title Here"></input><br><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div><br>
     </div><br><br><br>
   </div>
 </div>
@@ -416,7 +415,7 @@
     <option value="Agree">Agree</option>	
   </select><button id="removeBtn" onclick="removeRound(this)">&nbsp;<i class="fa-solid fa-xmark"></i></button><br><br></div>`;
 
-  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><label for="title-input">Title: </label><br><input id="title-input"></input><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here""></textarea></div>';
+  var textRoundHtml = '<div draggable="true" class="box textRound col-sm-3"><h3>Text Round</h3><br><input id="title-input" placeholder="Write Your Title Here"></input><br><br><textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea></div>';
 
   var surveyRoundHtml = `<div draggable="true" class="box surveyRound col-sm-3"><h3>Survey Round</h3>
     <button id="add_button" onclick="addQuestion(this)">+ question</button><br><br>
@@ -451,7 +450,13 @@
     <h3>Image Round</h3>
     <label id="labelName" for="nameText">Name: </label><input id="nameText" class="nameText form-control"></input><br>
     <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
-    <label id="imageQText" for="questionText">Accompanying Question: </label><input id="questionText" class="questionText form-control"></input><br>
+    <div class="questionDiv"><label for="question">Accompanying Question: </label><input id="question" class="questionText form-control"></input>
+      <select name="questionType" id="questionType" class="questionType form-select">
+        <option value="slider">Slider Bar 1-10</option>
+        <option value="input">Input Box</option>
+        <option value="yesOrNo">Yes Or No Option</option>
+        <option value="Agree">Agree</option>
+      </select><br><br></div>
     </div>`;
 
   var containerBox = document.getElementById("roundContainer");
@@ -640,11 +645,13 @@
         var type = "image"
         var image = element.querySelector('.image-input').files[0]
         var question = element.querySelector('.questionText').value
+        var questionType = element.querySelector('.questionType').value
         var name = element.querySelector('.nameText').value
 
 
         string = delimiter + "$type=" + type + "$END"
         string = string + "$questionText=" + question + "$END"
+        string = string + "$questionType=" + questionType + "$END"
         string = string + "$name=" + name + "$END"
 
         imageList.push(image)

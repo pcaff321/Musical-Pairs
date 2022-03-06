@@ -71,9 +71,10 @@ def processRound(string):
 
     if roundType == "image":
         questionText = getVar(string, "questionText")
+        questionType = getVar(string, "questionType")
         name = getVar(string, "name")
         
-        data = {"questionText": questionText, "name": name}
+        data = {"questionText": questionText, "questionType": questionType, "name": name}
         
     data['roundType'] = roundType
     
@@ -113,10 +114,10 @@ def createTextRound(title, text, experiment, user):
     textRound.save()
     return textRound
 
-def createImageRound(image, experiment, user, questionText, name):
+def createImageRound(image, experiment, user, questionText, questionType, name):
     survey = Survey(name="ImageRoundQuestion", user_source=user)
     survey.save()
-    question = SurveyQuestion(user_source=user, survey=survey, questionText=questionText, questionType=1, questionNumber=1)
+    question = SurveyQuestion(user_source=user, survey=survey, questionText=questionText, questionType=questionType, questionNumber=1)
     question.save()
     imageRound = ImageRound(name=name, experiment=experiment, user_source=user, image=image, survey=survey)
     imageRound.save()
