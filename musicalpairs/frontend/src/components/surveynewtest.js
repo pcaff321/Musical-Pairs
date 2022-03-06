@@ -1,5 +1,5 @@
 import { jssPreset } from '@material-ui/core';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom'
 import SurveyTest from './surveytest';
 // import SurveyTest2 from './surveytest2';
@@ -52,6 +52,7 @@ export default function Survey(props) {
     let experimentID = "";
     let questionID = "";
     let pair_or_question = "question";
+    const audioRef = useRef()
 
     function keyEventListener(e) {
         console.log("oy", answerValue);
@@ -143,7 +144,8 @@ export default function Survey(props) {
 
         let audio = document.querySelector('audio');
         if (typeof(audio) != 'undefined' && audio != null) {
-            audio.addEventListener("ended", audioSetsNextStage)
+            audio.play();
+            audio.addEventListener("ended", audioSetsNextStage);
         }
 
         let submitButton = document.getElementById("submit");
@@ -156,6 +158,8 @@ export default function Survey(props) {
             window.removeEventListener('keydown', keyEventListener);
             if (typeof(audio) != 'undefined' && audio != null) {
                 audio.removeEventListener("ended", audioSetsNextStage);
+                audio.pause();
+                audio.currentTime = 0;
             }
             if (typeof(submitButton) != 'undefined' && submitButton != null) {
                 submitButton.removeEventListener("click", handleSubmitButtonPressed);
@@ -168,7 +172,7 @@ export default function Survey(props) {
         let initial_components = {};
         console.log("ROOM DATA");
         for (let i = 1; i < roomData.round_count + 1; i++) {
-            console.log(i, roomData.round_list[i][0]);
+            console.log(i, roomData.round_list[i]);
             if (roomData.round_list[i][0] == "text") {
                 console.log("hello???")
                 console.log(roomData.round_list[i][1]);
@@ -177,7 +181,7 @@ export default function Survey(props) {
                 );
                 let paragraph_list = roomData.round_list[i].splice(2);
                 initial_components[i] = (
-                    <div>
+                    <div align="center">
                         {initial_components[i]}
                         {paragraph_list.map((item, index) => (
                             <p>{item}</p>
@@ -188,7 +192,7 @@ export default function Survey(props) {
                 initial_components[i] = (
                     <div>
                         <p>Please Close Your Eyes</p>
-                        <audio controls autoPlay hidden>
+                        <audio controls autoPlay hidden src={roomData.round_list[i][4]}>
                             <source src={roomData.round_list[i][4]} type="audio/wav"></source>
                         </audio>
                     </div>
@@ -236,13 +240,26 @@ export default function Survey(props) {
                 } else if (roomData.round_list[i][2] == "Slider") {
                     let max = 10;
                     let min = 0;
-                    question = <Slider defaultValue={0} marks valueLabelDisplay="auto"
+                    const marks = [
+                        { value: 0, label: '0'},
+                        { value: 1, label: '1'},
+                        { value: 2, label: '2'},
+                        { value: 3, label: '3'},
+                        { value: 4, label: '4'},
+                        { value: 5, label: '5'},
+                        { value: 6, label: '6'},
+                        { value: 7, label: '7'},
+                        { value: 8, label: '8'},
+                        { value: 9, label: '9'},
+                        { value: 10, label: '10'},
+                      ];
+                    question = <Slider defaultValue={0} marks={marks} valueLabelDisplay="auto"
                                 max={max} min={min} onChange={handleSliderChange} />
                 } else if (roomData.round_list[i][2] == "Text") {
                     question = (
                         <TextField 
                             required={true} type="text"
-                            inputProps={{style: {textAlign: "center"}}}
+                            inputProps={{style: { textAlign: "center" }}}
                             onChange={handleAnswerChange}
                         />
                     );
@@ -326,12 +343,17 @@ export default function Survey(props) {
     //     <p>Guest: {roomData.guest_can_pause.toString()}</p>
     //     <p>Host: {roomData.is_host.toString()}</p>
     //   </div>
-        <Grid container spacing={1} style={{ height: "75%" }} alignItems="center" justifyContent="center">
+        <Grid container spacing={1} style={{ height: "100vm" }} alignItems="center" justifyContent="center">
             <Grid item xs={12} align="center">
                 <h1>{roomData.name}</h1>
             </Grid>
             {components[displayedTable]}
-            <p>page {displayedTable}/{roomData.round_count + 1}</p>
+            <Grid item xs={12} align="center" style={{ marginRight: "1em" }}>
+                <p>Use the arrow keys to navigate back and forth.</p>
+            </Grid>
+            <Grid item xs={12} align="right" style={{ marginRight: "1em" }}>
+                <p>page {displayedTable}/{roomData.round_count + 1}</p>
+            </Grid>
         </Grid>
     )
   }
