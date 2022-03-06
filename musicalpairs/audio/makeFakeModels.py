@@ -6,8 +6,14 @@ import os
 import string
 
 def makePietroWords():
-    #Make audio store object
+    print("MAKING PIETRO AUDIOSSSSSSSSSS")
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    wordBundle = WordBundle.objects.filter(name="Default Audios", public=True, user_source=user)
+    if not wordBundle.exists():
+        print("IT DOES NOT EXISTTTTTTTTTTTTTTT")
+        userBundle = WordBundle(name="Default Audios", public=True, user_source=user)
+        userBundle.save()
+    #Make audio store object
     words = Word.objects.filter(user_source=user)
     if len(words) > 50:
         return
@@ -28,6 +34,7 @@ def makePietroWords():
         # Make associated Word object
         associated_word_instance = Word(word=word, user_source=user, audio_store=audio_store_instance)
         associated_word_instance.save()
+    
 
 
 def makeMumbleWords():

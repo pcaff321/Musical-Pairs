@@ -41,6 +41,8 @@ try:
 except:
     print("DB not migrated yet")
 
+makePietroWords()
+
 
 from django.template.defaulttags import register
 
@@ -272,7 +274,7 @@ def getRoundList(request):
                             surveyQuestion = surveyQuestion	
                         else:	
                             surveyQuestion = createSurveyQuestion(user_source, halfWaySurvey, questionText, 2, 1)	
-                        associatedSurvey = AssociatedSurvey.objects.filter(survey=halfWaySurvey, content_object=pageType)	
+                        associatedSurvey = AssociatedSurvey.objects.filter(survey=halfWaySurvey)	
                         if associatedSurvey.exists():	
                             associatedSurvey = associatedSurvey[0]	
                         else:	
@@ -316,7 +318,6 @@ def getRoundList(request):
             roundContent = list()
             questionText = question['questionText']
             questionType = question['questionType']
-            print("\n QUESTION TYPE\n", questionType, "\n\n")
             if questionType == "slider":
                 questionType = "Slider"
             elif questionType == "text":
@@ -365,7 +366,6 @@ def getRoundList(request):
                 roundContent = ["question", questionText, questionType, question['id'], experiment_id, "question"]
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
-    print("ROUND LIST: ", round_list)
     return round_list
     
 """ 
@@ -574,7 +574,6 @@ def playAudioFile(request):
     return render(request, 'playAudio.html', {'link': url })
 
 def getPage(experimentID, pageNumber):
-    print("Get page: ", experimentID, pageNumber)
     experiment = Experiment.objects.filter(id=experimentID)[0]
     pages = Page.objects.filter(experiment=experiment, page_number=pageNumber)
     if len(pages) <= 0:
@@ -594,7 +593,6 @@ def prevRoundPage(request):
     return redirect('playRoundTest')
 
 def nextRoundPage(request):
-    print("next page")
     sessionInfo = request.session.get('sessionInfo', [fake_experiment.id, 0])
     user_experiment_id = sessionInfo[0]
     sessionNum = sessionInfo[1]
@@ -630,12 +628,10 @@ def roundTest(request):
     pageType = page.content_object
     #pageType = "survey" ## Determine this by checking page number to experiment pages
     if isinstance(pageType, AudioRound):
-        print("AUDIO ROUND")
         mumbles = pageType.mumbles
         pairs = pageType.pairs
         placebo = pageType.placebo
         experiment = pageType.experiment
-        print("sneding user", user)
         if len(Word.objects.filter(user_source=user)) < (pairs * 2):
             return prevRoundPage(request)
         url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
@@ -649,7 +645,6 @@ def roundTest(request):
         }
         return render(request, 'ExperimentTemplates/standardPage.html', context)
     elif isinstance(pageType, TextRound):
-        print("TECT ROD")
        # url = getRoundFile()
         context = {
             'page': 'text',
@@ -658,7 +653,6 @@ def roundTest(request):
         }
         return render(request, 'ExperimentTemplates/standardPage.html', context)
     elif isinstance(pageType, SurveyRound):
-        print("SURAV")
         #url = getRoundFile()
         questions = getQuestions(pageType.survey)
         context = {
@@ -768,8 +762,6 @@ def getQuestionsForExperiment(experiment):
                 answerList.append(answerDict)
             question['answers'] = answerList
         
-        print("QUESTIONS", questions)
-
 
         surveys.append(
             {'survey': survey.id,
@@ -794,11 +786,11 @@ def getAnswersFromSurvey(survey):
             answerList.append(answerDict)
         question['answers'] = answerList
 
-        surveyInfo = {'survey': survey.id,
+    surveyInfo = {'survey': survey.id,
              'questions': questions   
-        }
+    }
 
-        return surveyInfo
+    return surveyInfo
 
 def processPageInfoForQuestions(page):
     pageType = page.content_object
@@ -980,7 +972,6 @@ def createExperiment(request):
     context = {
         "listOfBundles": listOfBundles
     }
-    print(listOfBundles)
     return render(request, "ResearcherPages/createExperiment.html", context)
 
 
@@ -1002,13 +993,8 @@ def createExperiment_POST(request):
             for image in files:
                 imageList.append(image)
 
-       # print(imageList)
-
-        print(roundInfo)
-
         
         roundInfoSplit = roundInfo.split('@@@OBJECT-DELIM@@@')
-        print("roundInfoSplit")
 
         experiment = None
 
@@ -1036,7 +1022,6 @@ def createExperiment_POST(request):
                     for question in questions:
                         questionText = question['questionText']
                         questionType = question['questionType']
-                        print("\n\nQUESTIONTYPE AAAAH\n", questionType, "\n\n")
                         question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
                         questionNumber += 1
 
@@ -1051,7 +1036,6 @@ def createExperiment_POST(request):
                         wordBundle = wordBundle[0]
                     else:
                         wordBundle = getWordBundle(user)
-                    print("WOD BUNDLE", wordBundle)
                     round = createAudioRound(pairs, prime, experiment, user, wordBundle)
                 elif data['roundType'] == "text":
                     title = data['title']
@@ -1071,8 +1055,6 @@ def createExperiment_POST(request):
                         questionType = 3
                     elif questionType == "Agree":
                         questionType = 4
-                    print("\n\nIMAGE QUESTIONTYPE AAAAH\n", questionType, "\n\n")
-                    print("name!,", name)
 
                     round = createImageRound(image, experiment, user, questionText, questionType, name)
                     imageNumber += 1
@@ -1129,8 +1111,6 @@ def answerQuestion_POST(request):
         experiment_ID = request.POST.get('experimentID', None)
         database_ID = request.POST.get('questionID', None)
         answer = request.POST.get('answerValue', "NOT_ANSWERED")
-        print("REQUEST POST", request.POST)
-        print("experiment ID", experiment_ID)
         if database_ID is None:
             return HttpResponse(
             json.dumps({"Error": "no ID given"}),
@@ -1152,6 +1132,8 @@ def answerQuestion_POST(request):
                 question.answer = str(answer)
             else:
                 question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
+            print("ANSWER POST", answer)
+            print("Answer", question.answer)
             question.save()
         elif questionInfo == "pair":
             print("Pair Guess")
@@ -1281,7 +1263,6 @@ def viewExperiment_Researcher(request):
     else:
         experiment_id = request.GET.get('id')
         experiment = Experiment.objects.filter(id=experiment_id)
-        print("EXP", experiment, experiment_id)
         if not experiment.exists():
             return HttpResponse("ID not recognised")
         form = PublishForm2(initial={'experiment':experiment})
@@ -1302,7 +1283,6 @@ def viewExperiment_Researcher(request):
         for page in pages:
             pagesList.append(processPageInfo(page))
 
-            context = {"experimentName":experiment.title, "experimentList": pagesList}
         context = {
             "experimentName": experiment.title,
             "id": experiment_id, 
