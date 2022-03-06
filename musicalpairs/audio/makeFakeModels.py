@@ -1,9 +1,369 @@
+from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
 from .models import Audio_store, AudioRound, Mumble, Survey_James, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
 from django.conf import settings
 import os
 import string
+
+
+g_experiment = None
+
+
+def getWordBundle(user):
+    userBundle = WordBundle.objects.filter(user_source=user)
+    if userBundle.exists():
+        userBundle = userBundle[0]
+    else:
+        userBundle = WordBundle(name="Your Audios", public=False, user_source=user)
+        userBundle.save()
+    return userBundle
+
+def makeExperiment(roundList):
+    global g_experiment
+    user = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    experiment = Experiment(user_source=user, title="Musical Pairs")
+    experiment.save()
+    pageNum = 1
+    for data in roundList:
+
+        if data['roundType'] == "survey":
+            name = data['name']
+            questions = data['questions']
+
+            survey = Survey(name=name, user_source=user)
+            survey.save()
+
+            questionNumber = 1
+
+            for question in questions:
+                questionText = question['questionText']
+                questionType = question['questionType']
+                question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
+                questionNumber += 1
+
+            round = createSurveyRound(experiment, survey, user)
+
+        elif data['roundType'] == "audio":
+            prime = str(data['prime'])
+            pairs = int(data['pairs'])
+            bundleId = data['bundleID']
+            wordBundle = WordBundle.objects.filter(id=bundleId)
+            if wordBundle.exists():
+                wordBundle = wordBundle[0]
+            else:
+                wordBundle = getWordBundle(user)
+            round = createAudioRound(pairs, prime, experiment, user, wordBundle)
+        elif data['roundType'] == "text":
+            title = data['title']
+            text = data['text']
+            round = createTextRound(title, text, experiment, user)
+
+
+        if round is not None:
+            new_page = createPage(experiment, pageNum, round, user)
+            pageNum += 1
+        else:
+            print("round none")
+
+
+def replicateMusicalPairs():
+    user = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    wordBundle = WordBundle.objects.filter(name="Default Audios", public=True, user_source=user)
+    if not wordBundle.exists():
+        print("IT DOES NOT EXISTTTTTTTTTTTTTTT")
+        wordBundle = WordBundle(name="Default Audios", public=True, user_source=user)
+        wordBundle.save()  
+    else:
+        wordBundle = wordBundle[0]
+    roundList = list()
+    # Round 1
+    data = {
+        "roundType": "text",
+        "title": "What does the study involve?",
+        "text": "It chiefly involves listening to isolated words, and then writing some of them in a second moment.\
+            It also comprises listening to music and answering a few questions, mostly about feelings and one's outlook on life."
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Expected Duration",
+        "text": "The whole session takes about an hour.\
+            Note: Due to testing purposes, rounds can be skipped"
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Safety",
+        "text": "Participation in this experiment is safe. There is no reason to expect participating\
+            may evoke any feeling of discomfort, nor negative emotions. Participants' responses are collected anonymously.\
+                 Participation may be freely interrupted at any moment and is completely voluntary."
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "What is the study about?",
+        "text": "This experiment explores the effect of music on speech processing - that is why participants ply several rounds \
+            of a game called Musical Pairs. Because this is an experiment in the field of psychology, you cannot be told in advance \
+                which exact hypothesis is being tested ( not before you participate - your knowledge would compromise the results \
+                    Thank you for understanding."
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Further notes",
+        "text": "The psychological phenomenon investigated in this experiment is one of the most interesting ones I have ever come across \
+            during my years as a psychology student. Once you reach the end of the experiment, you will be told all about this phenomenon, and \
+                how your participation in this experiment will help us understand it better."
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Keep In Touch",
+        "text": "Should you wish to keep up to date with any further updates or news on this study, \
+            please feel free to subscribe to updates at the end of this experiment or get in contact with me."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Can you participate?",
+        "text": "You may only participate if you have never taken part in this study before and you \
+            believe that you will remain reasonably free from distractions during the course of this experiment"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Can you participate?",
+        "text": "You may only participate if you have never taken part in this study before and you \
+            believe that you will remain reasonably free from distractions during the course of this experiment"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Consent?",
+        "text": "If you continue from this point, you hereby give consent to part in this study."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Introduction To Musical Pairs",
+        "text": "During this study, you will be asked to try your skill in a few rounds of Musical Pairs. \
+            The following pages will outline what you must do"
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "First Step",
+        "text": "First, you will close your eyes and hear several word pairs. Each pair is preceded by a chime. For example - you may hear 'mirror . . . dog'. In this case, \
+            'mirror' is the first word of a pair and 'dog' is the second word of a pair."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Second Step",
+        "text": "Next, you will listen to some music. This is played after all word pairs in a round have been played aloud. "
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Third Step",
+        "text": "Finally, the first word of each pair will be played twice, and you will have to write down the corresponding second word. \
+            For example - you would hear 'mirror . . . mirror' and you would type 'dog'"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Tip",
+        "text": "You will hear many pairs in one go, so you will need a way to connect words. Let's say the pair was 'fig . . . boat', \
+            a strategy to memorise this pair could be imagining a boat full of figs! Always try to se the pairs in your mind like that."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Tip",
+        "text": "You will hear many pairs in one go, so you will need a way to connect words. Let's say the pair was 'fig . . . boat', \
+            a strategy to memorise this pair could be imagining a boat full of figs! Always try to se the pairs in your mind like that."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "One Last Note!",
+        "text": "You will notice that there are mumbled 'distorted nonwords' in rounds where you must guess the second word. These are used to act as \
+            'background noise' as if you were in a crowded area in the real world, such as the cafeteria, where there may be some background chatter. \
+                Our brains process words in a particular way when they are heard close to other speech-like sounds, and it is that particular way of neural\
+                    processing that I am interested in."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Let's Begin!",
+        "text": "There will be fewer tips now, so get ready to listen to some audios! \
+            Remember the order: 'chime...word 1...word 2'"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "audio",
+        "pairs": 12,
+        "bundleID": wordBundle.id,
+        "prime": "X"
+    }
+    roundList.append(data)
+
+
+
+    data = {
+        "roundType": "text",
+        "title": "First Round Complete!",
+        "text": "Congratulations on completing the first round! You have 2 more rounds to go! You may take a short 5-10 minute break \
+            before proceeding."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "audio",
+        "pairs": 12,
+        "bundleID": wordBundle.id,
+        "prime": "K"
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Second Round Complete!",
+        "text": "You have one more round to go, then you are done! You may take a short 5-10 minute break before proceeding."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "audio",
+        "pairs": 12,
+        "bundleID": wordBundle.id,
+        "prime": "J"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Listening complete!",
+        "text": "The listening rounds are complete. Thank you for your participation. I would now like to ask you a few follow-up questions \
+            before we conclude."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Notice Anything Strange?",
+        "text": "You may have noticed that in later rounds, you might have heard a 'compressed' verison of the second word being played before the repeated first \
+            word. I'm sorry I couldn't tell you beforehand, that was part of my testing!"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "survey",
+        "name": "Mumbled Words",
+        "questions": [{"questionText": "Did you notice the mumbled second words?", "questionType": 3}]
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "A Few Surveys",
+        "text": "You are nearly done. Please just fill out the surveys on the following pages and then you are finished!"
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "text",
+        "title": "Aftermath Survey",
+        "text": "The following questions concern the Musical Pairs round you just completed. From your answers, I hope to get a better sense of your experience.\
+            Please indicate to what extent you agree with the following statements, using the response format: \
+                0 = strongly disagree, 1 = disagree, 2 = neutral, 3 = agree, 4 = strongly agree.\
+                    Please be accurate and honest in your answers."
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "survey",
+        "name": "Aftermatch Survey",
+        "questions": [{"questionText": "During Musical Pairs, I put forward my best effort.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I felt absorbed.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I was well-focused.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I had some unrelated thoughts.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I was interrupted.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I felt tired.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the environment around me was quiet.", "questionType": 4},
+            {"questionText": "During Musical Pairs, some noise around me made it harder for me to understand the words.", "questionType": 4},
+            {"questionText": "During Musical Pairs, I kept my eyes closed whenever either words or music were played.", "questionType": 4},
+            {"questionText": "During Musical Pairs, through Step 1, I tried to visualise each pair as an image in my mind.", "questionType": 4},
+            {"questionText": "During Musical Pairs, as the music played, I just listened, thinking of nothing in particular.", "questionType": 4}
+    
+        ]
+    }
+    roundList.append(data)
+
+
+    data = {
+        "roundType": "survey",
+        "name": "Word Quality",
+        "questions": [{"questionText": "During Musical Pairs, I put forward my best effort.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the sound was crisp.", "questionType": 4},
+            {"questionText": "During Musical Pairs the words sounded somewhat distorted, or metallic.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the words played were words I am familiar with.", "questionType": 4},
+            {"questionText": "During Musical Pairs, some of the words were new to me.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the words were pronounced clearly.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the words were pronounced with a rather heavy accent.", "questionType": 4},
+            {"questionText": "During Musical Pairs, the way words were pronounced made them harder to understand.", "questionType": 4}
+    
+        ]
+    }
+    roundList.append(data)
+
+    makeExperiment(roundList)
+
+
+
+
+
+
+
+
+
 
 def makePietroWords():
     print("MAKING PIETRO AUDIOSSSSSSSSSS")
@@ -61,9 +421,11 @@ def makeMumbleWords():
 
 
 def create_Fake_Models():
+    global g_experiment
     experiment = Experiment.objects.all()
     user = User.objects.all()
     if experiment.exists() and user.exists():
+        g_experiment = experiment[0]
         return user[0], experiment[0]
 
     #Experiment.objects.all().delete()
@@ -75,6 +437,7 @@ def create_Fake_Models():
 
     experiment = Experiment(user_source=user, title="ExperimentTest")
     experiment.save()
+    g_experiment = experiment
     print("Fake id", experiment.id)
     textRound = TextRound(text="Welcome To The Experiment", experiment=experiment, user_source=user)
     textRound.save()
