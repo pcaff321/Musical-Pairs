@@ -91,7 +91,7 @@ def makeExperiment(roundList):
         else:
             print("round none")
 
-    fakeAnswersForExperiment(experiment, 100)
+    fakeAnswersForExperiment(experiment, 30)
 
 
 def replicateMusicalPairs():
