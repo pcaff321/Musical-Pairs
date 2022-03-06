@@ -360,7 +360,38 @@ select{
       this.style.opacity = '0.4';
       
       dragSrcEl = this;
-      
+      console.log("drag start", this)
+      console.log(this.classList)
+      if (this.classList.contains("textRound")) {
+        let title = this.querySelector("#title-input").value
+        let text = this.querySelector("#text-input").value
+        this.innerHTML = this.innerHTML.replace('<input id="title-input" class="form-control" placeholder="Title:">', 
+        '<input id="title-input" class="form-control" value="' + title + '" placeholder="Title:">')
+        this.innerHTML = this.innerHTML.replace('<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here" "=""></textarea>', 
+        '<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here" "="">'+text+'</textarea>')
+        console.log(title, text)
+      } else if (this.classList.contains("imageRound")) {
+        let name = this.querySelector("#nameText").value
+        let question = this.querySelector("#question").value
+        let questionType = document.querySelector("#questionType").value;
+        console.log(questionType);
+        this.innerHTML = this.innerHTML.replace('id="nameText"', 'id="nameText" value="' + name + '"');
+        this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
+        '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
+        this.innerHTML = this.innerHTML.replace("selected", "");
+        this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+      } else if (this.classList.contains("surveyRound")) {
+        let question = this.querySelector("#question").value
+        let questionType = document.querySelector("#questionType");
+        console.log(questionType);
+        this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
+        '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
+        this.innerHTML = this.innerHTML.replace("selected", "");
+        this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+      } else if (this.classList.contains("audioRound")) {
+        console.log("")
+      }
+      console.log("drag start new", this.innerHTML)
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/html', this.innerHTML);
   }
@@ -393,9 +424,46 @@ select{
         e.stopPropagation();
       
         if (dragSrcEl !== this) {
+          if (this.classList.contains("textRound")) {
+            let title = this.querySelector("#title-input").value
+            let text = this.querySelector("#text-input").value
+            this.innerHTML = this.innerHTML.replace('<input id="title-input" class="form-control" placeholder="Title:">', 
+            '<input id="title-input" class="form-control" value="' + title + '" placeholder="Title:">')
+            this.innerHTML = this.innerHTML.replace('<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here" "=""></textarea>', 
+            '<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here" "="">'+text+'</textarea>')
+            console.log(title, text)
+          } else if (this.classList.contains("imageRound")) {
+            let name = this.querySelector("#nameText").value
+            let question = this.querySelector("#question").value
+            let questionType = document.querySelector("#questionType").value;
+            console.log(questionType);
+            this.innerHTML = this.innerHTML.replace('id="nameText"', 'id="nameText" value="' + name + '"');
+            this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
+            '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
+            this.innerHTML = this.innerHTML.replace("selected", "");
+            this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+          } else if (this.classList.contains("surveyRound")) {
+            let question = this.querySelector("#question").value
+            let questionType = document.querySelector("#questionType");
+            console.log(questionType);
+            this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
+            '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
+            this.innerHTML = this.innerHTML.replace("selected", "");
+            this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+          } else if (this.classList.contains("audioRound")) {
+            console.log("")
+          }
+          let x = Object.assign({}, this.classList)
+          x = Object.values(x).join(" ");
+          let y = Object.assign({}, dragSrcEl.classList)
+          y = Object.values(y).join(" ");
+          console.log("\n\nx", x, "\ny", y)
           dragSrcEl.innerHTML = this.innerHTML;
           this.innerHTML = e.dataTransfer.getData('text/html');
-
+          this.classList = y 
+          dragSrcEl.classList = x
+          console.log("\n\nx", x, "\ny", y)
+          console.log("drag stop", this.innerHTML)
         }
       
         return false;
@@ -452,8 +520,9 @@ select{
     <h3>Image Round</h3>
     <input placeholder="Name:" id="nameText" class="nameText form-control"></input><br>
     <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
-    <div class="questionDiv"><label for="question">Accompanying Question: </label><input id="question" class="questionText form-control"></input>
+    <div class="questionDiv"><br><input id="question" placeholder="Accompanying Question:" class="questionText form-control"></input>
       <select name="questionType" id="questionType" class="questionType form-select">
+        <option value="" disabled selected>Select Answer Type</option>
         <option value="slider">Slider Bar 1-10</option>
         <option value="input">Input Box</option>
         <option value="yesOrNo">Yes Or No Option</option>
