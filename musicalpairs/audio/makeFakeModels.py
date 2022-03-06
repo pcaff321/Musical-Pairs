@@ -1,5 +1,6 @@
+import random
 from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
-from .models import Audio_store, AudioRound, Mumble, Survey_James, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, Word, WordBundle, set_file_name
+from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserWordRound, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -8,6 +9,30 @@ import string
 
 
 g_experiment = None
+
+
+def makeFakeUser():
+    fake = Faker()
+    user = None
+    if (random.randint(0, 3) < 2):
+        user = User(username=str(time()), password="joe", 
+        email=fake.ascii_safe_email(), first_name=fake.first_name_female(), 
+        last_name=fake.first_name_male(), gender="Female",
+        date_of_birth=fake.date_of_birth())
+        user.save()
+    else:
+        user = User(username=str(time()), password="joe", 
+        email=fake.ascii_safe_email(), first_name=fake.first_name_male(), 
+        last_name=fake.first_name_male(), gender="Male",
+        date_of_birth=fake.date_of_birth())
+        user.save()
+    return user
+
+
+fakeUser = makeFakeUser()
+audioLoc = os.path.join(settings.MEDIA_ROOT, "fakeAudio.wav")
+fakeAudio = Audio_store(name="fakeAudio", allow_mumble=False, file_location=audioLoc, user_source=fakeUser)
+fakeAudio.save()
 
 
 def getWordBundle(user):
@@ -65,6 +90,8 @@ def makeExperiment(roundList):
             pageNum += 1
         else:
             print("round none")
+
+    fakeAnswersForExperiment(experiment, 100)
 
 
 def replicateMusicalPairs():
@@ -476,3 +503,75 @@ def create_Fake_Models():
 
     print("Fake models created")
     return user, experiment
+
+
+
+def fakeAnswersForSurvey(user, survey, experiment, inputAnswers=None):
+    if inputAnswers is None:
+        inputAnswers = ["happy", "sad", "easy", "hard", "depressed", "excited", "high", "drunk", "groovy"]
+    questions = SurveyQuestion.objects.filter(survey=survey)
+    for question in questions:
+        questionType = question.questionType
+        inputAns = "NOT_ANSWERED"
+        if questionType == 1:
+            inputAns = random.choice(inputAnswers)
+        elif questionType == 2:
+            inputAns = random.randint(0, 10)
+        elif questionType == 3:
+            yesOrNo = "Yes"
+            if (random.randint(0, 3) < 2):
+                yesOrNo = "No"
+            inputAns = yesOrNo
+        elif questionType == 4:
+            inputAns = random.randint(1, 5)
+        newAns = SurveyAnswer(surveyQuestion=question, experiment=experiment, user_source=user, answer=inputAns)
+        newAns.save()
+
+def fakeAnswersForAudio(user, audioRound, experiment, words):
+    global fakeAudio
+    word1 = words.pop()
+    word2 = words.pop()
+    pair = Pair(audio1=word1, audio2=word2)
+    pair.save()
+    wordRoundInstance = UserWordRound(experiment=experiment, audio_ref=fakeAudio, for_user=user, associated_audio_round=audioRound)
+    wordRoundInstance.save()
+    prime = audioRound.prime
+    placebo = False
+    roundPrime = prime
+    if prime == 'K':
+        if random.random() <= 0.8:  # 20% chance placebo is used
+            roundPrime = 'J'
+    if roundPrime == 'K':
+        placebo = True
+
+    userPairGuess = UserPairGuess(pair=pair, audio_ref=fakeAudio, associated_word_round=wordRoundInstance, placebo_added=placebo, prime=roundPrime)
+    if placebo:
+        if (random.randint(1, 10) <= 8):
+            userPairGuess.answer = word2.word
+    else:
+        if (random.randint(1, 10) <= 6):
+            userPairGuess.answer = word2.word
+    if (random.randint(1, 10) <= 2):
+            userPairGuess.answer = "NO_IDEA"
+    if (random.randint(1, 10) <= 1):
+            userPairGuess.answer = "WAS_DISTURBED"
+    if (random.randint(1, 10) <= 1):
+            userPairGuess.answer = "NOT_ANSWERED"
+    userPairGuess.save()
+
+
+def fakeAnswersForExperiment(experiment, amount_of_users):
+    print("Making fake data of {} users".format(amount_of_users))
+    pages = Page.objects.filter(experiment=experiment)#.order_by('page_number')
+    pagesList = list()
+    pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    for i in range(amount_of_users):
+        words = list(Word.objects.filter(user_source=pietro))
+        random.shuffle(words)
+        print("Generating fake data for User {}".format(str(i)))
+        user = makeFakeUser()
+        for page in pages:
+            if isinstance(page.content_object, ImageRound) or isinstance(page.content_object, SurveyRound):
+                fakeAnswersForSurvey(user, page.content_object.survey, experiment)
+            if isinstance(page.content_object, AudioRound):
+                fakeAnswersForAudio(user, page.content_object, experiment, words)

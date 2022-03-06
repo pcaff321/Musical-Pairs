@@ -1318,7 +1318,6 @@ def viewExperiment_Researcher(request):
             'pages_list': getExperimentQuestionInfo(experiment),
             "experimentList": pagesList
         }
-        print(context['pages_list'])
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
@@ -1551,6 +1550,7 @@ def downloadData(request):
     if not experiment.exists():
         return HttpResponse("ID not recognised")
     experiment = experiment[0]
+    createPath(os.path.join(settings.MEDIA_ROOT, str(experiment.user_source.id)))
     audioRounds = AudioRound.objects.filter(experiment=experiment)
     a_files = list()
     for audioR in audioRounds:
