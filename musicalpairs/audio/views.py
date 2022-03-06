@@ -1063,7 +1063,7 @@ def createExperiment_POST(request):
                     name = data['name']
                     questionText = data['questionText']
                     questionType = data['questionType']
-                    if questionType == "text":
+                    if questionType == "input":
                         questionType = 1
                     elif questionType == "slider":
                         questionType = 2
