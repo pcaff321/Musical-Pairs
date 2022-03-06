@@ -413,15 +413,15 @@ export default function Survey(props) {
     //     <p>Guest: {roomData.guest_can_pause.toString()}</p>
     //     <p>Host: {roomData.is_host.toString()}</p>
     //   </div>
-        <Grid container spacing={1} style={{ height: "100vm" }} alignItems="center" justifyContent="center">
-            <Grid item xs={12} align="center">
+        <Grid container spacing={1} style={{ height: "100vm"}} alignItems="center" justifyContent="center">
+            <Grid item xs={12} align="center" style={{textAlign: "center", width: "100%", top: "5%", position: "absolute"}}>
                 <h1>{roomData.name}</h1>
             </Grid>
             {components[displayedTable]}
-            <Grid item xs={12} align="center" style={{ marginRight: "1em" }}>
+            <Grid item xs={12} align="center" style={{ marginRight: "1em", textAlign: "center", bottom: "5%", position: "absolute"}}>
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
-            <Grid item xs={12} align="right" style={{ marginRight: "1em" }}>
+            <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
                 <p>page {displayedTable}/{roomData.round_count + 1}</p>
             </Grid>
         </Grid>
