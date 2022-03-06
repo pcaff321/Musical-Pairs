@@ -1318,7 +1318,6 @@ def viewExperiment_Researcher(request):
             'pages_list': getExperimentQuestionInfo(experiment),
             "experimentList": pagesList
         }
-        print(context['pages_list'])
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
