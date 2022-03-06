@@ -55,13 +55,18 @@ def processPageInfo(page):
     if isinstance(pageType, AudioRound):
         pairs = pageType.pairs
         prime = pageType.prime
-        roundContent = {"pageType":"audio", "pairs":pairs, "prime": prime}
+        roundContent = {"pageType":"audio",
+         "pairs":pairs,
+          "prime": prime,
+          "bundle_id": pageType.word_bundle.id
+          }
     elif isinstance(pageType, TextRound):
         roundContent = {"pageType":"text", "text": pageType.text, "title": pageType.title}
     elif isinstance(pageType, ImageRound):
         question = SurveyQuestion.objects.filter(survey=pageType.survey)[0].questionText
         questionType = SurveyQuestion.objects.filter(survey=pageType.survey)[0].questionType
-        roundContent = {"pageType":"image", "url": pageType.image.url, "questionText": question, "questionType": questionType}
+        roundContent = {"pageType":"image", "url": pageType.image.url, 
+        "questionText": question, "questionType": questionType, "title": pageType.name}
     elif isinstance(pageType, SurveyRound):
         questions = getQuestions(pageType.survey)
         questionList = list()
@@ -239,6 +244,10 @@ def getRoundList(request):
             roundContent = ["audio", mumbles, pairs, placebo, url]
             round_list[roundPageNum] = roundContent
             roundPageNum += 1
+
+            roundContent = ["text", "Now Listen To The Following Audios", "Answer the questions that proceed each audio. Your goal is to remember the second word to a pair"]
+            round_list[roundPageNum] = roundContent
+            roundPageNum += 1
             
 
             #add pair guesses
@@ -280,6 +289,7 @@ def getRoundList(request):
                         else:	
                             associatedSurvey = AssociatedSurvey(survey=halfWaySurvey, content_object=pageType)	
                             associatedSurvey.save()	
+                        question_id = surveyQuestion.id
                         roundContent = ["question", questionText, "Slider", question_id, experiment_id, "question"]	
                         round_list[roundPageNum] = roundContent	
                         roundPageNum += 1	
@@ -1096,7 +1106,16 @@ def editExperiment(request):
             for page in pages:
                 pagesList.append(processPageInfo(page))
 
-            context = {"experimentName":experiment.title, "experimentList": pagesList}
+            user = request.user
+            listOfBundles = list()
+            userBundle = getWordBundle(user)
+            listOfBundles.append(userBundle)
+            otherBundles = WordBundle.objects.filter(public=True)
+            
+            for bundle in otherBundles:
+                listOfBundles.append(bundle)
+
+            context = {"experimentName":experiment.title, "experimentList": pagesList, "listOfBundles": listOfBundles}
             print(context)
             return render(request, 'ResearcherPages/editExperiment.html', context)
             
