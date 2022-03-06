@@ -184,13 +184,14 @@ export default function Survey(props) {
                     <div align="center">
                         {initial_components[i]}
                         {paragraph_list.map((item, index) => (
-                            <p>{item}</p>
+                            <p style={{ marginLeft: "10%", marginRight: "10%" }}>{item}</p>
                         ))}
                     </div>
                 )
             } else if (roomData.round_list[i][0] == "audio") {
                 initial_components[i] = (
-                    <div>
+                    <div align="center">
+                        <img src="https://www.freeiconspng.com/uploads/sound-png-icon-0.png" width="200" alt="sound png icon" />
                         <p>Please Close Your Eyes</p>
                         <audio controls autoPlay hidden src={roomData.round_list[i][4]}>
                             <source src={roomData.round_list[i][4]} type="audio/wav"></source>
