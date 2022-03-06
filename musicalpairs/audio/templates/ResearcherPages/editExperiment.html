@@ -479,10 +479,11 @@ select{
 
   var imageRoundHtml = `<div draggable="true" class="box imageRound col-sm-3">
     <h3>Image Round</h3>
-    <input placeholder="Title:" id="nameText" class="nameText form-control" ></input><br>
+    <input placeholder="Name:" id="nameText" class="nameText form-control"></input><br>
     <label for="image-input">Image: </label><input id="image-input" class="image-input" type="file" accept="image/*"><br>
-    <div class="questionDiv"><label for="question">Accompanying Question: </label><input id="question" class="questionText form-control"></input>
+    <div class="questionDiv"><br><input id="question" placeholder="Accompanying Question:" class="questionText form-control"></input>
       <select name="questionType" id="questionType" class="questionType form-select">
+        <option value="" disabled selected>Select Answer Type</option>
         <option value="slider">Slider Bar 1-10</option>
         <option value="input">Input Box</option>
         <option value="yesOrNo">Yes Or No Option</option>
