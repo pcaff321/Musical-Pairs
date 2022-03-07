@@ -340,7 +340,7 @@ select{
 
 <script>
 
-  var items;
+  {% comment %} var items;
 
   document.addEventListener('DOMContentLoaded', (event) => {
     items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
@@ -355,7 +355,7 @@ select{
     });
 
     
-  });
+  }); {% endcomment %}
 
         
   function handleDragStart(e) {
@@ -410,9 +410,9 @@ select{
   function handleDragEnd(e) {
     this.style.opacity = '1';
   
-    items.forEach(function (item) {
-      item.classList.remove('over');
-    });
+    //items.forEach(function (item) {
+      //item.classList.remove('over');
+    //});
   }
   
   function handleDragOver(e) {
@@ -621,7 +621,7 @@ select{
     divEl.addEventListener('dragleave', handleDragLeave);
     divEl.addEventListener('dragend', handleDragEnd);
     divEl.addEventListener('drop', handleDrop);
-    items.push(divEl);
+    //items.push(divEl);
   }
 
   function hasClass(element, className) {
@@ -649,6 +649,7 @@ select{
 
     experimentString = delimiter + "$type=experiment$END" + "$experimentName=" + document.getElementById('experimentName').value + "$END"
 
+    let items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
     items.forEach((element, index) => {
 
       if (hasClass(element, 'audioRound')) {
