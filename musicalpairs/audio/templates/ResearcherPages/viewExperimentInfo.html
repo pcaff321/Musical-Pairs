@@ -219,6 +219,14 @@ canvas{
   font-size: 23px;
 }
 
+#graph {
+  margin-bottom: 30px;
+}
+
+.partTotal {
+  font-size:22px;
+}
+
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -272,7 +280,7 @@ canvas{
             <h3 style="text-align:center">SURVEY ROUND</h3>
             <br>
               {% for question in page.questionList %}
-              <p><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
+              <p style="word-wrap: break-word;max-width: 350px;"><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
               <p><b>Answer Type:</b>  {{ question.questionType }}</p>
               <hr>
               {% endfor %}
@@ -282,7 +290,7 @@ canvas{
             <div class="pageNum">{{forloop.counter}}</div>
             <h3 style="text-align:center">TEXT ROUND</h3>
             <br>
-            <p><b>Title:</b> {{ page.title }}</p>
+            <p style="word-wrap: break-word;max-width: 350px;"><b>Title:</b> {{ page.title }}</p>
             <p style="word-wrap: break-word;max-width: 350px;"><b>Text:</b><br>{{ page.text }}</p>
 
             {% endif %}
@@ -303,7 +311,7 @@ canvas{
             <h3 style="text-align:center">IMAGE ROUND</h3>
             <br>
 
-            <p><b>Associated Question:</b><br>{{ page.questionText }}<p>
+            <p style="word-wrap: break-word;max-width: 350px;"><b>Associated Question:</b><br>{{ page.questionText }}<p>
               <br>
               <div style="text-align:center">
                 <img src="{{ page.url }}"></img>
@@ -555,26 +563,22 @@ canvas{
   <body>
     
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent tabcontent1" id="graph"  style="text-align:center;">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h2> Participation</h2>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar"></span>
-            This week
-          </button>
-        </div>
+    <main class="tabcontent tabcontent1" id="graph"  style="text-align:center;">
+      <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+        <h2> Participation</h2>
       </div>
 
-      <h3> Total Participants: {{ participant_count }}</h3>
-      <h3> Total Subscribers: {{ subscriber_count }} </h3><br><br><hr>
-      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
-
-      
+      <div class="row">
+        <div class="col-md-12 text-left partTotal">
+          Total Participants: {{ participant_count }}<br>
+          Total Subscribers: {{ subscriber_count }}<br><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 d-flex justify-content">
+          <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+        </div>
+      </div>      
     </main>
   </div>
 </div>
