@@ -240,7 +240,7 @@ export default function Survey(props) {
             } else if (roomData.round_list[i][0] == "audio") {
                 initial_components[i] = (
                     <div>
-                        <p>Please Close Your Eyes</p>
+                        <p style={{ textAlign: "center" }}>Please Close Your Eyes</p>
                         <audio controls autoPlay hidden src={roomData.round_list[i][4]}>
                             <source src={roomData.round_list[i][4]} type="audio/wav"></source>
                         </audio>
@@ -417,7 +417,9 @@ export default function Survey(props) {
             <Grid item xs={12} align="center" style={{textAlign: "center", width: "100%", top: "5%", position: "absolute"}}>
                 <h1>{roomData.name}</h1>
             </Grid>
-            {components[displayedTable]}
+            <div style={{ width: "50%" }}>
+                {components[displayedTable]}
+            </div>
             <Grid item xs={12} align="center" style={{ marginRight: "1em", textAlign: "center", bottom: "5%", position: "absolute"}}>
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
