@@ -319,7 +319,7 @@ export default function Survey(props) {
                 if (roomData.round_list[i][5] == "question") {
                     initial_components[i] = (
                         <Grid item xs={12} align="center">
-                            <FormControl component="fieldset">
+                            <FormControl component="fieldset" style={{ minWidth: "50%" }}>
                                 <h1>
                                     {roomData.round_list[i][1]}
                                 </h1>
@@ -366,7 +366,11 @@ export default function Survey(props) {
                     );
                 }
             } else if (roomData.round_list[i][0] == "image") {
-                initial_components[i] = <img src={roomData.round_list[i][1]}></img>
+                    initial_components[i] = (
+                        <Grid item xs={12} align="center">
+                            <img src={roomData.round_list[i][1]} style={{ top: "1em", position: "relative" }}></img>
+                        </Grid>
+                    )
             } else {
                 initial_components[i] = (
                     <div>
