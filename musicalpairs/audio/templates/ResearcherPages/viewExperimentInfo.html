@@ -357,6 +357,11 @@ canvas{
                   <h2> Image Round: {{ page.title }}</h2>
                 </div>
               </div>
+              <div class="row">
+                <div class="col-md-12 d-flex justify-content-center">
+                  <p class="questionText"> {{ page.questionText }}<br><br> </p>
+                </div>
+              </div>
                 <div class="row">
                   <div class="col-md-1 d-flex justify-content-center"></div>
                   <div class="col-md-10 d-flex justify-content-center">
@@ -411,8 +416,7 @@ canvas{
                       </div>
                       <br><br><br>
                     {% else %}
-                    
-                      <div style="overflow-y: scroll; height:400px;">
+                      <div style="overflow-y: scroll; width:200px;height:400px;">
                         <ul class="list-group">
                           {% for answer in question.answers %}
                             <li class="list-group-item">{{ answer.answer }}</li>
