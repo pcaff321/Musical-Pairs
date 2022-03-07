@@ -249,7 +249,7 @@ export default function Survey(props) {
                     <div align="center">
                         {initial_components[i]}
                         {paragraph_list.map((item, index) => (
-                            <p>{item}</p>
+                            <p><strong>{item}</strong></p>
                         ))}
                     </div>
                 )
@@ -381,8 +381,8 @@ export default function Survey(props) {
                                     </Button>
                                 </Grid>
                                 <br></br><br></br>
-                                <p>If you were distracted while listening to the audio, press "Distracted".</p>
-                                <p>If you have no idea what the answer is, press "No Idea".</p>
+                                <p><strong>If you were distracted while listening to the audio, press "Distracted".</strong></p>
+                                <p><strong>If you have no idea what the answer is, press "No Idea".</strong></p>
                             </Grid>
                         </ThemeProvider>
                     );
@@ -410,8 +410,8 @@ export default function Survey(props) {
                             Experiment Complete
                     </h1><br></br><br></br><br></br>
                     <br></br><br></br>
-                    <p>Thank you for partaking in this experiment!</p>
-                    <p>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</p>
+                    <p><strong>Thank you for partaking in this experiment!</strong></p>
+                    <p><strong>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</strong></p>
                     <Grid item xs={12} align="center">
                         <Button id="subscribeBtn" name="subscribeBtn" value={experimentID} color="secondary" variant="contained"
                         onClick={subscribeToExperiment}>
