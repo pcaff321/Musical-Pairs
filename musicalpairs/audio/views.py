@@ -1527,7 +1527,33 @@ def getRoundLength(experiment):
     return 10
 
 def viewUpdates(request):
-    return render(request, "viewUpdates.html")
+    experiment_id = request.GET.get('id')
+    updates = list()
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if experiment.exists():
+        experiment = experiment[0]
+        updates = ExperimentUpdate.objects.filter(experiment=experiment)
+    else:
+        user = request.user
+        experiments = Experiment.objects.filter(subscribers=user)
+        updates = None
+        for exp in experiments:
+            if updates is None:
+                updates = ExperimentUpdate.objects.filter(experiment=exp)
+            else:
+                updates = updates | ExperimentUpdate.objects.filter(experiment=exp)
+    updates = updates.order_by('-dateSent')
+    updates_exist = False
+    if len(updates) > 0:
+        updates_exist = True
+    else:
+        updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
+    
+    context = {
+        "updates": updates,
+        "update_exists": updates_exist
+    }
+    return render(request, "viewUpdates.html", context)
 
 
 
