@@ -160,10 +160,6 @@ def getWordBundle(user):
         userBundle.save()
     return userBundle
 
-
-
-
-
 def createPath(path):
 
     isExist = os.path.exists(path)
@@ -869,10 +865,17 @@ def convertToBarChartData(roundInfo):
     questionType = roundInfo['questionType']
     if questionType == "Agree":
         labels = list(range(1,6))
+    elif questionType == "yesOrNo":
+        labels = ["Yes", "No"]
     data = list(0 for i in range(len(labels)))
     if questionType == "slider":
         for answer in roundInfo['answers']:
             answer = int(answer['answer'])
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    elif questionType == "yesOrNo":
+        for answer in roundInfo['answers']:
+            answer = 0 if (answer['answer'] == "Yes") else 1
             if answer >=  0 and answer < len(labels):
                 data[answer] += 1
     else:
@@ -902,14 +905,14 @@ def makeChartData(pages):
     for page in new_pages:
         if page['type'] == "image":
             questionType = page['questionType']
-            if questionType == "slider" or questionType == "Agree":
+            if questionType == "slider" or questionType == "Agree" or questionType == "yesOrNo":
                 page['bar_data'] = convertToBarChartData(page)
                 page['bar_data']['title'] = page['questionText']
                 page['bar_chart'] = True
         if page['type'] == "survey":
             for quest in page['surveyInfo']['questions']:
                 questionType = quest['questionType']
-                if questionType == "slider" or questionType == "Agree":
+                if questionType == "slider" or questionType == "Agree" or questionType == "yesOrNo":
                     quest['bar_data'] = convertToBarChartData(quest)
                     quest['bar_data']['title'] = quest['questionText']
                     quest['bar_chart'] = True
@@ -933,6 +936,7 @@ def testingBarCharts(request):
     print(context['pages_list'][1])
 
     return render(request, "ResearcherPages/testingBarCharts.html", context)
+
 
 
 def showAnswers(request):
@@ -984,7 +988,7 @@ class experimentee_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('home')
+        return redirect(playAudioFile)
 
 
 class researcher_signup(CreateView):
@@ -999,7 +1003,7 @@ class researcher_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('home')
+        return redirect('showAudios')
 
 
     
@@ -1383,7 +1387,7 @@ def viewExperiment_Researcher(request):
         for page in pages:
             pagesList.append(processPageInfo(page))
 
-          context = {
+        context = {
             "experimentName": experiment.title,
             "id": experiment_id, 
             "participant_count": len(participants),
