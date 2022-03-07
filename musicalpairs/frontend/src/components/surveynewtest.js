@@ -450,8 +450,7 @@ export default function Survey(props) {
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
-                <p>page {displayedTable}/{roomData.round_count + 1}</p>
-                <ProgressBar animated now={100 * displayedTable/(roomData.round_count + 1)} style={{width: "30%", marginLeft: "auto", marginRight: "auto", backgroundColor: "darkgray"}}/>
+                <ProgressBar now={100 * displayedTable/(roomData.round_count + 1)} style={{width: "30%", marginLeft: "auto", marginRight: "auto", backgroundColor: "darkgray"}}/>
             </Grid>
         </Grid>
     )
