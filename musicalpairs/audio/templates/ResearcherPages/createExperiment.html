@@ -265,6 +265,8 @@ select{
   -webkit-appearance: listbox !important
   }
 
+  
+
 </style>
 
 <div class="popUp">
@@ -307,7 +309,7 @@ select{
   <div class="col-md-5"></div>
   <div class="col-md-2 roundTypeCol d-flex justify-content-center">
   <select class="form-select"  name="roundType" id="roundType">
-     <option value="" disabled selected>Select Round Type</option>
+     <option value="" disabled selected>Round Type</option>
       <option value="text">Text Round</option>
       <option value="audio">Audio Round</option>
       <option value="image">Image Round</option>	
@@ -787,7 +789,11 @@ select{
                   contentType: false
               }).done(function(data) {
                   console.log(data);
+                  if (data['okay'] == true){
                   location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
+                  }else{
+                    alert(data['error_msg'])
+                  }
               });
               }
 }

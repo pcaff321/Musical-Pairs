@@ -1068,6 +1068,8 @@ def createExperiment(request):
     }
     return render(request, "ResearcherPages/createExperiment.html", context)
 
+def errorCheck(roundInfoSplit):
+    return True, 'Poop'
 
 def createExperiment_POST(request):
     if request.method == 'POST':
@@ -1079,7 +1081,6 @@ def createExperiment_POST(request):
 
         if request.FILES is not None and 'images[]' in dict(request.FILES):
             files = dict(request.FILES)['images[]']
-            print("FILES", files)
 
         imageList = []
 
@@ -1094,6 +1095,10 @@ def createExperiment_POST(request):
 
         pageNum = 1
         pages = list()
+        error = False
+        error_msg = ""
+
+        audio_round = 0
 
         for roundObj in roundInfoSplit:
             if roundObj != '':
@@ -1101,6 +1106,10 @@ def createExperiment_POST(request):
                 data = processRound(roundObj)
                 if data['roundType'] == "experiment":
                     experimentName = data['experimentName']
+                    if experimentName == "":
+                            error = True
+                            error_msg = "Experiment Name is blank"
+                            break
                     experiment = Experiment(user_source=user, title=experimentName)
                     experiment.save()
 
@@ -1116,12 +1125,17 @@ def createExperiment_POST(request):
                     for question in questions:
                         questionText = question['questionText']
                         questionType = question['questionType']
+                        if questionText == "":
+                            error = True
+                            error_msg = "Question is blank"
+                            break
                         question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
                         questionNumber += 1
 
                     round = createSurveyRound(experiment, survey, user)
 
                 elif data['roundType'] == "audio":
+                    audio_round += 1
                     prime = str(data['prime'])
                     pairs = int(data['pairs'])
                     bundleId = data['bundleID']
@@ -1131,14 +1145,35 @@ def createExperiment_POST(request):
                     else:
                         wordBundle = getWordBundle(user)
                     round = createAudioRound(pairs, prime, experiment, user, wordBundle)
+                    wordBundleAmount = len(Word.objects.filter(user_source=wordBundle.user_source))
+                    if (wordBundleAmount <= (pairs * 2)):
+                        error = True
+                        error_msg = "Not enough audios in the word bundle in Audio Round {} to make {} pairs".format(audio_round, pairs)
+                        break
                 elif data['roundType'] == "text":
                     title = data['title']
                     text = data['text']
+                    if title == "":
+                            error = True
+                            error_msg = "Text round title is blank"
+                            break
+                    if text == "":
+                            error = True
+                            error_msg = "Text round text is blank"
+                            break
                     round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
+                    if len(imageList) <= imageNumber:
+                            error = True
+                            error_msg = "Image file is blank"
+                            break
                     image = imageList[imageNumber]
                     name = data['name']
                     questionText = data['questionText']
+                    if questionText == "":
+                            error = True
+                            error_msg = "Question is blank in image round"
+                            break
                     questionType = data['questionType']
                     if questionType == "input":
                         questionType = 1
@@ -1162,10 +1197,24 @@ def createExperiment_POST(request):
 
         response_data = {}
 
+        if error:
+            response_data['result'] = 'Error creating experiment'
+            response_data['id'] = experiment.id
+            response_data['okay'] = False
+            response_data['error_msg'] = error_msg
+            experiment.delete()
+
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+        )
+
+
 
 
         response_data['result'] = 'Create post successful!'
         response_data['id'] = experiment.id
+        response_data['okay'] = True
 
         return HttpResponse(
             json.dumps(response_data),
