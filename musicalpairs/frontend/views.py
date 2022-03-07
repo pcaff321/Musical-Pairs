@@ -8,7 +8,7 @@ def app(request, *args, **kwargs):
     return render(request, 'frontend/app.html')
 
 def home(request):
-    return redirect('home')
+    return redirect('index')
 
 # def survey(request, *args, **kwargs):
 #     return render(request, 'frontend/survey.html')
