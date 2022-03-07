@@ -773,6 +773,21 @@ def myExperiments(request):
     }
     return render(request, 'myExperiments.html', context)
 
+
+def publicExperiments(request):
+    experiments = Experiment.objects.filter(public=True)
+    for exp in experiments:
+        participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
+        exp.participants = participants
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'publicExperiments.html', context)
+
 def getQuestionsForExperiment(experiment):
     
     surveyRounds = SurveyRound.objects.filter(experiment=experiment).order_by('id')
