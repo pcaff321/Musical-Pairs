@@ -320,6 +320,12 @@ img {
       {% if page.type == "image" %}
       <h2> Image Round: {{ page.title }}</h2>
       <img src="{{ page.url }}"></img>
+          {% if page.bar_chart %}
+        <div  height="40" width="40">
+            <canvas id="{{ page.id }}" ></canvas>
+        </div>
+        <br><br><br>
+        {% else %}
         <h3> Question: {{ page.questionText }} </h3>
         <h4> Answers: </h4>
       <div style="overflow-y: scroll; height:400px;">
@@ -329,12 +335,19 @@ img {
           {% endfor %}
         </ul>
       </div>
+          {% endif %}
       {% endif %}
 
       {% if page.type == "survey" %}
       <h2> Survey Round: </h2>
       {% for question in page.surveyInfo.questions %}
         <h3> {{ question.questionText }} </h3>
+        {% if question.bar_chart %}
+       <div  height="40" width="40">
+           <canvas id="{{ question.id }}" ></canvas>
+       </div>
+       <br><br><br>
+        {% else %}
         <h4> Answers: </h4>
         <div style="overflow-y: scroll; height:400px;">
           <ul class="list-group">
@@ -343,7 +356,8 @@ img {
             {% endfor %}
           </ul>
         </div>
-      {% endfor %}
+        {% endif %}
+        {% endfor %}
       {% endif %}
 
 
@@ -847,5 +861,118 @@ data = {
     );
 {% endfor %}
   </script>
+
+  <script>
+
+    {% for page in pages_list %}
+    {% if page.type == "image" %}
+    {% if page.bar_chart %}
+      {% for chart in page.bar_data %}
+          labels = {{ chart.labels }};
+          data = {
+            labels: labels,
+            datasets: [{
+              label: "{{ chart.title }}",
+              data: {{ chart.data }},
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(201, 203, 207, 0.2)'
+              ],
+              borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(54, 162, 235)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)'
+              ],
+              borderWidth: 1
+            }]
+          };
+  
+  
+          config = {
+            type: 'bar',
+            data: data,
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            },
+          };
+  
+          myChart = new Chart(
+                document.getElementById('{{ page.id }}'),
+                config
+            );
+      {% endfor %}
+      {% endif %}
+      {% endif %}
+      {% endfor %}
+  
+  
+      {% for page in pages_list %}
+      {% if page.type == "survey" %}
+      {% for question in page.surveyInfo.questions %}
+      {% if question.bar_chart %}
+            labels = {{ question.bar_data.labels }};
+            data = {
+              labels: labels,
+              datasets: [{
+                label: "{{ question.bar_data.title }}",
+                data: {{ question.bar_data.data }},
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(255, 159, 64, 0.2)',
+                  'rgba(255, 205, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(201, 203, 207, 0.2)'
+                ],
+                borderColor: [
+                  'rgb(255, 99, 132)',
+                  'rgb(255, 159, 64)',
+                  'rgb(255, 205, 86)',
+                  'rgb(75, 192, 192)',
+                  'rgb(54, 162, 235)',
+                  'rgb(153, 102, 255)',
+                  'rgb(201, 203, 207)'
+                ],
+                borderWidth: 1
+              }]
+            };
+    
+    
+            config = {
+              type: 'bar',
+              data: data,
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              },
+            };
+    
+            myChart = new Chart(
+                  document.getElementById('{{ question.id }}'),
+                  config
+              );
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+    </script>
+
 
 {% endblock %}
