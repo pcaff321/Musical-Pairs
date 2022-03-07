@@ -910,6 +910,7 @@ def makeChartData(pages):
                 page['bar_data']['title'] = page['questionText']
                 page['bar_chart'] = True
                 page['id'] = "Chart" + str(page['id'])
+                page['Chart_id'] = "TheChart" + str(page['id'])
         if page['type'] == "survey":
             for quest in page['surveyInfo']['questions']:
                 questionType = quest['questionType']
@@ -1474,7 +1475,6 @@ def viewExperiment_Researcher(request):
             "experimentList": pagesList,
             "audio_rounds": audio_rounds_exist
         }
-
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
