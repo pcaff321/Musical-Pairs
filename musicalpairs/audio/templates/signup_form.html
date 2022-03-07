@@ -6,6 +6,16 @@
 
 <style>
 
+  html {
+    background: url('{% static "psych-image2.jpg"%}') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        background-color: rgba(255,255,255,0.9);
+        background-blend-mode: lighten;
+}
+
   .heading {
 
       padding: 100px 50px 50px 50px;
@@ -65,14 +75,7 @@
   }
 </style>
 
-<div class="bg-img" style="background-image: url('{% static "psych-image2.jpg"%}'); 
-background-position: center;
-background-repeat: no-repeat;
-background-size: 105%;
-position: relative;
-background-color: rgba(255,255,255,0.9);
-    background-blend-mode: lighten;
-">
+<div>
 
 <div class="row row1">
   <div class="col-md-6"></div>

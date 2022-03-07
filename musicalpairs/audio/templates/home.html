@@ -1,8 +1,18 @@
 {% extends 'layout.html' %}
-
+{% load static %}
 {% block content %}
 
 <style>
+
+    html { 
+        background: url('{% static "gears.png"%}') no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        background-color: rgba(255,255,255,0.8);
+        background-blend-mode: lighten;
+      }
     .heading{
         margin-top:60px;
     }
