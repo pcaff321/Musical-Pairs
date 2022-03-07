@@ -935,7 +935,6 @@ def testingBarCharts(request):
         "pages_list": makeChartData(info)
     }
 
-    print(context['pages_list'][1])
 
     return render(request, "ResearcherPages/testingBarCharts.html", context)
 
@@ -1134,7 +1133,6 @@ def createExperiment_POST(request):
                     round = createAudioRound(pairs, prime, experiment, user, wordBundle)
                 elif data['roundType'] == "text":
                     title = data['title']
-                    print("\nTITLE\n", title, "\n\n")
                     text = data['text']
                     round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
@@ -1201,7 +1199,6 @@ def editExperiment(request):
                 listOfBundles.append(bundle)
 
             context = {"experimentName":experiment.title, "experimentList": pagesList, "listOfBundles": listOfBundles}
-            print(context)
             return render(request, 'ResearcherPages/editExperiment.html', context)
             
     return HttpResponse("ID not found")
@@ -1422,7 +1419,6 @@ def viewExperiment_Researcher(request):
             "experimentList": pagesList
         }
 
-        print(context['pages_list'])
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
