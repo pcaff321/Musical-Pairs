@@ -5,6 +5,7 @@ import csv
 from email.mime import audio
 import mimetypes
 from msvcrt import getch
+from matplotlib.pyplot import isinteractive
 from pydub import AudioSegment
 from msilib import datasizemask
 import os
@@ -171,35 +172,102 @@ def createPath(path):
         print("DOESN'T EXIST")
         os.makedirs(path)
 
+def getAnswersFromSurveyForUser(survey, user):
+    answerList = list()
+    questions = getQuestions(survey)
+
+    for question in questions:
+        surveyQuestion = SurveyQuestion.objects.filter(id=question['id'])[0]
+        answers = SurveyAnswer.objects.filter(surveyQuestion=surveyQuestion, user_source=user)
+        answerList = list()
+        for answer in answers:
+            question['answer'] = answer.answer
+            if question['questionType'] == "Agree":
+                answer = answer.answer
+                if int(answer) == 1:
+                    answer = "Strongly Disagree"
+                elif int(answer) == 2:
+                    answer = "Disagree"
+                elif int(answer) == 3:
+                    answer = "Indifferent"
+                elif int(answer) == 4:
+                    answer = "Agree"
+                elif int(answer) == 5:
+                    answer = "Strongly Agree"
+                question['answer'] = answer
+            
+
+    surveyInfo = {'survey': survey.id,
+             'questions': questions   
+    }
+
+    return surveyInfo
 
 def getResultsForUser(user, experiment):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
     pages = list(pages)
     pagesList = list()
+    imageRounds = list()
+    surveyRounds = list()
     for page in pages:
         if isinstance(page.content_object, AudioRound):
             pagesList.append(page)
+        elif isinstance(page.content_object, ImageRound):
+            imageRounds.append(page.content_object)
+        elif isinstance(page.content_object, SurveyRound):
+            surveyRounds.append(page.content_object)
 
     wordRounds = list()
     for page in pagesList:
-        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object, for_user=user)
-        if wordRound.exists():
-            wordRounds.append(wordRound[0])
-        else:
-            print("WORD ROUND NONE")
+        pageType = page.content_object
+        if isinstance(pageType, AudioRound):
+            wordRound = UserWordRound.objects.filter(associated_audio_round=pageType, for_user=user)
+            if wordRound.exists():
+                wordRounds.append(wordRound[0])
+            else:
+                print("WORD ROUND NONE")
     
     roundLists = list()
     roundNum = 1
     for round in wordRounds:
         pairInfo, score, amount = getResultsByRound(round)
         roundInfo = {
-            "name": "Round " + str(roundNum),
+            "name": "Audio Round " + str(roundNum),
+            "type": "audio",
             "score": score,
             "amount": amount,
             "pairsList": pairInfo
         }
         roundLists.append(roundInfo)
         roundNum += 1
+
+    roundNum = 1
+    for imageR in imageRounds:
+        survey = imageR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "url": imageR.image.url,
+            "name": "Image Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+
+    roundNum = 1
+    for surveyR in surveyRounds:
+        survey = surveyR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "name": "Survey Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+    
     return roundLists
 
 
@@ -925,7 +993,7 @@ def convertToBarChartData(roundInfo):
     labels = list(range(0,11))
     questionType = roundInfo['questionType']
     if questionType == "Agree":
-        labels = list(range(1,6))
+        labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
     elif questionType == "yesOrNo":
         labels = ["Yes", "No"]
     data = list(0 for i in range(len(labels)))
@@ -939,11 +1007,22 @@ def convertToBarChartData(roundInfo):
             answer = 0 if (answer['answer'] == "Yes") else 1
             if answer >=  0 and answer < len(labels):
                 data[answer] += 1
-    else:
+    elif questionType == "Agree":
         for answer in roundInfo['answers']:
-            answer = int(answer['answer']) - 1
-            if answer >=  0 and answer < len(labels):
-                data[answer] += 1
+            answerVal = int(answer['answer'])
+            if answer['answer'] == "Strongly Disagree":
+                answerVal = 1
+            elif answer['answer'] == "Disagree":
+                answerVal = 2
+            elif answer['answer'] == "Indifferent":
+                answerVal = 3
+            elif answer['answer'] == "Agree":
+                answerVal = 4
+            elif answer['answer'] == "Strongly Agree":
+                answerVal = 5
+            answerVal -= 1
+            if answerVal >=  0 and answerVal < len(labels):
+                data[answerVal] += 1
     return {"labels": labels, "data": data}
 
 
@@ -1387,13 +1466,11 @@ def showResults(request):
             experiment = Experiment.objects.filter(user_source=user)[0]
         roundInfo = getResultsForUser(user, experiment)
         context = {"object_list": roundInfo}
-        print("CONTEXT", roundInfo)
         return render(request, 'showResults.html', context)
 
 
 
 ## Craig Stuff
-
 @login_required
 @csrf_exempt
 def publish(request):
@@ -1412,9 +1489,11 @@ def publish(request):
                 send_mail(subject, body, "musicalpairs123@gmail.com", emails)
                 message = "Message sent successfully"
             form = PublishForm()
+            form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
             return render(request, 'publish.html', {'form':form, 'message': message})
     else:
         form = PublishForm()
+        form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
         message = ""
     return render(request, 'publish.html', {'form' : form, 'message': message})
 
@@ -1637,7 +1716,7 @@ def getChartDataContext(request):
 
     ]
     
-    return sampleChartsData #chartsData
+    return chartsData
 
 
 def dataAnalysis(request):    

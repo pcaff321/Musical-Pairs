@@ -94,7 +94,7 @@ button {
 <div class="row headingRow">
   <div class="col-md-4"></div>
   <div class="col-md-4 d-flex justify-content-center heading">
-    <h1>Your Experiments</h1>
+    <h1>Experiments You've Taken</h1>
   </div>
 </div>
 
@@ -122,7 +122,7 @@ button {
     <th scope="row">{{ forloop.counter }}</th>
       <td>{{ instance.title }}</td>
       <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>View Updates</button></a></td>
-      <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>View Your Results</button></a></td>
+      <td><a href="{% url 'showResults' %}?id={{ instance.id }}"><button>View Your Results</button></a></td>
     </tr>
     {% endfor %}
 
