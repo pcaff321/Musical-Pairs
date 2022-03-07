@@ -89,6 +89,7 @@ class ExperimentUpdate(models.Model):
     dateSent = models.DateTimeField(auto_now_add=True)
     subject = models.CharField(max_length=100, null=False)
     body = models.CharField(max_length=1000, null=False)
+    
 
 class Audio_store(models.Model):
     name = models.CharField(max_length=20, null=False)

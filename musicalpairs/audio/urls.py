@@ -6,7 +6,7 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
             showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
                 dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
-                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments
+                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates
 from .api import PostAnswer, addAnswer
 
 
@@ -49,5 +49,6 @@ urlpatterns = [
     path('addAnswer/', addAnswer, name='addAnswer'),
     path('signup/experimentee/', experimentee_signup.as_view(), name='experimentee_signup'),
     path('signup/researcher/', researcher_signup.as_view(), name='researcher_signup'),
+    path('viewUpdates/', viewUpdates, name="viewUpdates"),
     path('publish/', publish, name="publish")
 ]+ static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

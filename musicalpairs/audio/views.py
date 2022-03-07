@@ -32,6 +32,8 @@ import string
 from django.core.files.base import ContentFile
 import pandas as pd
 from datetime import datetime, date, timedelta
+from operator import attrgetter
+
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
@@ -1445,6 +1447,11 @@ def listExperiments(request):
 def getRoundLength(experiment):
     return 10
 
+def viewUpdates(request):
+    return render(request, "viewUpdates.html")
+
+
+
 def viewExperiment_Researcher(request):
     if request.method == 'POST':
         experiment_id = request.POST['experiment_id']
@@ -1524,7 +1531,7 @@ def viewExperiment_Researcher(request):
             #"completed_count": len(completed_participants),
             "form" : form,
             "updates" : updates,
-            'updates_exist': updates_exist,
+            'update_exists': updates_exist,
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
             'pages_list': getExperimentQuestionInfo(experiment),
