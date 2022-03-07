@@ -977,7 +977,7 @@ def convertToBarChartData(roundInfo):
     labels = list(range(0,11))
     questionType = roundInfo['questionType']
     if questionType == "Agree":
-        labels = list(range(1,6))
+        labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
     elif questionType == "yesOrNo":
         labels = ["Yes", "No"]
     data = list(0 for i in range(len(labels)))
@@ -991,11 +991,22 @@ def convertToBarChartData(roundInfo):
             answer = 0 if (answer['answer'] == "Yes") else 1
             if answer >=  0 and answer < len(labels):
                 data[answer] += 1
-    else:
+    elif questionType == "Agree":
         for answer in roundInfo['answers']:
-            answer = int(answer['answer']) - 1
-            if answer >=  0 and answer < len(labels):
-                data[answer] += 1
+            answerVal = int(answer['answer'])
+            if answer['answer'] == "Strongly Disagree":
+                answerVal = 1
+            elif answer['answer'] == "Disagree":
+                answerVal = 2
+            elif answer['answer'] == "Indifferent":
+                answerVal = 3
+            elif answer['answer'] == "Agree":
+                answerVal = 4
+            elif answer['answer'] == "Strongly Agree":
+                answerVal = 5
+            answerVal -= 1
+            if answerVal >=  0 and answerVal < len(labels):
+                data[answerVal] += 1
     return {"labels": labels, "data": data}
 
 

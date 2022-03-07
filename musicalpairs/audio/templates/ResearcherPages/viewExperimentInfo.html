@@ -863,6 +863,8 @@ data = {
         {% if page.bar_chart %}
         {% if page.questionType == "yesOrNo" %}
         labels = ["Yes", "No"]
+        {% elif page.questionType == "Agree" %}
+        labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
        {% else %}
         labels = {{ page.bar_data.labels }};
         {% endif %}
@@ -922,6 +924,8 @@ data = {
           {% if question.bar_chart %}
                 {% if question.questionType == "yesOrNo" %}
                 labels = ["Yes", "No"]
+                {% elif question.questionType == "Agree" %}
+                labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
                {% else %}
                 labels = {{ question.bar_data.labels }};
                 {% endif %}
