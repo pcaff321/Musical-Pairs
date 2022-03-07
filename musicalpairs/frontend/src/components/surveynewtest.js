@@ -250,20 +250,22 @@ export default function Survey(props) {
                 let question;
                 if (roomData.round_list[i][2] == "Yes/No") {
                     question = (
-                        <RadioGroup row defaultValue="Yes" onChange={handleAnswerChange}>
-                            <FormControlLabel 
-                                value="Yes" control={<Radio color="primary" />} 
-                                label="Yes" labelPlacement="bottom"
-                            />
-                            <FormControlLabel 
-                                value="No" control={<Radio color="secondary" />} 
-                                label="No" labelPlacement="bottom"
-                            />
-                        </RadioGroup>
+                        <Grid item xs={12} align="center">
+                            <RadioGroup row defaultValue="Yes" onChange={handleAnswerChange} style={{ display: "block" }}>
+                                <FormControlLabel 
+                                    value="Yes" control={<Radio color="primary" />} 
+                                    label="Yes" labelPlacement="bottom"
+                                />
+                                <FormControlLabel 
+                                    value="No" control={<Radio color="secondary" />} 
+                                    label="No" labelPlacement="bottom"
+                                />
+                            </RadioGroup>
+                        </Grid>
                     );
                 } else if (roomData.round_list[i][2] == "Agree") {
                     question = (
-                        <RadioGroup row defaultValue="3" onChange={handleAnswerChange}>
+                        <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange}>
                             <FormControlLabel 
                                 value="1" control={<Radio color="primary" />} 
                                 label="1" labelPlacement="bottom"
@@ -424,7 +426,7 @@ export default function Survey(props) {
             <div style={{ width: "50%" }}>
                 {components[displayedTable]}
             </div>
-            <Grid item xs={12} align="center" style={{ marginRight: "1em", textAlign: "center", bottom: "5%", position: "absolute"}}>
+            <Grid item xs={12} align="center" style={{ textAlign: "center", bottom: "5%", position: "absolute"}}>
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
