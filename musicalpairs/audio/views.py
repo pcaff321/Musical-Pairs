@@ -748,8 +748,12 @@ def showAudios(request):
     audios_of_user = Word.objects.filter(user_source=request.user)
     for instance in audios_of_user:
         instance.audio_store.file_location = settings.MEDIA_URL + str(instance.audio_store.file_location)
+    no_audios = True
+    if len(audios_of_user) > 0:
+        no_audios = False
     context = {
-        "object_list": audios_of_user
+        "object_list": audios_of_user,
+        "no_audios": no_audios
     }
     return render(request, 'showAudios.html', context)
 

@@ -68,6 +68,25 @@
 }
 
 
+    
+button {
+    margin:10px;
+    background-color: dimgray !important;
+    border: none !important;
+    font-size: 20px !important;
+    color: white !important;
+    border-radius:5px;
+    margin-top: -20px !important;
+  }
+
+
+  .mainBtn {
+    background-color: #4f5d75 !important;
+    padding:10px 30px !important
+  }
+
+
+
 </style>
 
 
@@ -79,6 +98,14 @@
   </div>
 </div>
 
+{% if no_audios %}
+<br><br><br>
+<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+<h2> You have no words added </h2></div><br><br><br>
+<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <a href="{% url 'uploadAudio' %}"><button class="btn mainBtn">Add Words</button></a>
+</div>
+{% else %}
 <table class="table table-sm ">
   <thead>
     <tr>
@@ -104,7 +131,7 @@
 
   </tbody>
 </table>
-
+{% endif %}
 
 {% endblock %}
 
