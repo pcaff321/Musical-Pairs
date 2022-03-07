@@ -5,7 +5,7 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
             showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
-                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio, home
+                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio, home, index
 from .api import PostAnswer, addAnswer
 
 
