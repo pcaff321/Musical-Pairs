@@ -425,11 +425,10 @@ select{
       let prime = this.querySelector("#prime").value;
       let bundle = this.querySelector("#bundle").value;
       let pairs = this.querySelector("#pairs").value;
-      this.innerHTML = this.innerHTML.replace("selected", "");
+      this.innerHTML = this.innerHTML.replaceAll("selected", "");
       this.innerHTML = this.innerHTML.replace('option value="' + prime + '"', 'option value="' + prime + '" selected');
       this.innerHTML = this.innerHTML.replace('option value="' + bundle + '"', 'option value="' + bundle + '" selected');
       this.innerHTML = this.innerHTML.replace(/max="20" value="[^"]*"/g, 'max="20" value="' + pairs + '"');
-      console.log(this.innerHTML);
     }
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.innerHTML);
@@ -463,7 +462,6 @@ select{
     e.stopPropagation();
   
     if (dragSrcEl != this) {
-      console.log("hello?")
       if (this.classList.contains("textRound")) {
         let title = this.querySelector("#title-input").value;
         let text = this.querySelector("#text-input").value;
@@ -498,9 +496,9 @@ select{
         let prime = this.querySelector("#prime").value;
         let bundle = this.querySelector("#bundle").value;
         let pairs = this.querySelector("#pairs").value;
-        this.innerHTML = this.innerHTML.replace("selected", "");
-        this.innerHTML = this.innerHTML.replace('option"' + prime + '"', 'option value="' + prime + '" selected');
-        this.innerHTML = this.innerHTML.replace('option"' + bundle + '"', 'option value="' + bundle + '" selected');
+        this.innerHTML = this.innerHTML.replaceAll("selected", "");
+        this.innerHTML = this.innerHTML.replace('option value="' + prime + '"', 'option value="' + prime + '" selected');
+        this.innerHTML = this.innerHTML.replace('option value="' + bundle + '"', 'option value="' + bundle + '" selected');
         this.innerHTML = this.innerHTML.replace(/max="20" value="[^"]*"/g, 'max="20" value="' + pairs + '"');
       }
       let x = Object.assign({}, this.classList)
