@@ -205,7 +205,12 @@ def getResultsForUser(user, experiment):
     return roundLists
 
 
+@login_required
+def home(request):
+    return render(request, 'home.html')
 
+def index(request):
+    return render(request, 'index.html')
 
 
 def getTrimmedAudio(user_id, url=False):
@@ -879,7 +884,7 @@ def showAnswers(request):
 
 def loginView(request):
     if request.user.is_authenticated:
-        return redirect('uploadAudio')
+        return redirect('home')
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
