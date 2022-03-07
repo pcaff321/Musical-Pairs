@@ -821,13 +821,18 @@ def processPageInfoForQuestions(page):
         url = None
         questionInfo = getAnswersFromSurvey(survey)
         question = questionInfo['questions'][0]['questionText']
+        questionType = questionInfo['questions'][0]['questionType']
+        id = questionInfo['questions'][0]['id']
         answers = questionInfo['questions'][0]['answers']
         roundContent = {
             'type': 'image',
             'title': pageType.name,
             'url': pageType.image.url,
             'questionText': question,
-            'answers': answers
+            'questionType': questionType,
+            'id': id,
+            'answers': answers,
+            'bar_chart': False
         }
     if roundContent:
         roundContent['id'] = pageType.id
@@ -859,6 +864,75 @@ def getExperimentQuestionInfo(experiment):
     return pagesList
 
 
+def convertToBarChartData(roundInfo):
+    labels = list(range(0,11))
+    questionType = roundInfo['questionType']
+    if questionType == "Agree":
+        labels = list(range(1,6))
+    data = list(0 for i in range(len(labels)))
+    if questionType == "slider":
+        for answer in roundInfo['answers']:
+            answer = int(answer['answer'])
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    else:
+        for answer in roundInfo['answers']:
+            answer = int(answer['answer']) - 1
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    return {"labels": labels, "data": data}
+
+
+"""        roundContent = {
+            'type': 'image',
+            'title': pageType.name,
+            'url': pageType.image.url,
+            'questionText': question,
+            'questionType': questionType,
+            'answers': answers
+        }
+    if roundContent:
+        roundContent['id'] = pageType.id
+    
+    return roundContent
+ """
+
+def makeChartData(pages):
+    new_pages = pages
+    for page in new_pages:
+        if page['type'] == "image":
+            questionType = page['questionType']
+            if questionType == "slider" or questionType == "Agree":
+                page['bar_data'] = convertToBarChartData(page)
+                page['bar_data']['title'] = page['questionText']
+                page['bar_chart'] = True
+        if page['type'] == "survey":
+            for quest in page['surveyInfo']['questions']:
+                questionType = quest['questionType']
+                if questionType == "slider" or questionType == "Agree":
+                    quest['bar_data'] = convertToBarChartData(quest)
+                    quest['bar_data']['title'] = quest['questionText']
+                    quest['bar_chart'] = True
+
+
+
+
+    return new_pages
+    
+
+def testingBarCharts(request):
+    experimentID = request.GET.get('id', None)
+    if experimentID is None:
+        return HttpResponse("No ID given")
+    experiment = Experiment.objects.filter(id=experimentID)[0]
+    info = getExperimentQuestionInfo(experiment)
+    context = {
+        "pages_list": makeChartData(info)
+    }
+
+    print(context['pages_list'][1])
+
+    return render(request, "ResearcherPages/testingBarCharts.html", context)
 
 
 def showAnswers(request):
@@ -1309,7 +1383,7 @@ def viewExperiment_Researcher(request):
         for page in pages:
             pagesList.append(processPageInfo(page))
 
-        context = {
+          context = {
             "experimentName": experiment.title,
             "id": experiment_id, 
             "participant_count": len(participants),
@@ -1319,7 +1393,7 @@ def viewExperiment_Researcher(request):
             'updates_exist': updates_exist,
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
-            'pages_list': getExperimentQuestionInfo(experiment),
+            'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
             "experimentList": pagesList
         }
 
