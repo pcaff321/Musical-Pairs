@@ -909,6 +909,7 @@ def makeChartData(pages):
                 page['bar_data'] = convertToBarChartData(page)
                 page['bar_data']['title'] = page['questionText']
                 page['bar_chart'] = True
+                page['id'] = "Chart" + str(page['id'])
         if page['type'] == "survey":
             for quest in page['surveyInfo']['questions']:
                 questionType = quest['questionType']
@@ -916,6 +917,7 @@ def makeChartData(pages):
                     quest['bar_data'] = convertToBarChartData(quest)
                     quest['bar_data']['title'] = quest['questionText']
                     quest['bar_chart'] = True
+                    quest['id'] = "Chart" + str(quest['id'])
 
 
 
@@ -1419,6 +1421,8 @@ def viewExperiment_Researcher(request):
             'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
             "experimentList": pagesList
         }
+
+        print(context['pages_list'])
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
