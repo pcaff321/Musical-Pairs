@@ -1399,8 +1399,14 @@ def viewExperiment_Researcher(request):
         #completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
         pages = Page.objects.filter(experiment=experiment).order_by('page_number')
         pagesList = list()
+        audio_rounds_exist = False
         for page in pages:
+            if isinstance(page.content_object, AudioRound):
+                audio_rounds_exist = True
+                print("THEY EXIST")
             pagesList.append(processPageInfo(page))
+
+        
 
         context = {
             "experimentName": experiment.title,
@@ -1416,7 +1422,8 @@ def viewExperiment_Researcher(request):
             "experimentList": pagesList,
             "uv": uv,
             'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
-            "experimentList": pagesList
+            "experimentList": pagesList,
+            "audio_rounds": audio_rounds_exist
         }
 
 

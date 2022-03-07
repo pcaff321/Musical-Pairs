@@ -6,7 +6,7 @@ import SurveyTest from './surveytest';
 import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormControlLabel, Radio, RadioGroup, Slider} from '@material-ui/core'
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { purple } from '@material-ui/core/colors';
-
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -110,16 +110,15 @@ export default function Survey(props) {
     }
 
     function handlePairButtonsPressed(e) {
-        setAnswerValue(e.target.getInnerHTML());
         let input = document.querySelector("input");
-        let targetVal = e.target.getInnerHTML();
-        let inputVal = "";
-        if (targetVal.toString() == "NO IDEA"){
-            inputVal = "NO_IDEA";
-        }else{
-            inputVal = "WAS_DISTRACTED";
+        input.value = e.target.innerText;
+        if (e.target.innerText == "DISTRACTED") {
+            setAnswerValue("WAS_DISTRACTED");
+            input.value = "Distracted";
+        } else if (e.target.innerText == "NO IDEA") {
+            setAnswerValue("NO_IDEA");
+            input.value = "No Idea";
         }
-        input.value = inputVal;
    }
 
    function subscribeToExperiment(e) {
@@ -366,13 +365,13 @@ export default function Survey(props) {
                                     {question}
                                 </FormControl><br></br><br></br><br></br>
                                 <Grid item xs={12} align="center">
-                                    <Button id="distracted" value="d" color="secondary" variant="contained"
+                                    <Button id="distracted" value="WAS_DISTRACTED" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        DISTRACTED
+                                        Distracted
                                     </Button>
-                                    <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
+                                    <Button id="no-idea" value="NO_IDEA" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        NO IDEA
+                                        No Idea
                                     </Button>
                                 </Grid>
                                 <br></br>
@@ -452,6 +451,7 @@ export default function Survey(props) {
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
                 <p>page {displayedTable}/{roomData.round_count + 1}</p>
+                <ProgressBar animated now={100 * displayedTable/(roomData.round_count + 1)} style={{width: "30%", marginLeft: "auto", marginRight: "auto", backgroundColor: "darkgray"}}/>
             </Grid>
         </Grid>
     )
