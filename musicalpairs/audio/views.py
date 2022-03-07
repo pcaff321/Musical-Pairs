@@ -180,6 +180,20 @@ def getAnswersFromSurveyForUser(survey, user):
         answerList = list()
         for answer in answers:
             question['answer'] = answer.answer
+            if question['questionType'] == "Agree":
+                answer = answer.answer
+                if int(answer) == 1:
+                    answer = "Strongly Disagree"
+                elif int(answer) == 2:
+                    answer = "Disagree"
+                elif int(answer) == 3:
+                    answer = "Indifferent"
+                elif int(answer) == 4:
+                    answer = "Agree"
+                elif int(answer) == 5:
+                    answer = "Strongly Agree"
+                question['answer'] = answer
+            
 
     surveyInfo = {'survey': survey.id,
              'questions': questions   
@@ -1450,7 +1464,6 @@ def showResults(request):
             experiment = Experiment.objects.filter(user_source=user)[0]
         roundInfo = getResultsForUser(user, experiment)
         context = {"object_list": roundInfo}
-        print("CONTEXT", roundInfo)
         return render(request, 'showResults.html', context)
 
 
