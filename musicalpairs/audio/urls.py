@@ -6,7 +6,7 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
         researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
             showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
                 dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
-                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments
+                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments
 from .api import PostAnswer, addAnswer
 
 
@@ -24,6 +24,7 @@ urlpatterns = [
     path('playAudio/', playAudioFile, name='playAudio'),
     path('myExperiments/', myExperiments, name='myExperiments'),
     path('publicExperiments/', publicExperiments, name='publicExperiments'),
+    path('takenExperiments/', takenExperiments, name='takenExperiments'),
     path('deleteAudio/', deleteAudio, name='deleteAudio'),
     path('showAudios/', showAudios, name='showAudios'),
     path('showAnswers/', showAnswers, name='showAnswers'),

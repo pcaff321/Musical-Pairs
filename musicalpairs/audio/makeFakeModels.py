@@ -1,7 +1,7 @@
 import random
 from typing import Text
 from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
-from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserWordRound, Word, WordBundle, set_file_name
+from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserUniqueExperiment, UserWordRound, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -578,11 +578,14 @@ def fakeAnswersForExperiment(experiment, amount_of_users):
     print("Making fake data of {} users".format(amount_of_users))
     pages = Page.objects.filter(experiment=experiment)#.order_by('page_number')
     pagesList = list()
+    surv = Survey_James(name=str(pietro.id), round_count=1)
+    surv.save()
     for i in range(amount_of_users):
         words = list(Word.objects.filter(user_source=pietro))
         random.shuffle(words)
         print("Generating fake data for User {}".format(str(i)))
         user = makeFakeUser()
+        UserUniqueExperiment(for_user=user, experiment=experiment, survey_james=surv).save()
         for page in pages:
             if isinstance(page.content_object, ImageRound) or isinstance(page.content_object, SurveyRound):
                 fakeAnswersForSurvey(user, page.content_object.survey, experiment)

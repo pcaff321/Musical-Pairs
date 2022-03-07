@@ -35,6 +35,7 @@ from datetime import datetime, date, timedelta
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
+
 try:
     print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
@@ -773,8 +774,31 @@ def myExperiments(request):
     }
     return render(request, 'myExperiments.html', context)
 
+@login_required
+def takenExperiments(request):
+    user = request.user
+    exps = UserUniqueExperiment.objects.filter(for_user=user)
+    print("exp", exps)
+    user_id = user.id
+    experiments = list()
+    for exp in exps:
+        experiments.append(exp.experiment)
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'experimentsTaken.html', context)
+
 
 def publicExperiments(request):
+    print("CALLING CREATE FAKE MODELS")
+    fake_user, fake_experiment = create_Fake_Models()
+    makePietroWords()
+    makeMumbleWords()
+    replicateMusicalPairs()
     experiments = Experiment.objects.filter(public=True)
     for exp in experiments:
         participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
