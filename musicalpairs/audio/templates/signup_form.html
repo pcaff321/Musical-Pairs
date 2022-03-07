@@ -78,7 +78,7 @@
 <div>
 
 <div class="row row1">
-  <div class="col-md-6"></div>
+  <div class="col-md-4"></div>
   <div class="col-md-4 d-flex justify-content-center heading">
     <h2>Sign up as a {{ user_type }}</h2>
   </div>
@@ -87,7 +87,7 @@
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
       <div class="row">
-        <div class="col-md-6"></div>     
+        <div class="col-md-4"></div>     
         <div class="col-md-2">
           {{ form.first_name|as_crispy_field }}
         </div>
@@ -98,13 +98,13 @@
       </div>
     
     <div class="row emailRow">
-      <div class="col-md-6"></div>
+      <div class="col-md-4"></div>
       <div class="col-md-4">
         {{ form.email|as_crispy_field }}
      </div>
   </div>
   <div class="row">
-    <div class="col-md-6"></div>
+    <div class="col-md-4"></div>
     <div class="col-md-2">
       {{ form.password1|as_crispy_field }}
    </div>
@@ -113,10 +113,10 @@
     </div>
    </div>
       <div class="row birthRow1">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
       </div>
       <div class="row birthRow2">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
         <div class="col-md-2">
           {{ form.date_of_birth|as_crispy_field}}
         </div>
@@ -125,7 +125,7 @@
         </div>
       </div>
       <div class="row submitRow">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
         <div class="col-md-4 d-flex justify-content-center">
           <button type="submit" class="btn btn-success">Sign up</button>
         </div>
