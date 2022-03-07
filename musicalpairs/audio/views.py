@@ -5,6 +5,7 @@ import csv
 from email.mime import audio
 import mimetypes
 from msvcrt import getch
+from matplotlib.pyplot import isinteractive
 from pydub import AudioSegment
 from msilib import datasizemask
 import os
@@ -169,35 +170,88 @@ def createPath(path):
         print("DOESN'T EXIST")
         os.makedirs(path)
 
+def getAnswersFromSurveyForUser(survey, user):
+    answerList = list()
+    questions = getQuestions(survey)
+
+    for question in questions:
+        surveyQuestion = SurveyQuestion.objects.filter(id=question['id'])[0]
+        answers = SurveyAnswer.objects.filter(surveyQuestion=surveyQuestion, user_source=user)
+        answerList = list()
+        for answer in answers:
+            question['answer'] = answer.answer
+
+    surveyInfo = {'survey': survey.id,
+             'questions': questions   
+    }
+
+    return surveyInfo
 
 def getResultsForUser(user, experiment):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
     pages = list(pages)
     pagesList = list()
+    imageRounds = list()
+    surveyRounds = list()
     for page in pages:
         if isinstance(page.content_object, AudioRound):
             pagesList.append(page)
+        elif isinstance(page.content_object, ImageRound):
+            imageRounds.append(page.content_object)
+        elif isinstance(page.content_object, SurveyRound):
+            surveyRounds.append(page.content_object)
 
     wordRounds = list()
     for page in pagesList:
-        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object, for_user=user)
-        if wordRound.exists():
-            wordRounds.append(wordRound[0])
-        else:
-            print("WORD ROUND NONE")
+        pageType = page.content_object
+        if isinstance(pageType, AudioRound):
+            wordRound = UserWordRound.objects.filter(associated_audio_round=pageType, for_user=user)
+            if wordRound.exists():
+                wordRounds.append(wordRound[0])
+            else:
+                print("WORD ROUND NONE")
     
     roundLists = list()
     roundNum = 1
     for round in wordRounds:
         pairInfo, score, amount = getResultsByRound(round)
         roundInfo = {
-            "name": "Round " + str(roundNum),
+            "name": "Audio Round " + str(roundNum),
+            "type": "audio",
             "score": score,
             "amount": amount,
             "pairsList": pairInfo
         }
         roundLists.append(roundInfo)
         roundNum += 1
+
+    roundNum = 1
+    for imageR in imageRounds:
+        survey = imageR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "url": imageR.image.url,
+            "name": "Image Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+
+    roundNum = 1
+    for surveyR in surveyRounds:
+        survey = surveyR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "name": "Survey Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+    
     return roundLists
 
 
@@ -1630,7 +1684,7 @@ def getChartDataContext(request):
 
     ]
     
-    return sampleChartsData #chartsData
+    return chartsData
 
 
 def dataAnalysis(request):    
