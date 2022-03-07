@@ -40,11 +40,9 @@ try:
     fake_user, fake_experiment = create_Fake_Models()
     makePietroWords()
     makeMumbleWords()
+    replicateMusicalPairs()
 except:
     print("DB not migrated yet")
-
-makePietroWords()
-replicateMusicalPairs()
 
 
 from django.template.defaulttags import register
@@ -1417,7 +1415,7 @@ def viewExperiment_Researcher(request):
             "chartsData": getChartDataContext(request),
             'pages_list': getExperimentQuestionInfo(experiment),
             "experimentList": pagesList,
-            "uv": uv
+            "uv": uv,
             'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
             "experimentList": pagesList
         }
