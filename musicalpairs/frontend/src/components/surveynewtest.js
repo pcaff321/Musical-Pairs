@@ -285,7 +285,7 @@ export default function Survey(props) {
                     );
                 } else if (roomData.round_list[i][2] == "Agree") {
                     question = (
-                        <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange}>
+                        <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange} style={{ display: "block" }}>
                             <FormControlLabel 
                                 value="1" control={<Radio color="primary" />} 
                                 label="1" labelPlacement="bottom"
