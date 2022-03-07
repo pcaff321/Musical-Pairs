@@ -116,21 +116,29 @@ export default function Survey(props) {
    }
 
    function subscribeToExperiment(e) {
-    e.target.innerText = "Subscribed"
-    var fd = new FormData();
-    fd.append('experiment_id', experimentID)
-    let csrftoken = getCookie('csrftoken');
-    let subscribeUrl = "FIX_THIS IN SUBSCRIBETOEXPERIMENT()";
-    $.ajax({
-        type: 'POST',
-        url: subscribeUrl,
-        headers: {"X-CSRFToken": csrftoken},
-        processData: false,
-        data: fd,
-        contentType: false
-    }).done(function(data) {
-        console.log(data);
-    });
+        e.target.innerText = "Subscribed"
+        var fd = new FormData();
+        console.log(document.querySelector("#subscribeBtn").value)
+        console.log(e.target.value)
+        experimentID = document.querySelector("#subscribeBtn").value
+        fd.append('experiment_id', experimentID)
+        let csrftoken = getCookie('csrftoken');
+        let subscribeUrl = "/audio/listExperiments/?id=" + experimentID + "/";
+        $.ajax({
+            type: 'POST',
+            url: subscribeUrl,
+            headers: {"X-CSRFToken": csrftoken},
+            processData: false,
+            data: fd,
+            contentType: false
+        }).done(function(data) {
+            console.log(data);
+        });
+   }
+
+   function viewResults() {
+        let reviewUrl = "/audio/showResults/?id=" + experimentID;
+        window.location.href = reviewUrl;
    }
 
     function handleAnswerChange(e) {
@@ -248,6 +256,7 @@ export default function Survey(props) {
                 );
             } else if (roomData.round_list[i][0] == "question") {
                 let question;
+                experimentID = roomData.round_list[i][4];
                 if (roomData.round_list[i][2] == "Yes/No") {
                     question = (
                         <Grid item xs={12} align="center">
@@ -382,7 +391,7 @@ export default function Survey(props) {
                 );
             }
         }
-        let reviewUrl = "FIX THIS reviewUrl VARIABLE"
+        console.log(experimentID);
         let end_page = (
             <ThemeProvider theme={theme}>
                 <Grid item xs={12} align="center">
@@ -393,11 +402,11 @@ export default function Survey(props) {
                     <p>Thank you for partaking in this experiment!</p>
                     <p>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</p>
                     <Grid item xs={12} align="center">
-                        <Button id="subscribeBtn" name="subscribeBtn" value="subscribe" color="secondary" variant="contained"
+                        <Button id="subscribeBtn" name="subscribeBtn" value={experimentID} color="secondary" variant="contained"
                         onClick={subscribeToExperiment}>
                             Subscribe To Updates
                         </Button>
-                        <Button id="view-results" value="view-results" color="secondary" to={reviewUrl} component={Link}>
+                        <Button id="view-results" value="view-results" color="secondary" onClick={viewResults}>
                             View Your Results
                         </Button>
                     </Grid>
