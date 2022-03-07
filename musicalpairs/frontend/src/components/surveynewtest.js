@@ -112,7 +112,14 @@ export default function Survey(props) {
     function handlePairButtonsPressed(e) {
         setAnswerValue(e.target.getInnerHTML());
         let input = document.querySelector("input");
-        input.value = e.target.getInnerHTML()
+        let targetVal = e.target.getInnerHTML();
+        let inputVal = "";
+        if (targetVal.toString() == "NO IDEA"){
+            inputVal = "NO_IDEA";
+        }else{
+            inputVal = "WAS_DISTRACTED";
+        }
+        input.value = inputVal;
    }
 
    function subscribeToExperiment(e) {
@@ -158,6 +165,8 @@ export default function Survey(props) {
                 answer = "0";
             } else if (roomData.round_list[displayedTable][2] == "Agree") {
                 answer = "3";
+            } else {
+                answer = "NOT_ANSWERED"
             }
         }
         let fd = new FormData();
@@ -356,11 +365,11 @@ export default function Survey(props) {
                                 <Grid item xs={12} align="center">
                                     <Button id="distracted" value="d" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        Distracted
+                                        DISTRACTED
                                     </Button>
                                     <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        No Idea
+                                        NO IDEA
                                     </Button>
                                 </Grid>
                                 <br></br>
