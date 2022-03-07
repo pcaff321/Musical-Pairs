@@ -49,8 +49,8 @@ def set_file_name(instance, user_id):
 
 
 class User(AbstractUser):
-    is_researcher = models.BooleanField('researcher status', default=False)
     is_experimentee = models.BooleanField('experimentee status', default=True)
+    is_researcher = models.BooleanField('researcher status', default=False)
     date_of_birth = models.DateField('Date Of Birth', null=False)
     gender = models.CharField(max_length=30, null=False)
     first_name = models.CharField(max_length=30, null=False)
@@ -67,7 +67,10 @@ class User(AbstractUser):
 
     def full_name(self):
         return str(self.first_name) + " " + str(self.last_name)
-    
+
+    def is_researcher_val(self):
+        return self.is_researcher
+
 
 
 class Experiment(models.Model):

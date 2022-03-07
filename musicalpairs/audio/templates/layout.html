@@ -68,20 +68,30 @@
                       <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                              <li><a class="dropdown-item" href="{% url 'listExperiments' %}">All Experiments</a></li>
-                              <li><a class="dropdown-item" href="{% url 'experimentPage' %}">Do Experiment</a></li>
+                              <li><a class="dropdown-item" href="{% url 'listExperiments' %}">View Public Experiments</a></li>
+                              <li><a class="dropdown-item" href="{% url 'experimentPage' %}">Experiment Rounds Explained</a></li>
+                              <li><a class="dropdown-item" href="{% url 'experimentPage' %}">Special Thanks</a></li>
                           </ul>
                        </li>
+                       {% if user.is_researcher_val %}
+                       <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Researcher</a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                          <li><a class="dropdown-item" href="{% url 'uploadAudio' %}">Create Words</a></li>
+                          <li><a class="dropdown-item" href="{% url 'createExperiment' %}">Create Experiment</a></li>
+                          <li><hr class="dropdown-divider" /></li>
+                          <li><a class="dropdown-item">My Experiments</a></li>
+                          <li><a class="dropdown-item" href="{% url 'showAudios' %}">Manage Your Words</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                         <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Your Account</a>
                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item">My Experiments</a></li>
-                            <li><a class="dropdown-item" href="{% url 'createExperiment' %}">Create Experiment</a></li>
-                            <li><a class="dropdown-item" href="{% url 'uploadAudio' %}">Create Audios</a></li>
-                              <li><a class="dropdown-item" href="{% url 'showAudios' %}">Show Audios</a></li>
-                              <li><a class="dropdown-item" href="{% url 'publish' %}">Publish For Experiment</a></li>
-                              <li><hr class="dropdown-divider" /></li>
-                              <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            <li><a class="dropdown-item">Experiments I've Taken</a></li>
+                            <li><a class="dropdown-item" href="{% url 'showAudios' %}">View Updates On Subscriptions</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                           </ul>
                       </li>
                       {% endif %}
