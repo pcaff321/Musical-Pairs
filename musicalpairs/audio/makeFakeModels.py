@@ -56,7 +56,7 @@ def makeExperiment(roundList):
         fakeAnswersForExperiment(experiment[0], 30)
         return
     else:
-        experiment = Experiment(user_source=user, title="Musical Pairs")
+        experiment = Experiment(user_source=user, title="Musical Pairs", public=True)
         experiment.save()
     pageNum = 1
     for data in roundList:

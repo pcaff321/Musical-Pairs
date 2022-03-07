@@ -79,6 +79,7 @@ class Experiment(models.Model):
     subscribers = models.ManyToManyField(User, related_name="sub")
     j_mask = models.CharField(max_length=50, default="_NONE_")
     k_mask = models.CharField(max_length=50, default="_NONE_")
+    public = models.BooleanField('public', default=False)
 
     def __str__(self):
         return self.title
