@@ -345,7 +345,7 @@ export default function Survey(props) {
                                 <Grid item xs={12} align="center">
                                     <Button id="distracted" value="d" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        Was Distracted
+                                        Distracted
                                     </Button>
                                     <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>

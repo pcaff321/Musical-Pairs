@@ -357,11 +357,80 @@ select{
 
         
   function handleDragStart(e) {
-      this.style.opacity = '0.4';
-      
-      dragSrcEl = this;
-      console.log("drag start", this)
-      console.log(this.classList)
+    this.style.opacity = '0.4';
+    
+    dragSrcEl = this;
+    console.log("drag start", this)
+    console.log(this.classList)
+    if (this.classList.contains("textRound")) {
+      let title = this.querySelector("#title-input").value
+      let text = this.querySelector("#text-input").value
+      this.innerHTML = this.innerHTML.replace('<input id="title-input" class="form-control" placeholder="Title:">', 
+      '<input id="title-input" class="form-control" value="' + title + '" placeholder="Title:">')
+      this.innerHTML = this.innerHTML.replace('<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea>', 
+      '<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here">'+text+'</textarea>')
+      console.log(title, text)
+    } else if (this.classList.contains("imageRound")) {
+      let name = this.querySelector("#nameText").value;
+      let question = this.querySelector("#question").value;
+      let questionType = document.querySelector("#questionType").value;
+      console.log(questionType);
+      this.innerHTML = this.innerHTML.replace('id="nameText"', 'id="nameText" value="' + name + '"');
+      this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Accompanying Question:" class="questionText form-control">', 
+      '<input id="question" value="'+ question + '" placeholder="Accompanying Question:" class="questionText form-control">');
+      this.innerHTML = this.innerHTML.replace("selected", "");
+      this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+    } else if (this.classList.contains("surveyRound")) {
+      let question = this.querySelector("#question").value;
+      let questionType = document.querySelector("#questionType").value;
+      console.log(questionType);
+      this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
+      '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
+      this.innerHTML = this.innerHTML.replace("selected", "");
+      this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
+    } else if (this.classList.contains("audioRound")) {
+      let prime = this.querySelector("#prime").value;
+      let bundle = this.querySelector("#bundle").value;
+      let pairs = this.querySelector("#pairs").value;
+      this.innerHTML = this.innerHTML.replace("selected", "");
+      this.innerHTML = this.innerHTML.replace('option value="' + prime + '"', 'option value="' + prime + '" selected');
+      this.innerHTML = this.innerHTML.replace('option value="' + bundle + '"', 'option value="' + bundle + '" selected');
+      this.innerHTML = this.innerHTML.replace('<input id="pairs" class="pairs" type="number" min="1" max="20" value="1">',
+      '<input id="pairs" class="pairs" type="number" min="1" max="20" value="' + pairs + '">')
+    }
+    console.log("drag start new", this.innerHTML)
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+  }
+  
+  function handleDragEnd(e) {
+    this.style.opacity = '1';
+  
+    items.forEach(function (item) {
+      item.classList.remove('over');
+    });
+  }
+  
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+
+    return false;
+  }
+  
+  function handleDragEnter(e) {
+    this.classList.add('over');
+  }
+  
+  function handleDragLeave(e) {
+    this.classList.remove('over');
+  }
+
+  function handleDrop(e) {
+    e.stopPropagation();
+  
+    if (dragSrcEl !== this) {
       if (this.classList.contains("textRound")) {
         let title = this.querySelector("#title-input").value
         let text = this.querySelector("#text-input").value
@@ -398,90 +467,21 @@ select{
         this.innerHTML = this.innerHTML.replace('<input id="pairs" class="pairs" type="number" min="1" max="20" value="1">',
         '<input id="pairs" class="pairs" type="number" min="1" max="20" value="' + pairs + '">')
       }
-      console.log("drag start new", this.innerHTML)
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/html', this.innerHTML);
-  }
-  
-  function handleDragEnd(e) {
-    this.style.opacity = '1';
-  
-    items.forEach(function (item) {
-      item.classList.remove('over');
-    });
-  }
-  
-  function handleDragOver(e) {
-    if (e.preventDefault) {
-      e.preventDefault();
+      let x = Object.assign({}, this.classList)
+      x = Object.values(x).join(" ");
+      let y = Object.assign({}, dragSrcEl.classList)
+      y = Object.values(y).join(" ");
+      console.log("\n\nx", x, "\ny", y)
+      dragSrcEl.innerHTML = this.innerHTML;
+      this.innerHTML = e.dataTransfer.getData('text/html');
+      this.classList = y 
+      dragSrcEl.classList = x
+      console.log("\n\nx", x, "\ny", y)
+      console.log("drag stop", this.innerHTML)
     }
-
-      return false;
-  }
   
-  function handleDragEnter(e) {
-    this.classList.add('over');
+    return false;
   }
-  
-    function handleDragLeave(e) {
-      this.classList.remove('over');
-    }
-
-    function handleDrop(e) {
-        e.stopPropagation();
-      
-        if (dragSrcEl !== this) {
-          if (this.classList.contains("textRound")) {
-            let title = this.querySelector("#title-input").value
-            let text = this.querySelector("#text-input").value
-            this.innerHTML = this.innerHTML.replace('<input id="title-input" class="form-control" placeholder="Title:">', 
-            '<input id="title-input" class="form-control" value="' + title + '" placeholder="Title:">')
-            this.innerHTML = this.innerHTML.replace('<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea>', 
-            '<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here">'+text+'</textarea>')
-            console.log(title, text)
-          } else if (this.classList.contains("imageRound")) {
-            let name = this.querySelector("#nameText").value;
-            let question = this.querySelector("#question").value;
-            let questionType = document.querySelector("#questionType").value;
-            console.log(questionType);
-            this.innerHTML = this.innerHTML.replace('id="nameText"', 'id="nameText" value="' + name + '"');
-            this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Accompanying Question:" class="questionText form-control">', 
-            '<input id="question" value="'+ question + '" placeholder="Accompanying Question:" class="questionText form-control">');
-            this.innerHTML = this.innerHTML.replace("selected", "");
-            this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
-          } else if (this.classList.contains("surveyRound")) {
-            let question = this.querySelector("#question").value;
-            let questionType = document.querySelector("#questionType").value;
-            console.log(questionType);
-            this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
-            '<input id="question" value="'+ question + '" placeholder="Question:" class="questionText form-control">');
-            this.innerHTML = this.innerHTML.replace("selected", "");
-            this.innerHTML = this.innerHTML.replace('option value="' + questionType + '"', 'option value="' + questionType + '" selected');
-          } else if (this.classList.contains("audioRound")) {
-            let prime = this.querySelector("#prime").value;
-            let bundle = this.querySelector("#bundle").value;
-            let pairs = this.querySelector("#pairs").value;
-            this.innerHTML = this.innerHTML.replace("selected", "");
-            this.innerHTML = this.innerHTML.replace('option value="' + prime + '"', 'option value="' + prime + '" selected');
-            this.innerHTML = this.innerHTML.replace('option value="' + bundle + '"', 'option value="' + bundle + '" selected');
-            this.innerHTML = this.innerHTML.replace('<input id="pairs" class="pairs" type="number" min="1" max="20" value="1">',
-            '<input id="pairs" class="pairs" type="number" min="1" max="20" value="' + pairs + '">')
-          }
-          let x = Object.assign({}, this.classList)
-          x = Object.values(x).join(" ");
-          let y = Object.assign({}, dragSrcEl.classList)
-          y = Object.values(y).join(" ");
-          console.log("\n\nx", x, "\ny", y)
-          dragSrcEl.innerHTML = this.innerHTML;
-          this.innerHTML = e.dataTransfer.getData('text/html');
-          this.classList = y 
-          dragSrcEl.classList = x
-          console.log("\n\nx", x, "\ny", y)
-          console.log("drag stop", this.innerHTML)
-        }
-      
-        return false;
-      }
 
   
   
