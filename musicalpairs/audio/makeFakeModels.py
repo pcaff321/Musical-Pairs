@@ -1,4 +1,5 @@
 import random
+from typing import Text
 from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
 from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserWordRound, Word, WordBundle, set_file_name
 from time import time
@@ -47,8 +48,14 @@ def getWordBundle(user):
 def makeExperiment(roundList):
     global g_experiment
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
-    experiment = Experiment(user_source=user, title="Musical Pairs")
-    experiment.save()
+    experiment = Experiment.objects.filter(user_source=user, title="Musical Pairs")
+    if experiment.exists():
+        print("Experiment Exists")
+        fakeAnswersForExperiment(experiment[0], 30)
+        return
+    else:
+        experiment = Experiment(user_source=user, title="Musical Pairs")
+        experiment.save()
     pageNum = 1
     for data in roundList:
 
@@ -561,10 +568,15 @@ def fakeAnswersForAudio(user, audioRound, experiment, words):
 
 
 def fakeAnswersForExperiment(experiment, amount_of_users):
+    pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    fakeDataMade = TextRound.objects.filter(title="FAKE ANSWERS MADE", experiment=experiment)
+    print("FAKE EDATA", fakeDataMade)
+    if len(fakeDataMade) > 0:
+        print("Fake models exist already")
+        return
     print("Making fake data of {} users".format(amount_of_users))
     pages = Page.objects.filter(experiment=experiment)#.order_by('page_number')
     pagesList = list()
-    pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
     for i in range(amount_of_users):
         words = list(Word.objects.filter(user_source=pietro))
         random.shuffle(words)
@@ -575,3 +587,5 @@ def fakeAnswersForExperiment(experiment, amount_of_users):
                 fakeAnswersForSurvey(user, page.content_object.survey, experiment)
             if isinstance(page.content_object, AudioRound):
                 fakeAnswersForAudio(user, page.content_object, experiment, words)
+    fakeModelsExist = TextRound(title="FAKE ANSWERS MADE", text="FAKE ANSWERS MADE", experiment=experiment, user_source=pietro)
+    fakeModelsExist.save()
