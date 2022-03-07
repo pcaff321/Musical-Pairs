@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<style>
+    .heading{
+        margin-top:60px;
+    }
+
+   .menuRow {
+       margin-top:60px;
+   } 
+
+  .button {
+    padding: 10px 45px;
+    margin-top:15px;
+    background-color: #4f5d75 !important;
+    border: none;
+    font-size: 20px;
+    color: white !important;
+    border-radius: 10px;
+  }
+
+  .button:focus {
+    box-shadow:none;
+  }
+  
+  .button:active{
+    transform: perspective(20px) translateZ(-1px);
+  }
+
+  .button:hover {
+      background-color: #2d3142 !important;
+  }
+
+  
+</style>
+<div class="row heading">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 d-flex justify-content-center">
+        <h1> Hello,  {{request.user.first_name}} </h1>
+    </div>
+        {% if user.is_researcher  %}
+            
+        <div class="row menuRow">
+            <div class="col-md-3"></div>
+            <div class="col-md-2">
+                <a href="{% url 'login' %}"><button class="button">My Experiments</button></a>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'createExperiment' %}"><button class="button">Create Experiment</button></a>
+
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'uploadAudio' %}"><button class="button">Create Audios</button></a>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-2">
+                <a href="{% url 'showAudios' %}"><button class="button">My<br>&nbsp;&nbsp;&nbsp;&nbsp;Audios&nbsp;&nbsp;&nbsp;&nbsp;</button></a>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'publish' %}"><button class="button">Publish Update</button></a>
+            </div>
+        {% else %}
+        <div class="row menuRow">
+            <div class="col-md-4"></div>
+            <div class="col-md-2">
+                <a href="{% url '' %}"><button class="button">All Experiments</button></a>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url '' %}"><button class="button">Subscriptions</button></a>
+
+            </div>
+
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
