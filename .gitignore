@@ -1,2 +1,4 @@
 
 *.pyc
+musicalpairs/db.sqlite3
+musicalpairs/db.sqlite3

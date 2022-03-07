@@ -33,7 +33,7 @@ from django.core.files.base import ContentFile
 import pandas as pd
 from datetime import datetime, date, timedelta
 
-from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
+"""from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
 try:
     print("CALLING CREATE FAKE MODELS")
@@ -44,7 +44,7 @@ except:
     print("DB not migrated yet")
 
 makePietroWords()
-replicateMusicalPairs()
+replicateMusicalPairs()"""
 
 
 from django.template.defaulttags import register
@@ -163,8 +163,7 @@ def getWordBundle(user):
     return userBundle
 
 
-def home(request):
-    return HttpResponse("You're Home")
+
 
 
 def createPath(path):
@@ -913,7 +912,7 @@ class experimentee_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect(playAudioFile)
+        return redirect('home')
 
 
 class researcher_signup(CreateView):
@@ -928,7 +927,7 @@ class researcher_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('showAudios')
+        return redirect('home')
 
 
     
