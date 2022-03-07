@@ -51,7 +51,7 @@ def makeExperiment(roundList):
     global g_experiment
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
     experiment = Experiment.objects.filter(user_source=user, title="Musical Pairs")
-    if experiment.exists():
+    if experiment.exists() and (len(Page.objects.filter(experiment=experiment[0])) > 20):
         print("Experiment Exists")
         fakeAnswersForExperiment(experiment[0], 30)
         return
@@ -107,7 +107,6 @@ def replicateMusicalPairs():
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
     wordBundle = WordBundle.objects.filter(name="Default Audios", public=True, user_source=user)
     if not wordBundle.exists():
-        print("IT DOES NOT EXISTTTTTTTTTTTTTTT")
         wordBundle = WordBundle(name="Default Audios", public=True, user_source=user)
         wordBundle.save()  
     else:
@@ -572,8 +571,8 @@ def fakeAnswersForAudio(user, audioRound, experiment, words):
 def fakeAnswersForExperiment(experiment, amount_of_users):
     pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
     fakeDataMade = TextRound.objects.filter(title="FAKE ANSWERS MADE", experiment=experiment)
-    print("FAKE EDATA", fakeDataMade)
-    if len(fakeDataMade) > 0:
+    userRounds = UserWordRound.objects.filter(experiment=experiment)
+    if (len(fakeDataMade) > 0) and (len(userRounds) > 5):
         print("Fake models exist already")
         return
     print("Making fake data of {} users".format(amount_of_users))
