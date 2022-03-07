@@ -10,7 +10,8 @@ from .api import PostAnswer, addAnswer
 
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', index, name='index'),
+    path('home', home, name='home'),
     path('survey', SurveyView.as_view(), name='survey'),
     path('createsurvey', CreateSurveyView.as_view(), name='createsurvey'),
     path('createExperimentPage', createExperimentPage, name='createExperimentPage'),
