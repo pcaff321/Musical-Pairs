@@ -6,6 +6,16 @@
 
 <style>
 
+  html {
+    background: url('{% static "psych-image2.jpg"%}') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        background-color: rgba(255,255,255,0.9);
+        background-blend-mode: lighten;
+}
+
   .heading {
 
       padding: 100px 50px 50px 50px;
@@ -65,17 +75,10 @@
   }
 </style>
 
-<div class="bg-img" style="background-image: url('{% static "psych-image2.jpg"%}'); 
-background-position: center;
-background-repeat: no-repeat;
-background-size: 105%;
-position: relative;
-background-color: rgba(255,255,255,0.9);
-    background-blend-mode: lighten;
-">
+<div>
 
 <div class="row row1">
-  <div class="col-md-6"></div>
+  <div class="col-md-4"></div>
   <div class="col-md-4 d-flex justify-content-center heading">
     <h2>Sign up as a {{ user_type }}</h2>
   </div>
@@ -84,7 +87,7 @@ background-color: rgba(255,255,255,0.9);
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
       <div class="row">
-        <div class="col-md-6"></div>     
+        <div class="col-md-4"></div>     
         <div class="col-md-2">
           {{ form.first_name|as_crispy_field }}
         </div>
@@ -95,13 +98,13 @@ background-color: rgba(255,255,255,0.9);
       </div>
     
     <div class="row emailRow">
-      <div class="col-md-6"></div>
+      <div class="col-md-4"></div>
       <div class="col-md-4">
         {{ form.email|as_crispy_field }}
      </div>
   </div>
   <div class="row">
-    <div class="col-md-6"></div>
+    <div class="col-md-4"></div>
     <div class="col-md-2">
       {{ form.password1|as_crispy_field }}
    </div>
@@ -110,10 +113,10 @@ background-color: rgba(255,255,255,0.9);
     </div>
    </div>
       <div class="row birthRow1">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
       </div>
       <div class="row birthRow2">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
         <div class="col-md-2">
           {{ form.date_of_birth|as_crispy_field}}
         </div>
@@ -122,7 +125,7 @@ background-color: rgba(255,255,255,0.9);
         </div>
       </div>
       <div class="row submitRow">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
         <div class="col-md-4 d-flex justify-content-center">
           <button type="submit" class="btn btn-success">Sign up</button>
         </div>
