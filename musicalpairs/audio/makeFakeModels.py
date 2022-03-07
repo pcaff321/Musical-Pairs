@@ -29,11 +29,13 @@ def makeFakeUser():
         user.save()
     return user
 
-
-fakeUser = makeFakeUser()
-audioLoc = os.path.join(settings.MEDIA_ROOT, "fakeAudio.wav")
-fakeAudio = Audio_store(name="fakeAudio", allow_mumble=False, file_location=audioLoc, user_source=fakeUser)
-fakeAudio.save()
+try:
+    fakeUser = makeFakeUser()
+    audioLoc = os.path.join(settings.MEDIA_ROOT, "fakeAudio.wav")
+    fakeAudio = Audio_store(name="fakeAudio", allow_mumble=False, file_location=audioLoc, user_source=fakeUser)
+    fakeAudio.save()
+except:
+    print("Database not created yet")
 
 
 def getWordBundle(user):

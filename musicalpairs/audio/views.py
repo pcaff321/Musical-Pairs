@@ -1,4 +1,5 @@
 ##from curses.ascii import HT
+import datetime
 from collections import UserDict
 import csv
 from email.mime import audio
@@ -30,6 +31,7 @@ import math
 import string
 from django.core.files.base import ContentFile
 import pandas as pd
+from datetime import datetime, date, timedelta
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
@@ -38,11 +40,9 @@ try:
     fake_user, fake_experiment = create_Fake_Models()
     makePietroWords()
     makeMumbleWords()
+    replicateMusicalPairs()
 except:
     print("DB not migrated yet")
-
-makePietroWords()
-replicateMusicalPairs()
 
 
 from django.template.defaulttags import register
@@ -159,11 +159,6 @@ def getWordBundle(user):
         userBundle = WordBundle(name="Your Audios", public=False, user_source=user)
         userBundle.save()
     return userBundle
-
-
-def home(request):
-    return HttpResponse("You're Home")
-
 
 def createPath(path):
 
@@ -822,13 +817,18 @@ def processPageInfoForQuestions(page):
         url = None
         questionInfo = getAnswersFromSurvey(survey)
         question = questionInfo['questions'][0]['questionText']
+        questionType = questionInfo['questions'][0]['questionType']
+        id = questionInfo['questions'][0]['id']
         answers = questionInfo['questions'][0]['answers']
         roundContent = {
             'type': 'image',
             'title': pageType.name,
             'url': pageType.image.url,
             'questionText': question,
-            'answers': answers
+            'questionType': questionType,
+            'id': id,
+            'answers': answers,
+            'bar_chart': False
         }
     if roundContent:
         roundContent['id'] = pageType.id
@@ -859,6 +859,83 @@ def getExperimentQuestionInfo(experiment):
     
     return pagesList
 
+
+def convertToBarChartData(roundInfo):
+    labels = list(range(0,11))
+    questionType = roundInfo['questionType']
+    if questionType == "Agree":
+        labels = list(range(1,6))
+    elif questionType == "yesOrNo":
+        labels = ["Yes", "No"]
+    data = list(0 for i in range(len(labels)))
+    if questionType == "slider":
+        for answer in roundInfo['answers']:
+            answer = int(answer['answer'])
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    elif questionType == "yesOrNo":
+        for answer in roundInfo['answers']:
+            answer = 0 if (answer['answer'] == "Yes") else 1
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    else:
+        for answer in roundInfo['answers']:
+            answer = int(answer['answer']) - 1
+            if answer >=  0 and answer < len(labels):
+                data[answer] += 1
+    return {"labels": labels, "data": data}
+
+
+"""        roundContent = {
+            'type': 'image',
+            'title': pageType.name,
+            'url': pageType.image.url,
+            'questionText': question,
+            'questionType': questionType,
+            'answers': answers
+        }
+    if roundContent:
+        roundContent['id'] = pageType.id
+    
+    return roundContent
+ """
+
+def makeChartData(pages):
+    new_pages = pages
+    for page in new_pages:
+        if page['type'] == "image":
+            questionType = page['questionType']
+            if questionType == "slider" or questionType == "Agree" or questionType == "yesOrNo":
+                page['bar_data'] = convertToBarChartData(page)
+                page['bar_data']['title'] = page['questionText']
+                page['bar_chart'] = True
+        if page['type'] == "survey":
+            for quest in page['surveyInfo']['questions']:
+                questionType = quest['questionType']
+                if questionType == "slider" or questionType == "Agree" or questionType == "yesOrNo":
+                    quest['bar_data'] = convertToBarChartData(quest)
+                    quest['bar_data']['title'] = quest['questionText']
+                    quest['bar_chart'] = True
+
+
+
+
+    return new_pages
+    
+
+def testingBarCharts(request):
+    experimentID = request.GET.get('id', None)
+    if experimentID is None:
+        return HttpResponse("No ID given")
+    experiment = Experiment.objects.filter(id=experimentID)[0]
+    info = getExperimentQuestionInfo(experiment)
+    context = {
+        "pages_list": makeChartData(info)
+    }
+
+    print(context['pages_list'][1])
+
+    return render(request, "ResearcherPages/testingBarCharts.html", context)
 
 
 
@@ -1290,6 +1367,22 @@ def viewExperiment_Researcher(request):
     else:
         experiment_id = request.GET.get('id')
         experiment = Experiment.objects.filter(id=experiment_id)
+        today = datetime.now().date()
+        d1 = today - timedelta(1)
+        d2 = today - timedelta(2)
+        d3 = today - timedelta(3)
+        d4 = today - timedelta(4)
+        d5 = today - timedelta(5)
+        d6 = today - timedelta(6)
+        t = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=today).count()
+        d1 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d1).count()
+        d2 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d2).count()
+        d3 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d3).count()
+        d4 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d4).count()
+        d5 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d5).count()
+        d6 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d6).count()
+        uniquevists = [t, d1, d2, d3, d4, d5, d6]
+        uv = json.dumps(uniquevists)
         if not experiment.exists():
             return HttpResponse("ID not recognised")
         form = PublishForm2(initial={'experiment':experiment})
@@ -1321,6 +1414,9 @@ def viewExperiment_Researcher(request):
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
             'pages_list': getExperimentQuestionInfo(experiment),
+            "experimentList": pagesList,
+            "uv": uv,
+            'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
             "experimentList": pagesList
         }
 
@@ -1450,7 +1546,16 @@ def deleteExperiment(request):
     experiment.delete()
     return redirect('listExperiments')
 
-
+def deleteAudio(request):
+    audio_id = request.GET.get('id')
+    audio = Audio_store.objects.filter(id=audio_id)
+    if not audio.exists():
+        return HttpResponse("ID not recognised")
+    audio = audio[0]
+    if request.user != audio.user_source:
+        return HttpResponse("You do not have permission to delete this experiment")
+    audio.delete()
+    return redirect('showAudios')
 
 def makeCSVforSurveyRound(survey_round):
     header = ['USER ID']
