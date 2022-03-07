@@ -789,7 +789,11 @@ select{
                   contentType: false
               }).done(function(data) {
                   console.log(data);
+                  if (data['okay'] == true){
                   location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
+                  }else{
+                    alert(data['error_msg'])
+                  }
               });
               }
 }
