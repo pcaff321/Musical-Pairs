@@ -909,6 +909,7 @@ def makeChartData(pages):
                 page['bar_data'] = convertToBarChartData(page)
                 page['bar_data']['title'] = page['questionText']
                 page['bar_chart'] = True
+                page['id'] = "Chart" + str(page['id'])
         if page['type'] == "survey":
             for quest in page['surveyInfo']['questions']:
                 questionType = quest['questionType']
@@ -916,6 +917,7 @@ def makeChartData(pages):
                     quest['bar_data'] = convertToBarChartData(quest)
                     quest['bar_data']['title'] = quest['questionText']
                     quest['bar_chart'] = True
+                    quest['id'] = "Chart" + str(quest['id'])
 
 
 
@@ -933,7 +935,6 @@ def testingBarCharts(request):
         "pages_list": makeChartData(info)
     }
 
-    print(context['pages_list'][1])
 
     return render(request, "ResearcherPages/testingBarCharts.html", context)
 
@@ -1132,7 +1133,6 @@ def createExperiment_POST(request):
                     round = createAudioRound(pairs, prime, experiment, user, wordBundle)
                 elif data['roundType'] == "text":
                     title = data['title']
-                    print("\nTITLE\n", title, "\n\n")
                     text = data['text']
                     round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
@@ -1199,7 +1199,6 @@ def editExperiment(request):
                 listOfBundles.append(bundle)
 
             context = {"experimentName":experiment.title, "experimentList": pagesList, "listOfBundles": listOfBundles}
-            print(context)
             return render(request, 'ResearcherPages/editExperiment.html', context)
             
     return HttpResponse("ID not found")
@@ -1419,6 +1418,7 @@ def viewExperiment_Researcher(request):
             'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
             "experimentList": pagesList
         }
+
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
