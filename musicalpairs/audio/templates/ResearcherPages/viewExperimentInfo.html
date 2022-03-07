@@ -200,7 +200,7 @@ img {
 }
 
 .qRoundHeading {
-  margin-top:50px;
+  margin-top:20px;
   margin-bottom: 20px;
 
 }
@@ -222,6 +222,13 @@ canvas{
 
 .partTotal {
   font-size:22px;
+}
+
+
+.qImage {
+  min-width:65%;
+  padding:15px;
+  margin-bottom: 20px;
 }
 
 </style>
@@ -270,18 +277,17 @@ canvas{
       <div class="col-sm-12">
           <div class="container row" id="roundContainer">
             {% for page in experimentList %}
-            <div class="box col-sm-3">
-
-            {% if page.pageType == "survey" %}
-            <div class="pageNum">{{forloop.counter}}</div>
-            <h3 style="text-align:center">SURVEY ROUND</h3>
-            <br>
-              {% for question in page.questionList %}
-              <p style="word-wrap: break-word;max-width: 350px;"><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
-              <p><b>Answer Type:</b>  {{ question.questionType }}</p>
-              <hr>
-              {% endfor %}
-            {% endif %}
+              <div class="box col-sm-3">
+                {% if page.pageType == "survey" %}
+                  <div class="pageNum">{{forloop.counter}}</div>
+                  <h3 style="text-align:center">SURVEY ROUND</h3>
+                  <br>
+                  {% for question in page.questionList %}
+                    <p style="word-wrap: break-word;max-width: 350px;"><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
+                    <p><b>Answer Type:</b>  {{ question.questionType }}</p>
+                    <hr>
+                  {% endfor %}
+                {% endif %}
         
             {% if page.pageType == "text" %}
             <div class="pageNum">{{forloop.counter}}</div>
@@ -322,116 +328,107 @@ canvas{
         </div>
       </div></div></div>
 
-    <div id="questions" class="tabcontent tabcontent1">
-
-      <div class="row">
-
-      <div class="row tabRow">
-          <div class="col-md-1"></div>
-          <div class="col-md-10 d-flex justify-content-center heading">
-
-            <div class="tab">
-              {% for page in pages_list %}
-              {% if page.num == 0 %}
+<div id="questions" class="tabcontent tabcontent1">
+  <div class="row">
+    <div class="row tabRow">
+      <div class="col-md-1"></div>
+      <div class="col-md-10 d-flex justify-content-center heading">
+        <div class="tab">
+          {% for page in pages_list %}
+            {% if page.num == 0 %}
               <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-              {% else %}
+            {% else %}
               <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-              {% endif %}
-              {% endfor %}
-            </div>
-          </div>
+            {% endif %}
+          {% endfor %}
+        </div>
       </div>
+    </div>
       
+    <div class="row contentRow">
+      <div class="col-md-1"></div>
+      <div class="col-md-10 d-flex justify-content-center heading">
+        {% for page in pages_list %}
 
-<div class="row contentRow">
-  <div class="col-md-1"></div>
-  <div class="col-md-10 d-flex justify-content-center heading">
-
-    {% for page in pages_list %}
-      <div id="{{ page.id }}" class="tabcontent tabcontent2">
-        {% if page.type == "image" %}
-          <div class="row qRoundHeading">
-            <div class="col-md-12 d-flex justify-content-center">
-              <h2> Image Round: {{ page.title }}</h2>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 d-flex justify-content-center">
-              <img src="{{ page.url }}"></img>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 d-flex justify-content-center">          
-              {% if page.bar_chart %}
-                <div  height="40" width="40">
-                    <canvas id="{{ page.id }}" ></canvas>
+          <div id="{{ page.id }}" class="tabcontent tabcontent2">
+            {% if page.type == "image" %}
+              <div class="row qRoundHeading">
+                <div class="col-md-12 d-flex justify-content-center">
+                  <h2> Image Round: {{ page.title }}</h2>
                 </div>
-                <br><br><br>
-                {% else %}
-                  <p> Question: {{ page.questionText }}</p>
-                  <p> Answers: <br></p>
               </div>
-              <div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
-                  <div style="overflow-y: scroll; height:400px;">
-                    <ul class="list-group">
-                      {% for answer in page.answers %}
-                        <li class="list-group-item">{{ answer.answer }}</li>
-                      {% endfor %}
-                    </ul>
+                <div class="row">
+                  <div class="col-md-1 d-flex justify-content-center"></div>
+                  <div class="col-md-10 d-flex justify-content-center">
+                    <img class="qImage"src="{{ page.url }}"></img>
+                  </div><br><br>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    {% if page.bar_chart %}
+                      <div height="40" width="40">
+                        <canvas id="{{ page.Chart_id }}" ></canvas>
+                      </div>
+                    {% else %}
+                    <h3> Answers: </h3>
                   </div>
                 </div>
-              </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    <div style="overflow-y: scroll; height:400px;">
+                      <ul class="list-group">
+                        {% for answer in page.answers %}
+                          <li class="list-group-item">{{ answer.answer }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>                  
+                  </div>
+                </div><br>
               {% endif %}
             </div>
           </div>
         {% endif %}
 
 
-
-
-      {% if page.type == "survey" %}
-      {% for question in page.surveyInfo.questions %}
-        <div class="row qRoundHeading">
-          <div class="col-md-12 d-flex justify-content-center">
-            <h3> Question {{ forloop.counter}}: </h3>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12 d-flex justify-content-center">
-            <p class="questionText"> {{ question.questionText }}<br><br> </p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12 d-flex justify-content-center">
-            {% if question.bar_chart %}
-            <div  height="40" width="40">
-                <canvas id="{{ question.id }}" ></canvas>
-            </div>
-            <br><br><br>
-            {% else %}
-            <div style="overflow-y: scroll; height:400px;">
-              <ul class="list-group">
-                {% for answer in question.answers %}
-                <li class="list-group-item">{{ answer.answer }}</li>
-                {% endfor %}
-              </ul>
-            </div>
+            {% if page.type == "survey" %}
+              {% for question in page.surveyInfo.questions %}
+                <div class="row qRoundHeading">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    <h3> Question {{ forloop.counter}}: </h3>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    <p class="questionText"> {{ question.questionText }}<br><br> </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    {% if question.bar_chart %}
+                    
+                      <div height="40" width="40">
+                        <canvas id="{{ question.id }}"></canvas>
+                      </div>
+                      <br><br><br>
+                    {% else %}
+                    
+                      <div style="overflow-y: scroll; height:400px;">
+                        <ul class="list-group">
+                          {% for answer in question.answers %}
+                            <li class="list-group-item">{{ answer.answer }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>   
+              {% endfor %}
             {% endif %}
           </div>
-        
-            
         {% endfor %}
-        {% endif %}
-
-
+      </div>
     </div>
-  {% endfor %}
-</div>
-
-</div>
-</div>
+  </div>
 </div>
 
 
@@ -508,16 +505,18 @@ canvas{
     <h2> View The Overall Performance For Each Type Of Prime </h2>
   </div>
   {% for chart in chartsData %}
-  <div class="row chartRow">
-  <div class="col-md-12 d-flex justify-content-center">
-  <h2 class="chartTitle" style="text-align:center"> {{ chart.title }} </h2><br>
-  <div  height="40" width="40">
-      <canvas class="chart" id="{{ chart.title }}" ></canvas>
-  </div><br>
-  <h3 class="chartCorrect"> Overall Correct: {{ chart.percent }}% </h3>
-  <br><br><br>
-  </div>
-</div>
+    <div class="row chartRow">
+      <div class="col-md-3 d-flex justify-content-center"></div>
+        <div class="col-md-6 d-flex justify-content-center">
+
+        <div height="40" width="40">
+          <canvas class="chart" id="{{ chart.title }}" ></canvas>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <p class="chartCorrect questionText"><b>Overall Correct:</b> {{ chart.percent }}% </p>
+      </div>
+    </div>
   {% endfor %}
 </div>
 
@@ -792,126 +791,186 @@ data = {
     );
 {% endfor %}
   </script>
-
   <script>
 
-    {% for page in pages_list %}
-    {% if page.type == "image" %}
-    {% if page.bar_chart %}
-      {% for chart in page.bar_data %}
-      {% if question.questionType == "yesOrNo" %}
-            labels = ["Yes", "No"]
-           {% else %}
-            labels = {{ chart.labels }};
-            {% endif %}
-          data = {
-            labels: labels,
-            datasets: [{
-              label: "{{ chart.title }}",
-              data: {{ chart.data }},
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 205, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(201, 203, 207, 0.2)'
-              ],
-              borderColor: [
-                'rgb(255, 99, 132)',
-                'rgb(255, 159, 64)',
-                'rgb(255, 205, 86)',
-                'rgb(75, 192, 192)',
-                'rgb(54, 162, 235)',
-                'rgb(153, 102, 255)',
-                'rgb(201, 203, 207)'
-              ],
-              borderWidth: 1
-            }]
-          };
-  
-  
-          config = {
-            type: 'bar',
-            data: data,
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
+    {% for chart in chartsData %}
+    labels = [];
+    
+    {% for label in chart.labels %}
+       labels.push('{{ label }}')
+    {% endfor %}
+    
+    console.log(labels);
+    data = {
+      labels: labels,
+      datasets: [{
+        label: "{{ chart.title }}",
+        data: {{ chart.data }},
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(201, 203, 207, 0.2)'
+        ],
+        borderColor: [
+          'rgb(255, 99, 132)',
+          'rgb(255, 159, 64)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(54, 162, 235)',
+          'rgb(153, 102, 255)',
+          'rgb(201, 203, 207)'
+        ],
+        borderWidth: 1
+      }]
+    };
+      
+        
+       config = {
+        type: 'bar',
+        data: data,
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        },
+      };
+         myChart = new Chart(
+            document.getElementById('{{ chart.title }}'),
+            config
+        );
+    {% endfor %}
+      </script>
+    
+      <script>
+    
+        window.onload = makeAllCharts();
+    
+        function makeAllCharts() {
+        {% for page in pages_list %}
+        {% if page.type == "image" %}
+        {% if page.bar_chart %}
+        {% if page.questionType == "yesOrNo" %}
+        labels = ["Yes", "No"]
+       {% else %}
+        labels = {{ page.bar_data.labels }};
+        {% endif %}
+        data = {
+          labels: labels,
+          datasets: [{
+            label: "{{ page.bar_data.title }}",
+            data: {{ page.bar_data.data }},
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(201, 203, 207, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
+              'rgb(75, 192, 192)',
+              'rgb(54, 162, 235)',
+              'rgb(153, 102, 255)',
+              'rgb(201, 203, 207)'
+            ],
+            borderWidth: 1
+          }]
+        };
+    
+    
+        config = {
+          type: 'bar',
+          data: data,
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
               }
-            },
-          };
-  
-          myChart = new Chart(
-                document.getElementById('{{ page.id }}'),
-                config
-            );
-      {% endfor %}
-      {% endif %}
-      {% endif %}
-      {% endfor %}
-  
-  
-      {% for page in pages_list %}
-      {% if page.type == "survey" %}
-      {% for question in page.surveyInfo.questions %}
-      {% if question.bar_chart %}
-            {% if question.questionType == "yesOrNo" %}
-            labels = ["Yes", "No"]
-           {% else %}
-            labels = {{ question.bar_data.labels }};
+            }
+          },
+        };
+    
+    
+        myChart = new Chart(
+              document.getElementById('{{ page.Chart_id }}'),
+              config
+          );
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+      
+      
+          {% for page in pages_list %}
+          {% if page.type == "survey" %}
+          {% for question in page.surveyInfo.questions %}
+          {% if question.bar_chart %}
+                {% if question.questionType == "yesOrNo" %}
+                labels = ["Yes", "No"]
+               {% else %}
+                labels = {{ question.bar_data.labels }};
+                {% endif %}
+                data = {
+                  labels: labels,
+                  datasets: [{
+                    label: "{{ question.bar_data.title }}",
+                    data: {{ question.bar_data.data }},
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 0.2)',
+                      'rgba(255, 159, 64, 0.2)',
+                      'rgba(255, 205, 86, 0.2)',
+                      'rgba(75, 192, 192, 0.2)',
+                      'rgba(54, 162, 235, 0.2)',
+                      'rgba(153, 102, 255, 0.2)',
+                      'rgba(201, 203, 207, 0.2)'
+                    ],
+                    borderColor: [
+                      'rgb(255, 99, 132)',
+                      'rgb(255, 159, 64)',
+                      'rgb(255, 205, 86)',
+                      'rgb(75, 192, 192)',
+                      'rgb(54, 162, 235)',
+                      'rgb(153, 102, 255)',
+                      'rgb(201, 203, 207)'
+                    ],
+                    borderWidth: 1
+                  }]
+                };
+        
+        
+                config = {
+                  type: 'bar',
+                  data: data,
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  },
+                };
+        
+                myChart = new Chart(
+                      document.getElementById('{{ question.id }}'),
+                      config
+                  );
             {% endif %}
-            data = {
-              labels: labels,
-              datasets: [{
-                label: "{{ question.bar_data.title }}",
-                data: {{ question.bar_data.data }},
-                backgroundColor: [
-                  'rgba(255, 99, 132, 0.2)',
-                  'rgba(255, 159, 64, 0.2)',
-                  'rgba(255, 205, 86, 0.2)',
-                  'rgba(75, 192, 192, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  'rgba(153, 102, 255, 0.2)',
-                  'rgba(201, 203, 207, 0.2)'
-                ],
-                borderColor: [
-                  'rgb(255, 99, 132)',
-                  'rgb(255, 159, 64)',
-                  'rgb(255, 205, 86)',
-                  'rgb(75, 192, 192)',
-                  'rgb(54, 162, 235)',
-                  'rgb(153, 102, 255)',
-                  'rgb(201, 203, 207)'
-                ],
-                borderWidth: 1
-              }]
-            };
-    
-    
-            config = {
-              type: 'bar',
-              data: data,
-              options: {
-                scales: {
-                  y: {
-                    beginAtZero: true
-                  }
-                }
-              },
-            };
-    
-            myChart = new Chart(
-                  document.getElementById('{{ question.id }}'),
-                  config
-              );
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-        {% endfor %}
-    </script>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+              }
+        </script>
 
 
 {% endblock %}
