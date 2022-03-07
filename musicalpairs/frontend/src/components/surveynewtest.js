@@ -6,7 +6,7 @@ import SurveyTest from './surveytest';
 import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormControlLabel, Radio, RadioGroup, Slider} from '@material-ui/core'
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { purple } from '@material-ui/core/colors';
-
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -451,6 +451,7 @@ export default function Survey(props) {
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
                 <p>page {displayedTable}/{roomData.round_count + 1}</p>
+                <ProgressBar animated now={100 * displayedTable/(roomData.round_count + 1)} style={{width: "30%", marginLeft: "auto", marginRight: "auto", backgroundColor: "darkgray"}}/>
             </Grid>
         </Grid>
     )
