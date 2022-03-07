@@ -1,8 +1,18 @@
 {% extends 'layout.html' %}
-
+{% load static %}
 {% block content %}
 
 <style>
+
+    html { 
+        background: url('{% static "gears.png"%}') no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: 70%;
+        background-color: rgba(255,255,255,0.8);
+        background-blend-mode: lighten;
+      }
     .heading{
         margin-top:60px;
     }
@@ -12,7 +22,7 @@
    } 
 
   .button {
-    padding: 10px 45px;
+    padding: 20px 10px;
     margin-top:15px;
     background-color: #4f5d75 !important;
     border: none;
@@ -44,24 +54,24 @@
             
         <div class="row menuRow">
             <div class="col-md-3"></div>
-            <div class="col-md-2">
+            <div class="col-md-2 d-flex justify-content-center">
                 <a href="{% url 'login' %}"><button class="button">My Experiments</button></a>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 d-flex justify-content-center">
                 <a href="{% url 'createExperiment' %}"><button class="button">Create Experiment</button></a>
 
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 d-flex justify-content-center">
                 <a href="{% url 'uploadAudio' %}"><button class="button">Create Audios</button></a>
 
             </div>
         </div>
         <div class="row">
             <div class="col-md-4"></div>
-            <div class="col-md-2">
-                <a href="{% url 'showAudios' %}"><button class="button">My<br>&nbsp;&nbsp;&nbsp;&nbsp;Audios&nbsp;&nbsp;&nbsp;&nbsp;</button></a>
+            <div class="col-md-2 d-flex justify-content-center">
+                <a href="{% url 'showAudios' %}"><button class="button">My Audios</button></a>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 d-flex justify-content-center">
                 <a href="{% url 'publish' %}"><button class="button">Publish Update</button></a>
             </div>
         {% else %}
