@@ -205,11 +205,8 @@ img {
 
 }
 
-.imageQCanvas {
-}
 
 canvas{
-
   width:500px !important;
   height:300px !important;
 
@@ -333,7 +330,7 @@ canvas{
           <div class="col-md-1"></div>
           <div class="col-md-10 d-flex justify-content-center heading">
 
-            <div class="tab ">
+            <div class="tab">
               {% for page in pages_list %}
               {% if page.num == 0 %}
               <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
@@ -346,33 +343,53 @@ canvas{
       </div>
       
 
-    <div class="row contentRow">
-      <div class="col-md-1"></div>
-      <div class="col-md-10 d-flex justify-content-center heading">
+<div class="row contentRow">
+  <div class="col-md-1"></div>
+  <div class="col-md-10 d-flex justify-content-center heading">
+
     {% for page in pages_list %}
-    <div id="{{ page.id }}" class="tabcontent tabcontent2">
+      <div id="{{ page.id }}" class="tabcontent tabcontent2">
+        {% if page.type == "image" %}
+          <div class="row qRoundHeading">
+            <div class="col-md-12 d-flex justify-content-center">
+              <h2> Image Round: {{ page.title }}</h2>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 d-flex justify-content-center">
+              <img src="{{ page.url }}"></img>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 d-flex justify-content-center">          
+              {% if page.bar_chart %}
+                <div  height="40" width="40">
+                    <canvas id="{{ page.id }}" ></canvas>
+                </div>
+                <br><br><br>
+                {% else %}
+                  <p> Question: {{ page.questionText }}</p>
+                  <p> Answers: <br></p>
+              </div>
+              <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                  <div style="overflow-y: scroll; height:400px;">
+                    <ul class="list-group">
+                      {% for answer in page.answers %}
+                        <li class="list-group-item">{{ answer.answer }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
 
 
-      {% if page.type == "image" %}
-      <h2> Image Round: {{ page.title }}</h2>
-      <img src="{{ page.url }}"></img>
-          {% if page.bar_chart %}
-        <div  height="40" width="40">
-            <canvas id="{{ page.id }}" ></canvas>
-        </div>
-        <br><br><br>
-        {% else %}
-        <h3> Question: {{ page.questionText }} </h3>
-        <h4> Answers: </h4>
-      <div style="overflow-y: scroll; height:400px;">
-        <ul class="list-group">
-          {% for answer in page.answers %}
-          <li class="list-group-item">{{ answer.answer }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-          {% endif %}
-      {% endif %}
+
 
       {% if page.type == "survey" %}
       {% for question in page.surveyInfo.questions %}
@@ -401,19 +418,22 @@ canvas{
                 {% endfor %}
               </ul>
             </div>
-          {% endif %}          </div>
-        </div>
-            
-          {% endfor %}
-          {% endif %}
-
-
+            {% endif %}
           </div>
+        
+            
         {% endfor %}
-        </div>
-      </div>
+        {% endif %}
+
+
     </div>
+  {% endfor %}
 </div>
+
+</div>
+</div>
+</div>
+
 
   <div id="publish" class="tabcontent tabcontent1">
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
