@@ -1,2 +1,3 @@
 
 *.pyc
+musicalpairs/db.sqlite3
