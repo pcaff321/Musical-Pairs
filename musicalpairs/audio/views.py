@@ -757,6 +757,22 @@ def showAudios(request):
     }
     return render(request, 'showAudios.html', context)
 
+@login_required
+def myExperiments(request):
+    user_id = request.user.id
+    experiments = Experiment.objects.filter(user_source=request.user)
+    for exp in experiments:
+        participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
+        exp.participants = participants
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'myExperiments.html', context)
+
 def getQuestionsForExperiment(experiment):
     
     surveyRounds = SurveyRound.objects.filter(experiment=experiment).order_by('id')
