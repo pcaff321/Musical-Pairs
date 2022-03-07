@@ -1456,7 +1456,6 @@ def showResults(request):
 
 
 ## Craig Stuff
-
 @login_required
 @csrf_exempt
 def publish(request):
@@ -1475,9 +1474,11 @@ def publish(request):
                 send_mail(subject, body, "musicalpairs123@gmail.com", emails)
                 message = "Message sent successfully"
             form = PublishForm()
+            form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
             return render(request, 'publish.html', {'form':form, 'message': message})
     else:
         form = PublishForm()
+        form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
         message = ""
     return render(request, 'publish.html', {'form' : form, 'message': message})
 
