@@ -745,9 +745,9 @@ def roundTest(request):
 @login_required
 def showAudios(request):
     user_id = request.user.id
-    audios_of_user = Audio_store.objects.filter(user_source=request.user)
+    audios_of_user = Word.objects.filter(user_source=request.user)
     for instance in audios_of_user:
-        instance.file_location = settings.MEDIA_URL + str(instance.file_location)
+        instance.audio_store.file_location = settings.MEDIA_URL + str(instance.audio_store.file_location)
     context = {
         "object_list": audios_of_user
     }
@@ -1604,7 +1604,7 @@ def deleteExperiment(request):
 
 def deleteAudio(request):
     audio_id = request.GET.get('id')
-    audio = Audio_store.objects.filter(id=audio_id)
+    audio = Word.objects.filter(id=audio_id)
     if not audio.exists():
         return HttpResponse("ID not recognised")
     audio = audio[0]
