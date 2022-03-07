@@ -152,7 +152,6 @@
     text-align: center;
     padding: 150px;
     font-size: 20px;
-    color: green;
 }
 
 #errorMessage {
@@ -198,6 +197,26 @@ img {
   color: darkgray;
   text-align:center;
   margin-bottom:10px;
+}
+
+.qRoundHeading {
+  margin-top:50px;
+  margin-bottom: 20px;
+
+}
+
+.imageQCanvas {
+}
+
+canvas{
+
+  width:500px !important;
+  height:300px !important;
+
+}
+
+.questionText {
+  font-size: 23px;
 }
 
 </style>
@@ -299,18 +318,25 @@ img {
       </div></div></div>
 
     <div id="questions" class="tabcontent tabcontent1">
-      <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
-        <h2> Questions</h2>
+
+      <div class="row">
+
+      <div class="row tabRow">
+          <div class="col-md-1"></div>
+          <div class="col-md-10 d-flex justify-content-center heading">
+
+            <div class="tab ">
+              {% for page in pages_list %}
+              {% if page.num == 0 %}
+              <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+              {% else %}
+              <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
       </div>
-      <div class="tab">
-        {% for page in pages_list %}
-        {% if page.num == 0 %}
-         <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-        {% else %}
-         <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-        {% endif %}
-        {% endfor %}
-    </div>
+      
 
     <div class="row contentRow">
       <div class="col-md-1"></div>
@@ -341,31 +367,42 @@ img {
       {% endif %}
 
       {% if page.type == "survey" %}
-      <h2> Survey Round: </h2>
       {% for question in page.surveyInfo.questions %}
-        <h3> {{ question.questionText }} </h3>
-        {% if question.bar_chart %}
-       <div  height="40" width="40">
-           <canvas id="{{ question.id }}" ></canvas>
-       </div>
-       <br><br><br>
-        {% else %}
-        <h4> Answers: </h4>
-        <div style="overflow-y: scroll; height:400px;">
-          <ul class="list-group">
-            {% for answer in question.answers %}
-            <li class="list-group-item">{{ answer.answer }}</li>
-            {% endfor %}
-          </ul>
+        <div class="row qRoundHeading">
+          <div class="col-md-12 d-flex justify-content-center">
+            <h3> Question {{ forloop.counter}}: </h3>
+          </div>
         </div>
-        {% endif %}
+        <div class="row">
+          <div class="col-md-12 d-flex justify-content-center">
+            <p class="questionText"> {{ question.questionText }}<br><br> </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 d-flex justify-content-center">
+            {% if question.bar_chart %}
+            <div  height="40" width="40">
+                <canvas id="{{ question.id }}" ></canvas>
+            </div>
+            <br><br><br>
+            {% else %}
+            <div style="overflow-y: scroll; height:400px;">
+              <ul class="list-group">
+                {% for answer in question.answers %}
+                <li class="list-group-item">{{ answer.answer }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}          </div>
+        </div>
+            
+          {% endfor %}
+          {% endif %}
+
+
+          </div>
         {% endfor %}
-      {% endif %}
-
-
-      </div>
-      {% endfor %}
-
+        </div>
       </div>
     </div>
 </div>
