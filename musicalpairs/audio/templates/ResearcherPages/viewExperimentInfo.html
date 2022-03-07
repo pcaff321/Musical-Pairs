@@ -506,14 +506,14 @@ canvas{
   </div>
   {% for chart in chartsData %}
     <div class="row chartRow">
-      <div class="col-md-12 d-flex justify-content-center">
+      <div class="col-md-3 d-flex justify-content-center"></div>
+        <div class="col-md-6 d-flex justify-content-center">
+
         <div height="40" width="40">
           <canvas class="chart" id="{{ chart.title }}" ></canvas>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12 d-flex justify-content-center">
+      <div class="col-md-3">
         <p class="chartCorrect questionText"><b>Overall Correct:</b> {{ chart.percent }}% </p>
       </div>
     </div>
