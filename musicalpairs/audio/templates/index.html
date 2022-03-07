@@ -1,0 +1,111 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<style>
+
+    .title {
+        margin-top: 40px;
+    }
+
+    h1 {
+        margin-top:-20px !important;
+    }
+
+    h2 {
+        margin-top:-40px !important;
+        margin-bottom:-30px !important;
+    }
+
+    
+    
+  button {
+    margin:10px;
+    background-color: dimgray !important;
+    border: none !important;
+    font-size: 20px !important;
+    color: white !important;
+    border-radius:5px;
+    margin-top: -20px !important;
+  }
+
+
+  .mainBtn {
+    background-color: #4f5d75 !important;
+    padding:10px 30px !important
+  }
+
+
+div .hidden {
+      display: none !important;
+  }
+
+    
+  .fa-caret-down {
+      color: white;
+  }
+  
+  .btn {
+      color: white !important;
+  }
+
+ .reBtn {
+     margin-left:10px;
+ }
+
+
+
+</style>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 d-flex justify-content-center title">
+        <p>CS3305 - TEAM SOFTWARE PROJECT</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 d-flex justify-content-center title">
+        <h2>Team 8 - Musical Pairs Experiment</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 d-flex justify-content-center title par" style="text-align:center">
+        Musical Pairs Experiment is a software used to create experiments for psychology, 
+            neuroscience, and experimental economics. It is also for those interested 
+            in helping out with research by doing said experiments.<br><br>Click on the Login button
+            below to sign in, or if you do not yet have an account, click on the Register
+            button and sign up as a researcher or experimentee.
+    </div>
+</div><br><br>
+<div class="row mainButtons">
+    <div class="col-md-4"></div>
+    <div class="col-md-2 d-flex justify-content-center title">
+        <button class="btn mainBtn" onclick="change()">Register &nbsp;<i class="fa-solid fa-caret-down"></i></button>
+    </div>
+    <div class="col-md-2 d-flex justify-content-center title logCol">
+        <a href="{% url 'login' %}"><button class="btn loginBtn mainBtn">Login &nbsp;<i class="fa-solid fa-arrow-right"></i></button></a>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-2 d-flex justify-content-center title expCol hidden" id="butt1">
+            <a href="{% url 'researcher_signup' %}" ><button class="btn reBtn" >Researcher &nbsp;<i class="fa-solid fa-arrow-right"></i></button></a>
+        </div>
+        <div class="col-md-2 title hidden" id="butt2">
+            <a href="{% url 'experimentee_signup' %}"><button class="btn expBtn">Experimentee  <i class="fa-solid fa-arrow-right"></i></button></a>
+        </div>
+    </div>
+<script>
+
+function change() {
+    $("#butt1").removeClass("hidden");
+    $("#butt2").removeClass("hidden");
+}
+    
+</script>
+
+<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
+
+{% endblock %}
