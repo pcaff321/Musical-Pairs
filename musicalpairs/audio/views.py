@@ -1,4 +1,5 @@
 ##from curses.ascii import HT
+import datetime
 from collections import UserDict
 import csv
 from email.mime import audio
@@ -30,6 +31,7 @@ import math
 import string
 from django.core.files.base import ContentFile
 import pandas as pd
+from datetime import datetime, date, timedelta
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
@@ -1290,6 +1292,22 @@ def viewExperiment_Researcher(request):
     else:
         experiment_id = request.GET.get('id')
         experiment = Experiment.objects.filter(id=experiment_id)
+        today = datetime.now().date()
+        d1 = today - timedelta(1)
+        d2 = today - timedelta(2)
+        d3 = today - timedelta(3)
+        d4 = today - timedelta(4)
+        d5 = today - timedelta(5)
+        d6 = today - timedelta(6)
+        t = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=today).count()
+        d1 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d1).count()
+        d2 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d2).count()
+        d3 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d3).count()
+        d4 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d4).count()
+        d5 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d5).count()
+        d6 = UserUniqueExperiment.objects.filter(experiment__in=experiment, created_at__contains=d6).count()
+        uniquevists = [t, d1, d2, d3, d4, d5, d6]
+        uv = json.dumps(uniquevists)
         if not experiment.exists():
             return HttpResponse("ID not recognised")
         form = PublishForm2(initial={'experiment':experiment})
@@ -1321,7 +1339,8 @@ def viewExperiment_Researcher(request):
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
             'pages_list': getExperimentQuestionInfo(experiment),
-            "experimentList": pagesList
+            "experimentList": pagesList,
+            "uv": uv
         }
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
@@ -1450,7 +1469,16 @@ def deleteExperiment(request):
     experiment.delete()
     return redirect('listExperiments')
 
-
+def deleteAudio(request):
+    audio_id = request.GET.get('id')
+    audio = Audio_store.objects.filter(id=audio_id)
+    if not audio.exists():
+        return HttpResponse("ID not recognised")
+    audio = audio[0]
+    if request.user != audio.user_source:
+        return HttpResponse("You do not have permission to delete this experiment")
+    audio.delete()
+    return redirect('showAudios')
 
 def makeCSVforSurveyRound(survey_round):
     header = ['USER ID']
