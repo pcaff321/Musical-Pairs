@@ -181,6 +181,8 @@ img {
   margin-bottom: 15px;
   border: 1px solid darkgray;
   text-align: left;
+  min-width: 190px;
+
 }
 
 .box p {
@@ -230,6 +232,7 @@ canvas{
   padding:15px;
   margin-bottom: 20px;
 }
+
 
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -283,7 +286,7 @@ canvas{
                   <h3 style="text-align:center">SURVEY ROUND</h3>
                   <br>
                   {% for question in page.questionList %}
-                    <p style="word-wrap: break-word;max-width: 350px;"><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
+                    <p><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
                     <p><b>Answer Type:</b>  {{ question.questionType }}</p>
                     <hr>
                   {% endfor %}
@@ -432,8 +435,7 @@ canvas{
         {% endfor %}
       </div>
     </div>
-  </div>
-</div>
+
 
 
   <div id="publish" class="tabcontent tabcontent1">
@@ -526,7 +528,7 @@ canvas{
 
 
 <div class="tabcontent tabcontent1" id="prevUpdates">
-        {% if update_exists %}
+    {% if update_exists %}
     <table class="table table-md">
       <thead>
         <tr class="dflex">
@@ -608,7 +610,6 @@ canvas{
 </div>
 </div>
 
-    
 <script>
   var mylist = JSON.parse("{{uv}}");
 </script>
