@@ -9,20 +9,25 @@
     margin-top:150px;
   }
 
+  .headingRow{
+    padding-top: 30px;
+    color: black;
+  }
+
   .heading {
     margin-top:50px;
   }
 </style>
 
 <div class="tabcontent tabcontent1" id="prevUpdates">
+  <div class="row headingRow">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 d-flex justify-content-center">
+      <h1>Experiment Updates </h1>
+    </div>
+  </div>
     {% if update_exists %}
 
-<div class="row">
-  <div class="col-md-2"></div>
-  <div class="col-md-8 d-flex justify-content-center heading">
-    <h2>Experiment Updates </h2>
-  </div>
-</div>
 <div class="row heading">
   <div class="col-md-1"></div>
     <div class="col-md-10">
