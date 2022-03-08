@@ -537,35 +537,36 @@ def fakeAnswersForSurvey(user, survey, experiment, inputAnswers=None):
 
 def fakeAnswersForAudio(user, audioRound, experiment, words):
     global fakeAudio
-    word1 = words.pop()
-    word2 = words.pop()
-    pair = Pair(audio1=word1, audio2=word2)
-    pair.save()
     wordRoundInstance = UserWordRound(experiment=experiment, audio_ref=fakeAudio, for_user=user, associated_audio_round=audioRound)
     wordRoundInstance.save()
-    prime = audioRound.prime
-    placebo = False
-    roundPrime = prime
-    if prime == 'K':
-        if random.random() <= 0.8:  # 20% chance placebo is used
-            roundPrime = 'J'
-    if roundPrime == 'K':
-        placebo = True
+    for i in range(int(audioRound.pairs)):
+        word1 = words.pop()
+        word2 = words.pop()
+        pair = Pair(audio1=word1, audio2=word2)
+        pair.save()
+        prime = audioRound.prime
+        placebo = False
+        roundPrime = prime
+        if prime == 'K':
+            if random.random() <= 0.8:  # 20% chance placebo is used
+                roundPrime = 'J'
+        if roundPrime == 'K':
+            placebo = True
 
-    userPairGuess = UserPairGuess(pair=pair, audio_ref=fakeAudio, associated_word_round=wordRoundInstance, placebo_added=placebo, prime=roundPrime)
-    if placebo:
-        if (random.randint(1, 10) <= 8):
-            userPairGuess.answer = word2.word
-    else:
-        if (random.randint(1, 10) <= 6):
-            userPairGuess.answer = word2.word
-    if (random.randint(1, 10) <= 2):
-            userPairGuess.answer = "NO_IDEA"
-    if (random.randint(1, 10) <= 1):
-            userPairGuess.answer = "WAS_DISTURBED"
-    if (random.randint(1, 10) <= 1):
-            userPairGuess.answer = "NOT_ANSWERED"
-    userPairGuess.save()
+        userPairGuess = UserPairGuess(pair=pair, audio_ref=fakeAudio, associated_word_round=wordRoundInstance, placebo_added=placebo, prime=roundPrime)
+        if placebo:
+            if (random.randint(1, 10) <= 8):
+                userPairGuess.answer = word2.word
+        else:
+            if (random.randint(1, 10) <= 6):
+                userPairGuess.answer = word2.word
+        if (random.randint(1, 10) <= 2):
+                userPairGuess.answer = "NO_IDEA"
+        if (random.randint(1, 10) <= 1):
+                userPairGuess.answer = "WAS_DISTURBED"
+        if (random.randint(1, 10) <= 1):
+                userPairGuess.answer = "NOT_ANSWERED"
+        userPairGuess.save()
 
 
 def fakeAnswersForExperiment(experiment, amount_of_users):
