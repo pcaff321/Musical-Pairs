@@ -36,7 +36,7 @@ from datetime import datetime, date, timedelta
 from operator import attrgetter
 
 
-from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
+from .makeFakeModels import create_Fake_Models, makeInkBlotTest, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
 
 try:
@@ -45,6 +45,7 @@ try:
     makePietroWords()
     makeMumbleWords()
     replicateMusicalPairs()
+    makeInkBlotTest()
 except:
     print("DB not migrated yet")
 

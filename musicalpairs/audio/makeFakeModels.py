@@ -1,6 +1,6 @@
 import random
 from typing import Text
-from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
+from .processRoundData import createAudioRound, createImageRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
 from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserUniqueExperiment, UserWordRound, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
@@ -47,16 +47,17 @@ def getWordBundle(user):
         userBundle.save()
     return userBundle
 
-def makeExperiment(roundList):
+def makeExperiment(roundList, experimentName="Musical Pairs"):
     global g_experiment
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
-    experiment = Experiment.objects.filter(user_source=user, title="Musical Pairs")
+    experiment = Experiment.objects.filter(user_source=user, title=experimentName)
     if experiment.exists() and (len(Page.objects.filter(experiment=experiment[0])) > 20):
         print("Experiment Exists")
-        fakeAnswersForExperiment(experiment[0], 30)
+        if experimentName == "Musical Pairs":
+            fakeAnswersForExperiment(experiment[0], 30)
         return
     else:
-        experiment = Experiment(user_source=user, title="Musical Pairs", public=True)
+        experiment = Experiment(user_source=user, title=experimentName, public=True)
         experiment.save()
     pageNum = 1
     for data in roundList:
@@ -93,6 +94,22 @@ def makeExperiment(roundList):
             text = data['text']
             round = createTextRound(title, text, experiment, user)
 
+        elif data['roundType'] == "image":
+                    image = data['image']
+                    name = data['name']
+                    questionText = data['questionText']
+                    questionType = data['questionType']
+                    if questionType == "input":
+                        questionType = 1
+                    elif questionType == "slider":
+                        questionType = 2
+                    elif questionType == "yesOrNo":
+                        questionType = 3
+                    elif questionType == "Agree":
+                        questionType = 4
+
+                    round = createImageRound(image, experiment, user, questionText, questionType, name)
+
 
         if round is not None:
             new_page = createPage(experiment, pageNum, round, user)
@@ -101,6 +118,72 @@ def makeExperiment(roundList):
             print("round none")
 
     fakeAnswersForExperiment(experiment, 30)
+
+def makeInkBlotTest():
+    user = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    print("aofea", os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png"))
+    """    inkBlot1 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png"), "r")
+    inkBlot2 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot2.png"), "r")
+    inkBlot3 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot3.png"), "r")
+    inkBlot4 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot4.png"), "r") """
+    inkBlot1 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png")
+    inkBlot2 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot2.png")
+    inkBlot3 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot3.png")
+    inkBlot4 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot4.png")
+    roundList = list()
+    # Round 1
+    data = {
+        "roundType": "text",
+        "title": "Welcome To The Rorschach Test",
+        "text": "Thank you for choosing to take this experiment"
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "text",
+        "title": "Instructions",
+        "text": "You will see a set of images in the following pages and then asked what image you thought of. Simply answer with the first answer that comes into your head."
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "image",
+        "image": inkBlot1,
+        "name": "Ink Blot 1",
+        "questionText": "What did you think of?",
+        "questionType": "input",
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "image",
+        "image": inkBlot2,
+        "name": "Ink Blot 2",
+        "questionText": "What did you think of?",
+        "questionType": "input",
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "image",
+        "image": inkBlot3,
+        "name": "Ink Blot 3",
+        "questionText": "What did you think of?",
+        "questionType": "input",
+    }
+    roundList.append(data)
+
+    data = {
+        "roundType": "image",
+        "image": inkBlot4,
+        "name": "Ink Blot 4",
+        "questionText": "What did you think of?",
+        "questionType": "input",
+    }
+    roundList.append(data)
+
+    makeExperiment(roundList, "The Rorschach Test")
+
 
 
 def replicateMusicalPairs():
