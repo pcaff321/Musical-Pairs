@@ -346,7 +346,7 @@ export default function Survey(props) {
                                     {roomData.round_list[i][1]}
                                 </h1>
                                 {question}
-                            </FormControl><br><br><br></br></br></br>
+                            </FormControl>
                             <Grid item xs={12} align="center">
                                 <Button id="submit" color="primary" variant="contained">
                                     Submit
