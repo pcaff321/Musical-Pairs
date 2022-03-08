@@ -67,16 +67,23 @@
   margin-left:-30px;
 }
 
+audio {
+  filter: sepia(20%) saturate(70%) grayscale(1) contrast(99%) invert(12%);
+  width: 240px;
+  height: 40px;
+}
 
     
+
 button {
-    margin:10px;
-    background-color: dimgray !important;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  background-color: #4f5d75 !important;
     border: none !important;
     font-size: 20px !important;
     color: white !important;
     border-radius:5px;
-    margin-top: -20px !important;
   }
 
 
@@ -106,6 +113,9 @@ button {
     <a href="{% url 'uploadAudio' %}"><button class="btn mainBtn">Add Words</button></a>
 </div>
 {% else %}
+<div class="row">
+<div class="col-md-3"></div>
+<div class="col-md-6">
 <table class="table table-sm ">
   <thead>
     <tr>
@@ -131,6 +141,8 @@ button {
 
   </tbody>
 </table>
+</div>
+</div>
 {% endif %}
 
 {% endblock %}
