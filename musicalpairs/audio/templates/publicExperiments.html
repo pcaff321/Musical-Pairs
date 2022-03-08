@@ -47,6 +47,12 @@
   display:block;
 }
 
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+}
+
 .table {
   margin-top : 30px;
 
@@ -94,6 +100,7 @@ button {
 
 
 
+
 <div class="row headingRow">
   <div class="col-md-4"></div>
   <div class="col-md-4 d-flex justify-content-center heading">
@@ -103,32 +110,48 @@ button {
 
 {% if no_exp %}
 <br><br><br>
-<div class="col-md-12 d-flex justify-content-center rowHeading">
-<h2> There are no public experiments </h2></div><br><br><br>
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <h2> There are no public experiments </h2></div><br><br><br>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-center rowHeading">
+    <a href="{% url 'createExperiment' %}"><button class="btn mainBtn">Create Experiment</button></a>
+  </div>
+</div>
 {% else %}
-<table class="table table-sm ">
-  <thead>
-    <tr>
-      <th scope="col">Experiment #</th>
-      <th scope="col">Experiment Title</th>
-      <th scope="col">Participants</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for instance in object_list %}
 
-    <tr>
-    <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ instance.title }}</td>
-      <td>{{ instance.participants }}</td>
-      <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Visit Dashboard</button></a></td>
-    </tr>
-    {% endfor %}
+<div class="row headingRow">
+  <div class="col-md-3"></div>
+  <div class="col-md-6 d-flex justify-content-center heading">
 
-  </tbody>
-</table>
+
+    <table class="table table-sm ">
+      <thead>
+        <tr>
+          <th scope="col">Experiment #</th>
+          <th scope="col">Experiment Title</th>
+          <th scope="col">Participants</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for instance in object_list %}
+    
+        <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ instance.title }}</td>
+          <td>{{ instance.participants }}</td>
+          <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Visit Dashboard</button></a></td>
+        </tr>
+        {% endfor %}
+    
+      </tbody>
+    </table>
+</div></div>
 {% endif %}
+
 
 {% endblock %}
 
