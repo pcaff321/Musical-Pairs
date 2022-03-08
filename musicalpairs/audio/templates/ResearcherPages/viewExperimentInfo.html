@@ -62,6 +62,7 @@
 
     #copyBtn {
         margin-left: 10px;
+        margin-right:-1px;
     }
     
     .customBtn {
@@ -149,10 +150,21 @@
 }
 
 #feedbackmessage {
-    text-align: center;
-    padding: 150px;
-    font-size: 20px;
+  margin-top: 180px;
+  margin-bottom: 200px;
+  text-align: center;
+  font-size: 20px;
 }
+
+#feedbackContainer {
+  margin:100px;
+  position:center;
+}
+
+#feedbackContainer img {
+  margin-top:-50px;
+}
+
 
 #errorMessage {
     text-align: center;
@@ -233,6 +245,12 @@ canvas{
   margin-bottom: 20px;
 }
 
+#inviteLink {
+  margin-left:10px;
+  color: #2d3142;
+  
+}
+
 
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -246,8 +264,9 @@ canvas{
 </div>
 <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-2">
-        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Invite Link</button>
+    <div class="col-md-4">
+        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Link</button>
+        <a id="inviteLink" href="http://{{ request.get_host }}{% url 'experimentLoad' %}?id={{ id }}"><u>Experiment Invite Link</u></a>
     </div>
 </div>
 <div class="row tabRow">
@@ -267,6 +286,10 @@ canvas{
         </div>
     </div>
 </div>
+
+<script>
+
+</script>
 
 <div class="row contentRow">
 <div class="col-md-1"></div>
@@ -460,7 +483,7 @@ canvas{
             </div>
           </div>
         </form>
-        <p id="feedbackmessage" class="hidden"></p>
+        <div id="feedbackmessage" class="hidden"><div id="feedbackContainer"><img id="loading-image" src="{% static 'loading.gif' %}"></img></div></div>
         <p id="errorMessage"></p>
 
       </div>
@@ -470,6 +493,10 @@ canvas{
             var message = document.getElementById("feedbackmessage")
             var errorMessage = document.getElementById("errorMessage")
             $("#publishForm").submit(function(event) {
+              $("#errorMessage").addClass("hidden");
+              $("#publishForm").addClass("hidden");
+              $("#feedbackmessage").removeClass("hidden");
+                $('#loading-image').show();
                 event.preventDefault();
                 var exp_id = document.getElementById("experiment_id")
                 exp_id.value = {{ id }}
@@ -479,12 +506,10 @@ canvas{
                     url: "{% url 'viewExperiment_Researcher' %}",
                     data: $(this).serialize(),
                     success: function(data) {
+                      $('#loading-image').hide();
+
                         if(data['success']) {
                             message.innerText = "Success! your email has been sent out."
-                            $("#errorMessage").addClass("hidden");
-                            $("#publishForm").addClass("hidden");
-                            $("#feedbackmessage").removeClass("hidden");
-
                         }
                         if(data['oops']) {
                             $("#errorMessage").removeClass("hidden");
