@@ -207,7 +207,7 @@ img {
 <div class="row row1">
     <div class="col-md-2"></div>
         <div class="col-md-8 d-flex justify-content-center heading">
-        <h1>Tutorial</h1>
+        <h1>Rounds Explained</h1>
     </div>
 </div>
 <div class="row tabRow">
@@ -215,8 +215,7 @@ img {
     <div class="col-md-10 d-flex justify-content-center heading">
 
         <div class="tab">
-            <button class="tablinks tablinks1 active" onclick="openTab(event, 'intro')">Intro</button>
-            <button class="tablinks tablinks1" onclick="openTab(event, 'textinfo')">Text</button>
+            <button class="tablinks tablinks1 active" onclick="openTab(event, 'textinfo')">Text</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'audios')">Audio</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'image')">Image</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'survey')">Survey</button>
@@ -345,7 +344,7 @@ When creating an audio round, default audios or the user's audios can be specifi
       evt.currentTarget.className += " active";
     }
 
-  document.onload = document.getElementById('intro').style.display = "block";
+  document.onload = document.getElementById('textinfo').style.display = "block";
 
   function displayFirstRound_lol(){
         {% for page in pages_list %}
