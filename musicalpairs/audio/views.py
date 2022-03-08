@@ -1542,12 +1542,14 @@ def viewUpdates(request):
                 updates = ExperimentUpdate.objects.filter(experiment=exp)
             else:
                 updates = updates | ExperimentUpdate.objects.filter(experiment=exp)
-    updates = updates.order_by('-dateSent')
-    updates_exist = False
-    if len(updates) > 0:
+    if updates:
         updates_exist = True
+        updates = updates.order_by('-dateSent')
+
     else:
         updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
+        updates_exist = False
+
     
     context = {
         "updates": updates,

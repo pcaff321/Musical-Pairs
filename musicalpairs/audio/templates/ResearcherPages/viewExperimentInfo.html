@@ -527,26 +527,27 @@ canvas{
 
 <div class="tabcontent tabcontent1" id="prevUpdates">
     {% if update_exists %}
-    <table class="table table-md">
-      <thead>
-        <tr class="dflex">
-          <th scope="col" class="col-4">Date</th>
-          <th scope="col" class="col-3">Subject</th>
-          <th scope="col" class="col-8">Body</th>
-        </tr>
-      </thead>
-      <tbody>
 
-        {% for u in updates %}
-        <tr class="dflex">
-          <td>{{ u.dateSent }}</td>
-          <td>{{ u.subject }}</td>
-          <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
-        </tr id="content">
-        {% endfor %}
-    
-      </tbody>
-    </table>
+      <table class="table table-md">
+        <thead>
+          <tr class="dflex">
+            <th scope="col" class="col-4">Date</th>
+            <th scope="col" class="col-3">Subject</th>
+            <th scope="col" class="col-8">Body</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for u in updates %}
+          <tr class="dflex">
+            <td>{{ u.dateSent }}</td>
+            <td>{{ u.subject }}</td>
+            <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
+          </tr id="content">
+          {% endfor %}
+      
+        </tbody>
+      </table>
     {% else %}
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
       <h2> No updates have been made yet </h2>

@@ -4,33 +4,57 @@
 {% load static %}
 {% block content %}
 
+<style>
+  .rowHeading {
+    margin-top:150px;
+  }
+
+  .heading {
+    margin-top:50px;
+  }
+</style>
+
 <div class="tabcontent tabcontent1" id="prevUpdates">
     {% if update_exists %}
-<table class="table table-md">
-  <thead>
-    <tr class="dflex">
-      <th scope="col" class="col-4">Date</th>
-      <th scope="col" class="col-3">Subject</th>
-      <th scope="col" class="col-8">Body</th>
-    </tr>
-  </thead>
-  <tbody>
 
-    {% for u in updates %}
-    <tr class="dflex">
-      <td>{{ u.dateSent }}</td>
-      <td>{{ u.subject }}</td>
-      <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
-    </tr id="content">
-    {% endfor %}
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8 d-flex justify-content-center heading">
+    <h2>Experiment Updates </h2>
+  </div>
+</div>
+<div class="row heading">
+  <div class="col-md-1"></div>
+    <div class="col-md-10">
+      <table class="table table-md">
+        <thead>
+          <tr class="dflex">
+            <th scope="col" class="col-4">Date</th>
+            <th scope="col" class="col-4">Experiment</th>
+            <th scope="col" class="col-3">Subject</th>
+            <th scope="col" class="col-6">Body</th>
+          </tr>
+        </thead>
+        <tbody>
 
-  </tbody>
-</table>
-{% else %}
-<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
-  <h2> No updates have been made yet </h2>
-</div>
-{% endif %}
-</div>
+          {% for u in updates %}
+          <tr class="dflex">
+            <td>{{ u.dateSent }}</td>
+            <td>{{ u.experiment.title }}</td>
+            <td>{{ u.subject }}</td>
+            <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
+          </tr id="content">
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+        {% else %}
+          <div class="col-md-12 d-flex justify-content-center rowHeading">
+            <h2> No updates have been made yet </h2>
+          </div>
+        {% endif %}
+    </div>
 
 {% endblock %}

@@ -43,6 +43,7 @@
   display: none;
   padding: 6px 12px;
   border-top: none;
+  margin-top: 30px;
 }
 
 .tabcontent.active {
@@ -67,6 +68,11 @@
 .total {
   margin-top:30px;
   margin-left:-30px;
+}
+
+#im {
+  max-width:30%;
+  min-width:30%;
 }
 
 
@@ -135,8 +141,8 @@
             </div>
           {% elif instance.type == "image" %}
             <div class="row">
-              <div class="col-md-12 d-flex justify-content-center total">
-                <img src="{{instance.url}}"></img>
+              <div class="col-md-12 d-flex justify-content-center">
+                <img id="im"src="{{instance.url}}"></img>
               </div>
             </div>
             <div class="row">

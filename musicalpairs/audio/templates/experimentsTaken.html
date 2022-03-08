@@ -104,11 +104,16 @@ button {
 
     {% if no_exp %}
     <br><br><br>
+    <div class="row">
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
     <h2> You have not taken any experiments </h2></div><br><br><br>
-    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
-        <a href="{% url 'publicExperiments' %}"><button class="btn mainBtn">Visit Public Experiments</button></a>
     </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+      <a href="{% url 'publicExperiments' %}"><button class="btn mainBtn">Visit Public Experiments</button></a>
+    </div>
+  </div>
     {% else %}
     <table class="table table-sm ">
       <thead>
@@ -129,10 +134,10 @@ button {
               <td>{{ i.created_at }}</td>
             {% else %}
               <td >{{ i.title }}</td>
+              <td><a href="{% url 'viewUpdates' %}?id={{ i.id }}"><button>View Updates</button></a></td>
+              <td><a href="{% url 'showResults' %}?id={{ i.id }}"><button>View Your Results</button></a></td>
             {% endif %}
           {% endfor %}
-          <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ i.id }}"><button>View Updates</button></a></td>
-              <td><a href="{% url 'showResults' %}?id={{ i.id }}"><button>View Your Results</button></a></td>
         </tr>
         {% endfor %}
 
