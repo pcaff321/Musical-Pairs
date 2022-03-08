@@ -38,7 +38,7 @@ from operator import attrgetter
 
 from .makeFakeModels import create_Fake_Models, makeInkBlotTest, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
-""" 
+
 try:
     print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
@@ -47,14 +47,7 @@ try:
     replicateMusicalPairs()
     makeInkBlotTest()
 except:
-    print("DB not migrated yet") """
-
-print("CALLING CREATE FAKE MODELS")
-create_Fake_Models()
-makePietroWords()
-makeMumbleWords()
-replicateMusicalPairs()
-makeInkBlotTest()
+    print("DB not migrated yet")
 
 
 from django.template.defaulttags import register
