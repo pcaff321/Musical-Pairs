@@ -62,6 +62,7 @@
 
     #copyBtn {
         margin-left: 10px;
+        margin-right:-1px;
     }
     
     .customBtn {
@@ -149,11 +150,21 @@
 }
 
 #feedbackmessage {
-    text-align: center;
-    padding: 150px;
-    font-size: 20px;
-    color: green;
+  margin-top: 180px;
+  margin-bottom: 200px;
+  text-align: center;
+  font-size: 20px;
 }
+
+#feedbackContainer {
+  margin:100px;
+  position:center;
+}
+
+#feedbackContainer img {
+  margin-top:-50px;
+}
+
 
 #errorMessage {
     text-align: center;
@@ -182,6 +193,8 @@ img {
   margin-bottom: 15px;
   border: 1px solid darkgray;
   text-align: left;
+  min-width: 190px;
+
 }
 
 .box p {
@@ -200,6 +213,45 @@ img {
   margin-bottom:10px;
 }
 
+.qRoundHeading {
+  margin-top:20px;
+  margin-bottom: 20px;
+
+}
+
+
+canvas{
+  width:500px !important;
+  height:300px !important;
+
+}
+
+.questionText {
+  font-size: 23px;
+}
+
+#graph {
+  margin-bottom: 30px;
+}
+
+.partTotal {
+  font-size:22px;
+}
+
+
+.qImage {
+  min-width:65%;
+  padding:15px;
+  margin-bottom: 20px;
+}
+
+#inviteLink {
+  margin-left:10px;
+  color: #2d3142;
+  
+}
+
+
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -212,8 +264,9 @@ img {
 </div>
 <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-2">
-        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Invite Link</button>
+    <div class="col-md-4">
+        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Link</button>
+        <a id="inviteLink" href="http://{{ request.get_host }}{% url 'experimentLoad' %}?id={{ id }}"><u>Experiment Invite Link</u></a>
     </div>
 </div>
 <div class="row tabRow">
@@ -223,14 +276,20 @@ img {
         <div class="tab">
             <button class="tablinks tablinks1 active" onclick="openTab(event, 'summary')">Summary</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'graph')">Participation</button>
+            {% if audio_rounds %}
             <button class="tablinks tablinks1" onclick="openTab(event, 'stats')">Stats</button>
+            {% endif %}
             <button class="tablinks tablinks1" onclick="openTab(event, 'questions')">Questions</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'publish')">Update Subscribers</button>
             <button class="tablinks tablinks1" onclick="openTab(event, 'prevUpdates')">Previous Updates</button>
-            <a href="{% url 'downloadData' %}?id={{ id }}"><button class="tablinks tablinks1">Download All Data</button></a>
+            <a href="{% url 'downloadData' %}?id={{ id }}" target="_blank"><button class="tablinks tablinks1">Download All Data</button></a>
         </div>
     </div>
 </div>
+
+<script>
+
+</script>
 
 <div class="row contentRow">
 <div class="col-md-1"></div>
@@ -244,24 +303,23 @@ img {
       <div class="col-sm-12">
           <div class="container row" id="roundContainer">
             {% for page in experimentList %}
-            <div class="box col-sm-3">
-
-            {% if page.pageType == "survey" %}
-            <div class="pageNum">{{forloop.counter}}</div>
-            <h3 style="text-align:center">SURVEY ROUND</h3>
-            <br>
-              {% for question in page.questionList %}
-              <p><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
-              <p><b>Answer Type:</b>  {{ question.questionType }}</p>
-              <hr>
-              {% endfor %}
-            {% endif %}
+              <div class="box col-sm-3">
+                {% if page.pageType == "survey" %}
+                  <div class="pageNum">{{forloop.counter}}</div>
+                  <h3 style="text-align:center">SURVEY ROUND</h3>
+                  <br>
+                  {% for question in page.questionList %}
+                    <p><b>Question {{ forloop.counter }}:</b> {{ question.questionText }}</p>
+                    <p><b>Answer Type:</b>  {{ question.questionType }}</p>
+                    <hr>
+                  {% endfor %}
+                {% endif %}
         
             {% if page.pageType == "text" %}
             <div class="pageNum">{{forloop.counter}}</div>
             <h3 style="text-align:center">TEXT ROUND</h3>
             <br>
-            <p><b>Title:</b> {{ page.title }}</p>
+            <p style="word-wrap: break-word;max-width: 350px;"><b>Title:</b> {{ page.title }}</p>
             <p style="word-wrap: break-word;max-width: 350px;"><b>Text:</b><br>{{ page.text }}</p>
 
             {% endif %}
@@ -271,7 +329,7 @@ img {
 
             <h3 style="text-align:center">AUDIO ROUND</h3>
             <br>
-            <p><b>Prime:</b> {{ page.prime }}<p>
+            <p><b>Prime:</b> {{ page.prime }}</p>
         
             <p><b>Pair Amount:</b> {{ page.pairs }}</p>
             {% endif %}
@@ -282,7 +340,7 @@ img {
             <h3 style="text-align:center">IMAGE ROUND</h3>
             <br>
 
-            <p><b>Associated Question:</b><br>{{ page.questionText }}<p>
+            <p style="word-wrap: break-word;max-width: 350px;"><b>Associated Question:</b><br>{{ page.questionText }}</p>
               <br>
               <div style="text-align:center">
                 <img src="{{ page.url }}"></img>
@@ -294,79 +352,112 @@ img {
             {% endfor %}
     
         </div>
-      </div></div></div>
-
-    <div id="questions" class="tabcontent tabcontent1">
-      <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
-        <h2> Questions</h2>
       </div>
-      <div class="tab">
-        {% for page in pages_list %}
-        {% if page.num == 0 %}
-         <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-        {% else %}
-         <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
-        {% endif %}
-        {% endfor %}
     </div>
+  </div>
 
+<div id="questions" class="tabcontent tabcontent1">
+  <div class="row">
+    <div class="row tabRow">
+      <div class="col-md-1"></div>
+      <div class="col-md-10 d-flex justify-content-center heading">
+        <div class="tab">
+          {% for page in pages_list %}
+            {% if page.num == 0 %}
+              <button class="tablinks tablinks2 active" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+            {% else %}
+              <button class="tablinks tablinks2" onclick="openTab2(event, '{{ page.id }}')">{{ page.roundName }}</button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+      
     <div class="row contentRow">
       <div class="col-md-1"></div>
       <div class="col-md-10 d-flex justify-content-center heading">
-    {% for page in pages_list %}
-    <div id="{{ page.id }}" class="tabcontent tabcontent2">
-
-
-      {% if page.type == "image" %}
-      <h2> Image Round: {{ page.title }}</h2>
-      <img src="{{ page.url }}"></img>
-          {% if page.bar_chart %}
-        <div  height="40" width="40">
-            <canvas id="{{ page.id }}" ></canvas>
-        </div>
-        <br><br><br>
-        {% else %}
-        <h3> Question: {{ page.questionText }} </h3>
-        <h4> Answers: </h4>
-      <div style="overflow-y: scroll; height:400px;">
-        <ul class="list-group">
-          {% for answer in page.answers %}
-          <li class="list-group-item">{{ answer.answer }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-          {% endif %}
-      {% endif %}
-
-      {% if page.type == "survey" %}
-      <h2> Survey Round: </h2>
-      {% for question in page.surveyInfo.questions %}
-        <h3> {{ question.questionText }} </h3>
-        {% if question.bar_chart %}
-       <div  height="40" width="40">
-           <canvas id="{{ question.id }}" ></canvas>
-       </div>
-       <br><br><br>
-        {% else %}
-        <h4> Answers: </h4>
-        <div style="overflow-y: scroll; height:400px;">
-          <ul class="list-group">
-            {% for answer in question.answers %}
-            <li class="list-group-item">{{ answer.answer }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
+        {% for page in pages_list %}
+          <div id="{{ page.id }}" class="tabcontent tabcontent2">
+            {% if page.type == "image" %}
+              <div class="row qRoundHeading">
+                <div class="col-md-12 d-flex justify-content-center">
+                  <h2> Image Round: {{ page.title }}</h2>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 d-flex justify-content-center">
+                  <p class="questionText"> {{ page.questionText }}<br><br> </p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-1 d-flex justify-content-center"></div>
+                <div class="col-md-10 d-flex justify-content-center">
+                  <img class="qImage"src="{{ page.url }}"></img>
+                </div><br><br>
+              </div>
+              <div class="row">
+                <div class="col-md-12 d-flex justify-content-center">
+                  {% if page.bar_chart %}
+                    <div height="40" width="40">
+                      <canvas id="{{ page.Chart_id }}" ></canvas>
+                    </div>
+                  {% else %}
+                  <h3> Answers: </h3>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 d-flex justify-content-center">
+                  <div style="overflow-y: scroll; height:400px;">
+                    <ul class="list-group">
+                      {% for answer in page.answers %}
+                        <li class="list-group-item">{{ answer.answer }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>                  
+                </div>
+              </div><br>
+            {% endif %}
+   
+            {% elif page.type == "survey" %}
+              {% for question in page.surveyInfo.questions %}
+                <div class="row qRoundHeading">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    <h3> Question {{ forloop.counter}}: </h3>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    <p class="questionText"> {{ question.questionText }}<br><br> </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-center">
+                    {% if question.bar_chart %}
+                      <div height="40" width="40">
+                        <canvas id="{{ question.id }}"></canvas>
+                      </div>
+                      <br><br><br>
+                    {% else %}
+                      <div style="overflow-y: scroll; width:200px;height:400px;">
+                        <ul class="list-group">
+                          {% for answer in question.answers %}
+                            <li class="list-group-item">{{ answer.answer }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>   
+              {% endfor %}
+            {% endif %}
+          </div>
         {% endfor %}
-      {% endif %}
-
-
-      </div>
-      {% endfor %}
-
       </div>
     </div>
+  </div>
 </div>
+
+
 
   <div id="publish" class="tabcontent tabcontent1">
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
@@ -392,7 +483,7 @@ img {
             </div>
           </div>
         </form>
-        <p id="feedbackmessage" class="hidden"></p>
+        <div id="feedbackmessage" class="hidden"><div id="feedbackContainer"><img id="loading-image" src="{% static 'loading.gif' %}"></img></div></div>
         <p id="errorMessage"></p>
 
       </div>
@@ -402,6 +493,10 @@ img {
             var message = document.getElementById("feedbackmessage")
             var errorMessage = document.getElementById("errorMessage")
             $("#publishForm").submit(function(event) {
+              $("#errorMessage").addClass("hidden");
+              $("#publishForm").addClass("hidden");
+              $("#feedbackmessage").removeClass("hidden");
+                $('#loading-image').show();
                 event.preventDefault();
                 var exp_id = document.getElementById("experiment_id")
                 exp_id.value = {{ id }}
@@ -411,12 +506,10 @@ img {
                     url: "{% url 'viewExperiment_Researcher' %}",
                     data: $(this).serialize(),
                     success: function(data) {
+                      $('#loading-image').hide();
+
                         if(data['success']) {
                             message.innerText = "Success! your email has been sent out."
-                            $("#errorMessage").addClass("hidden");
-                            $("#publishForm").addClass("hidden");
-                            $("#feedbackmessage").removeClass("hidden");
-
                         }
                         if(data['oops']) {
                             $("#errorMessage").removeClass("hidden");
@@ -441,42 +534,45 @@ img {
     <h2> View The Overall Performance For Each Type Of Prime </h2>
   </div>
   {% for chart in chartsData %}
-  <div class="row chartRow">
-  <div class="col-md-12 d-flex justify-content-center">
-  <h2 class="chartTitle" style="text-align:center"> {{ chart.title }} </h2><br>
-  <div  height="40" width="40">
-      <canvas class="chart" id="{{ chart.title }}" ></canvas>
-  </div><br>
-  <h3 class="chartCorrect"> Overall Correct: {{ chart.percent }}% </h3>
-  <br><br><br>
-  </div>
-</div>
+    <div class="row chartRow">
+      <div class="col-md-3 d-flex justify-content-center"></div>
+        <div class="col-md-6 d-flex justify-content-center">
+
+        <div height="40" width="40">
+          <canvas class="chart" id="{{ chart.title }}" ></canvas>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <p class="chartCorrect questionText"><b>Overall Correct:</b> {{ chart.percent }}% </p>
+      </div>
+    </div>
   {% endfor %}
 </div>
 
 
 <div class="tabcontent tabcontent1" id="prevUpdates">
-        {% if update_exists %}
-    <table class="table table-md">
-      <thead>
-        <tr class="dflex">
-          <th scope="col" class="col-4">Date</th>
-          <th scope="col" class="col-3">Subject</th>
-          <th scope="col" class="col-8">Body</th>
-        </tr>
-      </thead>
-      <tbody>
+    {% if update_exists %}
 
-        {% for u in updates %}
-        <tr class="dflex">
-          <td>{{ u.dateSent }}</td>
-          <td>{{ u.subject }}</td>
-          <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
-        </tr id="content">
-        {% endfor %}
-    
-      </tbody>
-    </table>
+      <table class="table table-md">
+        <thead>
+          <tr class="dflex">
+            <th scope="col" class="col-4">Date</th>
+            <th scope="col" class="col-3">Subject</th>
+            <th scope="col" class="col-8">Body</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for u in updates %}
+          <tr class="dflex">
+            <td>{{ u.dateSent }}</td>
+            <td>{{ u.subject }}</td>
+            <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
+          </tr id="content">
+          {% endfor %}
+      
+        </tbody>
+      </table>
     {% else %}
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
       <h2> No updates have been made yet </h2>
@@ -513,163 +609,28 @@ img {
     <!-- Custom styles for this template -->
     <link href="{% static 'assets/css/dashboard.css' %}" rel="stylesheet">
   </head>
-  <body>
     
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 tabcontent tabcontent1" id="graph"  style="text-align:center;">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h2> Participation</h2>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar"></span>
-            This week
-          </button>
+    <main class="tabcontent tabcontent1" id="graph"  style="text-align:center;">
+      <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+        <h2> Participation</h2>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12 text-left partTotal">
+          Total Participants: {{ participant_count }}<br>
+          Total Subscribers: {{ subscriber_count }}<br><br>
         </div>
       </div>
-
-      <h3> Total Participants: {{ participant_count }}</h3>
-      <h3> Total Subscribers: {{ subscriber_count }} </h3><br><br><hr>
-      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
-
-      <h2>Section title</h2>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1,001</td>
-              <td>random</td>
-              <td>data</td>
-              <td>placeholder</td>
-              <td>text</td>
-            </tr>
-            <tr>
-              <td>1,002</td>
-              <td>placeholder</td>
-              <td>irrelevant</td>
-              <td>visual</td>
-              <td>layout</td>
-            </tr>
-            <tr>
-              <td>1,003</td>
-              <td>data</td>
-              <td>rich</td>
-              <td>dashboard</td>
-              <td>tabular</td>
-            </tr>
-            <tr>
-              <td>1,003</td>
-              <td>information</td>
-              <td>placeholder</td>
-              <td>illustrative</td>
-              <td>data</td>
-            </tr>
-            <tr>
-              <td>1,004</td>
-              <td>text</td>
-              <td>random</td>
-              <td>layout</td>
-              <td>dashboard</td>
-            </tr>
-            <tr>
-              <td>1,005</td>
-              <td>dashboard</td>
-              <td>irrelevant</td>
-              <td>text</td>
-              <td>placeholder</td>
-            </tr>
-            <tr>
-              <td>1,006</td>
-              <td>dashboard</td>
-              <td>illustrative</td>
-              <td>rich</td>
-              <td>data</td>
-            </tr>
-            <tr>
-              <td>1,007</td>
-              <td>placeholder</td>
-              <td>tabular</td>
-              <td>information</td>
-              <td>irrelevant</td>
-            </tr>
-            <tr>
-              <td>1,008</td>
-              <td>random</td>
-              <td>data</td>
-              <td>placeholder</td>
-              <td>text</td>
-            </tr>
-            <tr>
-              <td>1,009</td>
-              <td>placeholder</td>
-              <td>irrelevant</td>
-              <td>visual</td>
-              <td>layout</td>
-            </tr>
-            <tr>
-              <td>1,010</td>
-              <td>data</td>
-              <td>rich</td>
-              <td>dashboard</td>
-              <td>tabular</td>
-            </tr>
-            <tr>
-              <td>1,011</td>
-              <td>information</td>
-              <td>placeholder</td>
-              <td>illustrative</td>
-              <td>data</td>
-            </tr>
-            <tr>
-              <td>1,012</td>
-              <td>text</td>
-              <td>placeholder</td>
-              <td>layout</td>
-              <td>dashboard</td>
-            </tr>
-            <tr>
-              <td>1,013</td>
-              <td>dashboard</td>
-              <td>irrelevant</td>
-              <td>text</td>
-              <td>visual</td>
-            </tr>
-            <tr>
-              <td>1,014</td>
-              <td>dashboard</td>
-              <td>illustrative</td>
-              <td>rich</td>
-              <td>data</td>
-            </tr>
-            <tr>
-              <td>1,015</td>
-              <td>random</td>
-              <td>tabular</td>
-              <td>information</td>
-              <td>text</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="row">
+        <div class="col-md-12 d-flex justify-content">
+          <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+        </div>
+      </div>      
     </main>
-  </div>
-</div>
 </div>
 </div>
 
-    
 <script>
   var mylist = JSON.parse("{{uv}}");
 </script>
@@ -799,183 +760,190 @@ function copy2Clip(){
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-
-{% for chart in chartsData %}
-labels = [];
-
-{% for label in chart.labels %}
-   labels.push('{{ label }}')
-{% endfor %}
-
-console.log(labels);
-data = {
-  labels: labels,
-  datasets: [{
-    label: "{{ chart.title }}",
-    data: {{ chart.data }},
-    backgroundColor: [
-      'rgba(255, 99, 132, 0.2)',
-      'rgba(255, 159, 64, 0.2)',
-      'rgba(255, 205, 86, 0.2)',
-      'rgba(75, 192, 192, 0.2)',
-      'rgba(54, 162, 235, 0.2)',
-      'rgba(153, 102, 255, 0.2)',
-      'rgba(201, 203, 207, 0.2)'
-    ],
-    borderColor: [
-      'rgb(255, 99, 132)',
-      'rgb(255, 159, 64)',
-      'rgb(255, 205, 86)',
-      'rgb(75, 192, 192)',
-      'rgb(54, 162, 235)',
-      'rgb(153, 102, 255)',
-      'rgb(201, 203, 207)'
-    ],
-    borderWidth: 1
-  }]
-};
-  
-    
-   config = {
-    type: 'bar',
-    data: data,
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    },
-  };
-     myChart = new Chart(
-        document.getElementById('{{ chart.title }}'),
-        config
-    );
-{% endfor %}
-  </script>
-
   <script>
 
-    {% for page in pages_list %}
-    {% if page.type == "image" %}
-    {% if page.bar_chart %}
-      {% for chart in page.bar_data %}
-      {% if question.questionType == "yesOrNo" %}
-            labels = ["Yes", "No"]
-           {% else %}
-            labels = {{ chart.labels }};
-            {% endif %}
-          data = {
-            labels: labels,
-            datasets: [{
-              label: "{{ chart.title }}",
-              data: {{ chart.data }},
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 205, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(201, 203, 207, 0.2)'
-              ],
-              borderColor: [
-                'rgb(255, 99, 132)',
-                'rgb(255, 159, 64)',
-                'rgb(255, 205, 86)',
-                'rgb(75, 192, 192)',
-                'rgb(54, 162, 235)',
-                'rgb(153, 102, 255)',
-                'rgb(201, 203, 207)'
-              ],
-              borderWidth: 1
-            }]
-          };
-  
-  
-          config = {
-            type: 'bar',
-            data: data,
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
+    {% for chart in chartsData %}
+    labels = [];
+    
+    {% for label in chart.labels %}
+       labels.push('{{ label }}')
+    {% endfor %}
+    
+    console.log(labels);
+    data = {
+      labels: labels,
+      datasets: [{
+        label: "{{ chart.title }}",
+        data: {{ chart.data }},
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(201, 203, 207, 0.2)'
+        ],
+        borderColor: [
+          'rgb(255, 99, 132)',
+          'rgb(255, 159, 64)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(54, 162, 235)',
+          'rgb(153, 102, 255)',
+          'rgb(201, 203, 207)'
+        ],
+        borderWidth: 1
+      }]
+    };
+      
+        
+       config = {
+        type: 'bar',
+        data: data,
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        },
+      };
+         myChart = new Chart(
+            document.getElementById('{{ chart.title }}'),
+            config
+        );
+    {% endfor %}
+      </script>
+    
+      <script>
+    
+        window.onload = makeAllCharts();
+    
+        function makeAllCharts() {
+        {% for page in pages_list %}
+        {% if page.type == "image" %}
+        {% if page.bar_chart %}
+        {% if page.questionType == "yesOrNo" %}
+        labels = ["Yes", "No"]
+        {% elif page.questionType == "Agree" %}
+        labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
+       {% else %}
+        labels = {{ page.bar_data.labels }};
+        {% endif %}
+        data = {
+          labels: labels,
+          datasets: [{
+            label: "{{ page.bar_data.title }}",
+            data: {{ page.bar_data.data }},
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(201, 203, 207, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
+              'rgb(75, 192, 192)',
+              'rgb(54, 162, 235)',
+              'rgb(153, 102, 255)',
+              'rgb(201, 203, 207)'
+            ],
+            borderWidth: 1
+          }]
+        };
+    
+    
+        config = {
+          type: 'bar',
+          data: data,
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
               }
-            },
-          };
-  
-          myChart = new Chart(
-                document.getElementById('{{ page.id }}'),
-                config
-            );
-      {% endfor %}
-      {% endif %}
-      {% endif %}
-      {% endfor %}
-  
-  
-      {% for page in pages_list %}
-      {% if page.type == "survey" %}
-      {% for question in page.surveyInfo.questions %}
-      {% if question.bar_chart %}
-            {% if question.questionType == "yesOrNo" %}
-            labels = ["Yes", "No"]
-           {% else %}
-            labels = {{ question.bar_data.labels }};
+            }
+          },
+        };
+    
+    
+        myChart = new Chart(
+              document.getElementById('{{ page.Chart_id }}'),
+              config
+          );
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+      
+      
+          {% for page in pages_list %}
+          {% if page.type == "survey" %}
+          {% for question in page.surveyInfo.questions %}
+          {% if question.bar_chart %}
+                {% if question.questionType == "yesOrNo" %}
+                labels = ["Yes", "No"]
+                {% elif question.questionType == "Agree" %}
+                labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
+               {% else %}
+                labels = {{ question.bar_data.labels }};
+                {% endif %}
+                data = {
+                  labels: labels,
+                  datasets: [{
+                    label: "{{ question.bar_data.title }}",
+                    data: {{ question.bar_data.data }},
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 0.2)',
+                      'rgba(255, 159, 64, 0.2)',
+                      'rgba(255, 205, 86, 0.2)',
+                      'rgba(75, 192, 192, 0.2)',
+                      'rgba(54, 162, 235, 0.2)',
+                      'rgba(153, 102, 255, 0.2)',
+                      'rgba(201, 203, 207, 0.2)'
+                    ],
+                    borderColor: [
+                      'rgb(255, 99, 132)',
+                      'rgb(255, 159, 64)',
+                      'rgb(255, 205, 86)',
+                      'rgb(75, 192, 192)',
+                      'rgb(54, 162, 235)',
+                      'rgb(153, 102, 255)',
+                      'rgb(201, 203, 207)'
+                    ],
+                    borderWidth: 1
+                  }]
+                };
+        
+        
+                config = {
+                  type: 'bar',
+                  data: data,
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  },
+                };
+        
+                myChart = new Chart(
+                      document.getElementById('{{ question.id }}'),
+                      config
+                  );
             {% endif %}
-            data = {
-              labels: labels,
-              datasets: [{
-                label: "{{ question.bar_data.title }}",
-                data: {{ question.bar_data.data }},
-                backgroundColor: [
-                  'rgba(255, 99, 132, 0.2)',
-                  'rgba(255, 159, 64, 0.2)',
-                  'rgba(255, 205, 86, 0.2)',
-                  'rgba(75, 192, 192, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  'rgba(153, 102, 255, 0.2)',
-                  'rgba(201, 203, 207, 0.2)'
-                ],
-                borderColor: [
-                  'rgb(255, 99, 132)',
-                  'rgb(255, 159, 64)',
-                  'rgb(255, 205, 86)',
-                  'rgb(75, 192, 192)',
-                  'rgb(54, 162, 235)',
-                  'rgb(153, 102, 255)',
-                  'rgb(201, 203, 207)'
-                ],
-                borderWidth: 1
-              }]
-            };
-    
-    
-            config = {
-              type: 'bar',
-              data: data,
-              options: {
-                scales: {
-                  y: {
-                    beginAtZero: true
-                  }
-                }
-              },
-            };
-    
-            myChart = new Chart(
-                  document.getElementById('{{ question.id }}'),
-                  config
-              );
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-        {% endfor %}
-    </script>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+              }
+        </script>
 
 
 {% endblock %}

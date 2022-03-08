@@ -1,0 +1,65 @@
+
+{% extends 'layout.html' %}
+
+{% load static %}
+{% block content %}
+
+<style>
+  .rowHeading {
+    margin-top:150px;
+  }
+
+  .headingRow{
+    padding-top: 30px;
+    color: black;
+  }
+
+  .heading {
+    margin-top:50px;
+  }
+</style>
+
+<div class="tabcontent tabcontent1" id="prevUpdates">
+  <div class="row headingRow">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 d-flex justify-content-center">
+      <h1>Experiment Updates </h1>
+    </div>
+  </div>
+    {% if update_exists %}
+
+<div class="row heading">
+  <div class="col-md-1"></div>
+    <div class="col-md-10">
+      <table class="table table-md">
+        <thead>
+          <tr class="dflex">
+            <th scope="col" class="col-4">Date</th>
+            <th scope="col" class="col-4">Experiment</th>
+            <th scope="col" class="col-3">Subject</th>
+            <th scope="col" class="col-6">Body</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for u in updates %}
+          <tr class="dflex">
+            <td>{{ u.dateSent }}</td>
+            <td>{{ u.experiment.title }}</td>
+            <td>{{ u.subject }}</td>
+            <td style="word-wrap: break-word;min-width: 700px;max-width: 700px;">{{ u.body }}</td>
+          </tr id="content">
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+        {% else %}
+          <div class="col-md-12 d-flex justify-content-center rowHeading">
+            <h2> No updates have been made yet </h2>
+          </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

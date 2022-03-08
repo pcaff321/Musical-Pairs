@@ -29,6 +29,11 @@
 {% block content %}
 
 <style>
+
+  .container .box {
+    cursor: move; 
+  }
+
   .row1 {
     padding-bottom: 10px;
     margin-bottom: 20px;
@@ -265,6 +270,8 @@ select{
   -webkit-appearance: listbox !important
   }
 
+
+
 </style>
 
 <div class="popUp">
@@ -307,7 +314,7 @@ select{
   <div class="col-md-5"></div>
   <div class="col-md-2 roundTypeCol d-flex justify-content-center">
   <select class="form-select"  name="roundType" id="roundType">
-     <option value="" disabled selected>Select Round Type</option>
+     <option value="" disabled selected>Round Type</option>
       <option value="text">Text Round</option>
       <option value="audio">Audio Round</option>
       <option value="image">Image Round</option>	
@@ -333,7 +340,7 @@ select{
 
 <script>
 
-  var items;
+  {% comment %} var items;
 
   document.addEventListener('DOMContentLoaded', (event) => {
     items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
@@ -348,7 +355,7 @@ select{
     });
 
     
-  });
+  }); {% endcomment %}
 
         
   function handleDragStart(e) {
@@ -403,9 +410,9 @@ select{
   function handleDragEnd(e) {
     this.style.opacity = '1';
   
-    items.forEach(function (item) {
-      item.classList.remove('over');
-    });
+    //items.forEach(function (item) {
+      //item.classList.remove('over');
+    //});
   }
   
   function handleDragOver(e) {
@@ -614,7 +621,7 @@ select{
     divEl.addEventListener('dragleave', handleDragLeave);
     divEl.addEventListener('dragend', handleDragEnd);
     divEl.addEventListener('drop', handleDrop);
-    items.push(divEl);
+    //items.push(divEl);
   }
 
   function hasClass(element, className) {
@@ -642,6 +649,7 @@ select{
 
     experimentString = delimiter + "$type=experiment$END" + "$experimentName=" + document.getElementById('experimentName').value + "$END"
 
+    let items = Array.prototype.slice.call(document.querySelectorAll('.container .box'));
     items.forEach((element, index) => {
 
       if (hasClass(element, 'audioRound')) {
@@ -787,7 +795,11 @@ select{
                   contentType: false
               }).done(function(data) {
                   console.log(data);
+                  if (data['okay'] == true){
                   location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
+                  }else{
+                    alert(data['error_msg'])
+                  }
               });
               }
 }

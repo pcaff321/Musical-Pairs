@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: #f1f1f1;
+  background-color: dimgray;
+  margin-left: 40px;
+  border-bottom: 1px solid dimgray;
+}
+
+/* Style the buttons inside the tab */
+.tablinks {
+  background-color: inherit;
+  float: left;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  border:none;
+  color: white;
+}
+
+
+
+/* Create an active/current tablink class */
+.tablinks.active {
+  background-color: white;
+  border: none;
+  color: dimgray;
+
+}
+
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border-top: none;
+}
+
+.tabcontent.active {
+  display:block;
+}
+
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+}
+
+.table {
+  margin-top : 30px;
+
+}
+
+.rowHeading {
+  margin-top:80px;
+}
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+}
+#tabInfo {
+  margin-top:50px;
+  margin-left:40px;
+}
+
+.total {
+  margin-top:30px;
+  margin-left:-30px;
+}
+
+
+    
+button {
+    margin:10px;
+    background-color: dimgray !important;
+    border: none !important;
+    font-size: 20px !important;
+    color: white !important;
+    border-radius:5px;
+    margin-top: -20px !important;
+  }
+
+
+  .mainBtn {
+    background-color: #4f5d75 !important;
+    padding:10px 30px !important
+  }
+
+
+
+</style>
+
+
+
+
+<div class="row headingRow">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h1>Public Experiments</h1>
+  </div>
+</div>
+
+{% if no_exp %}
+<br><br><br>
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <h2> There are no public experiments </h2></div><br><br><br>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-center rowHeading">
+    <a href="{% url 'createExperiment' %}"><button class="btn mainBtn">Create Experiment</button></a>
+  </div>
+</div>
+{% else %}
+
+<div class="row headingRow">
+  <div class="col-md-3"></div>
+  <div class="col-md-6 d-flex justify-content-center heading">
+
+
+    <table class="table table-sm ">
+      <thead>
+        <tr>
+          <th scope="col">Experiment #</th>
+          <th scope="col">Experiment Title</th>
+          <th scope="col">Participants</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for instance in object_list %}
+    
+        <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ instance.title }}</td>
+          <td>{{ instance.participants }}</td>
+          <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Visit Dashboard</button></a></td>
+        </tr>
+        {% endfor %}
+    
+      </tbody>
+    </table>
+</div></div>
+{% endif %}
+
+
+{% endblock %}
+
+

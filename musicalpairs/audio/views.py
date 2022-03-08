@@ -5,6 +5,7 @@ import csv
 from email.mime import audio
 import mimetypes
 from msvcrt import getch
+from matplotlib.pyplot import isinteractive
 from pydub import AudioSegment
 from msilib import datasizemask
 import os
@@ -32,8 +33,11 @@ import string
 from django.core.files.base import ContentFile
 import pandas as pd
 from datetime import datetime, date, timedelta
+from operator import attrgetter
+
 
 from .makeFakeModels import create_Fake_Models, makeMumbleWords, makePietroWords, replicateMusicalPairs
+
 
 try:
     print("CALLING CREATE FAKE MODELS")
@@ -168,35 +172,102 @@ def createPath(path):
         print("DOESN'T EXIST")
         os.makedirs(path)
 
+def getAnswersFromSurveyForUser(survey, user):
+    answerList = list()
+    questions = getQuestions(survey)
+
+    for question in questions:
+        surveyQuestion = SurveyQuestion.objects.filter(id=question['id'])[0]
+        answers = SurveyAnswer.objects.filter(surveyQuestion=surveyQuestion, user_source=user)
+        answerList = list()
+        for answer in answers:
+            question['answer'] = answer.answer
+            if question['questionType'] == "Agree":
+                answer = answer.answer
+                if int(answer) == 1:
+                    answer = "Strongly Disagree"
+                elif int(answer) == 2:
+                    answer = "Disagree"
+                elif int(answer) == 3:
+                    answer = "Indifferent"
+                elif int(answer) == 4:
+                    answer = "Agree"
+                elif int(answer) == 5:
+                    answer = "Strongly Agree"
+                question['answer'] = answer
+            
+
+    surveyInfo = {'survey': survey.id,
+             'questions': questions   
+    }
+
+    return surveyInfo
 
 def getResultsForUser(user, experiment):
     pages = Page.objects.filter(experiment=experiment).order_by('page_number')
     pages = list(pages)
     pagesList = list()
+    imageRounds = list()
+    surveyRounds = list()
     for page in pages:
         if isinstance(page.content_object, AudioRound):
             pagesList.append(page)
+        elif isinstance(page.content_object, ImageRound):
+            imageRounds.append(page.content_object)
+        elif isinstance(page.content_object, SurveyRound):
+            surveyRounds.append(page.content_object)
 
     wordRounds = list()
     for page in pagesList:
-        wordRound = UserWordRound.objects.filter(associated_audio_round=page.content_object, for_user=user)
-        if wordRound.exists():
-            wordRounds.append(wordRound[0])
-        else:
-            print("WORD ROUND NONE")
+        pageType = page.content_object
+        if isinstance(pageType, AudioRound):
+            wordRound = UserWordRound.objects.filter(associated_audio_round=pageType, for_user=user)
+            if wordRound.exists():
+                wordRounds.append(wordRound[0])
+            else:
+                print("WORD ROUND NONE")
     
     roundLists = list()
     roundNum = 1
     for round in wordRounds:
         pairInfo, score, amount = getResultsByRound(round)
         roundInfo = {
-            "name": "Round " + str(roundNum),
+            "name": "Audio Round " + str(roundNum),
+            "type": "audio",
             "score": score,
             "amount": amount,
             "pairsList": pairInfo
         }
         roundLists.append(roundInfo)
         roundNum += 1
+
+    roundNum = 1
+    for imageR in imageRounds:
+        survey = imageR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "url": imageR.image.url,
+            "name": "Image Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+
+    roundNum = 1
+    for surveyR in surveyRounds:
+        survey = surveyR.survey
+        surveyInfo = getAnswersFromSurveyForUser(survey, user)
+        roundInfo = {
+            "type": "image",
+            "name": "Survey Round " + str(roundNum),
+            "surveyInfo": surveyInfo
+        }
+        roundNum += 1
+        roundLists.append(roundInfo)
+
+    
     return roundLists
 
 
@@ -206,6 +277,9 @@ def home(request):
 
 def index(request):
     return render(request, 'index.html')
+
+def thankYou(request):
+    return render(request, 'thankYou.html')
 
 
 def getTrimmedAudio(user_id, url=False):
@@ -745,13 +819,71 @@ def roundTest(request):
 @login_required
 def showAudios(request):
     user_id = request.user.id
-    audios_of_user = Audio_store.objects.filter(user_source=request.user)
+    audios_of_user = Word.objects.filter(user_source=request.user)
     for instance in audios_of_user:
-        instance.file_location = settings.MEDIA_URL + str(instance.file_location)
+        instance.audio_store.file_location = settings.MEDIA_URL + str(instance.audio_store.file_location)
+    no_audios = True
+    if len(audios_of_user) > 0:
+        no_audios = False
     context = {
-        "object_list": audios_of_user
+        "object_list": audios_of_user,
+        "no_audios": no_audios
     }
     return render(request, 'showAudios.html', context)
+
+@login_required
+def myExperiments(request):
+    user_id = request.user.id
+    experiments = Experiment.objects.filter(user_source=request.user)
+    for exp in experiments:
+        participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
+        exp.participants = participants
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'myExperiments.html', context)
+
+@login_required
+def takenExperiments(request):
+    user = request.user
+    exps = UserUniqueExperiment.objects.filter(for_user=user)
+    print("exp", exps)
+    user_id = user.id
+    experiments = list()
+    for exp in exps:
+        experiments.append((exp, exp.experiment))
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'experimentsTaken.html', context)
+
+
+def publicExperiments(request):
+    print("CALLING CREATE FAKE MODELS")
+    fake_user, fake_experiment = create_Fake_Models()
+    makePietroWords()
+    makeMumbleWords()
+    replicateMusicalPairs()
+    experiments = Experiment.objects.filter(public=True)
+    for exp in experiments:
+        participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
+        exp.participants = participants
+    no_exp = True
+    if len(experiments) > 0:
+        no_exp = False
+    context = {
+        "object_list": experiments,
+        "no_exp": no_exp
+    }
+    return render(request, 'publicExperiments.html', context)
 
 def getQuestionsForExperiment(experiment):
     
@@ -864,7 +996,7 @@ def convertToBarChartData(roundInfo):
     labels = list(range(0,11))
     questionType = roundInfo['questionType']
     if questionType == "Agree":
-        labels = list(range(1,6))
+        labels = ["Strongly Disagree", "Disagree", "Indifferent", "Agree", "Strongly Agree"]
     elif questionType == "yesOrNo":
         labels = ["Yes", "No"]
     data = list(0 for i in range(len(labels)))
@@ -878,11 +1010,22 @@ def convertToBarChartData(roundInfo):
             answer = 0 if (answer['answer'] == "Yes") else 1
             if answer >=  0 and answer < len(labels):
                 data[answer] += 1
-    else:
+    elif questionType == "Agree":
         for answer in roundInfo['answers']:
-            answer = int(answer['answer']) - 1
-            if answer >=  0 and answer < len(labels):
-                data[answer] += 1
+            answerVal = int(answer['answer'])
+            if answer['answer'] == "Strongly Disagree":
+                answerVal = 1
+            elif answer['answer'] == "Disagree":
+                answerVal = 2
+            elif answer['answer'] == "Indifferent":
+                answerVal = 3
+            elif answer['answer'] == "Agree":
+                answerVal = 4
+            elif answer['answer'] == "Strongly Agree":
+                answerVal = 5
+            answerVal -= 1
+            if answerVal >=  0 and answerVal < len(labels):
+                data[answerVal] += 1
     return {"labels": labels, "data": data}
 
 
@@ -910,6 +1053,7 @@ def makeChartData(pages):
                 page['bar_data']['title'] = page['questionText']
                 page['bar_chart'] = True
                 page['id'] = "Chart" + str(page['id'])
+                page['Chart_id'] = "TheChart" + str(page['id'])
         if page['type'] == "survey":
             for quest in page['surveyInfo']['questions']:
                 questionType = quest['questionType']
@@ -1068,6 +1212,8 @@ def createExperiment(request):
     }
     return render(request, "ResearcherPages/createExperiment.html", context)
 
+def errorCheck(roundInfoSplit):
+    return True, 'Poop'
 
 def createExperiment_POST(request):
     if request.method == 'POST':
@@ -1079,7 +1225,6 @@ def createExperiment_POST(request):
 
         if request.FILES is not None and 'images[]' in dict(request.FILES):
             files = dict(request.FILES)['images[]']
-            print("FILES", files)
 
         imageList = []
 
@@ -1094,6 +1239,10 @@ def createExperiment_POST(request):
 
         pageNum = 1
         pages = list()
+        error = False
+        error_msg = ""
+
+        audio_round = 0
 
         for roundObj in roundInfoSplit:
             if roundObj != '':
@@ -1101,6 +1250,10 @@ def createExperiment_POST(request):
                 data = processRound(roundObj)
                 if data['roundType'] == "experiment":
                     experimentName = data['experimentName']
+                    if experimentName == "":
+                            error = True
+                            error_msg = "Experiment Name is blank"
+                            break
                     experiment = Experiment(user_source=user, title=experimentName)
                     experiment.save()
 
@@ -1116,12 +1269,17 @@ def createExperiment_POST(request):
                     for question in questions:
                         questionText = question['questionText']
                         questionType = question['questionType']
+                        if questionText == "":
+                            error = True
+                            error_msg = "Question is blank"
+                            break
                         question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
                         questionNumber += 1
 
                     round = createSurveyRound(experiment, survey, user)
 
                 elif data['roundType'] == "audio":
+                    audio_round += 1
                     prime = str(data['prime'])
                     pairs = int(data['pairs'])
                     bundleId = data['bundleID']
@@ -1131,14 +1289,35 @@ def createExperiment_POST(request):
                     else:
                         wordBundle = getWordBundle(user)
                     round = createAudioRound(pairs, prime, experiment, user, wordBundle)
+                    wordBundleAmount = len(Word.objects.filter(user_source=wordBundle.user_source))
+                    if (wordBundleAmount <= (pairs * 2)):
+                        error = True
+                        error_msg = "Not enough audios in the word bundle in Audio Round {} to make {} pairs".format(audio_round, pairs)
+                        break
                 elif data['roundType'] == "text":
                     title = data['title']
                     text = data['text']
+                    if title == "":
+                            error = True
+                            error_msg = "Text round title is blank"
+                            break
+                    if text == "":
+                            error = True
+                            error_msg = "Text round text is blank"
+                            break
                     round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
+                    if len(imageList) <= imageNumber:
+                            error = True
+                            error_msg = "Image file is blank"
+                            break
                     image = imageList[imageNumber]
                     name = data['name']
                     questionText = data['questionText']
+                    if questionText == "":
+                            error = True
+                            error_msg = "Question is blank in image round"
+                            break
                     questionType = data['questionType']
                     if questionType == "input":
                         questionType = 1
@@ -1162,10 +1341,24 @@ def createExperiment_POST(request):
 
         response_data = {}
 
+        if error:
+            response_data['result'] = 'Error creating experiment'
+            response_data['id'] = experiment.id
+            response_data['okay'] = False
+            response_data['error_msg'] = error_msg
+            experiment.delete()
+
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+        )
+
+
 
 
         response_data['result'] = 'Create post successful!'
         response_data['id'] = experiment.id
+        response_data['okay'] = True
 
         return HttpResponse(
             json.dumps(response_data),
@@ -1276,13 +1469,11 @@ def showResults(request):
             experiment = Experiment.objects.filter(user_source=user)[0]
         roundInfo = getResultsForUser(user, experiment)
         context = {"object_list": roundInfo}
-        print("CONTEXT", roundInfo)
         return render(request, 'showResults.html', context)
 
 
 
 ## Craig Stuff
-
 @login_required
 @csrf_exempt
 def publish(request):
@@ -1301,9 +1492,11 @@ def publish(request):
                 send_mail(subject, body, "musicalpairs123@gmail.com", emails)
                 message = "Message sent successfully"
             form = PublishForm()
+            form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
             return render(request, 'publish.html', {'form':form, 'message': message})
     else:
         form = PublishForm()
+        form.fields['experiment'].queryset = Experiment.objects.filter(user_source=request.user)
         message = ""
     return render(request, 'publish.html', {'form' : form, 'message': message})
 
@@ -1335,6 +1528,39 @@ def listExperiments(request):
 
 def getRoundLength(experiment):
     return 10
+
+def viewUpdates(request):
+    experiment_id = request.GET.get('id')
+    updates = list()
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if experiment.exists():
+        experiment = experiment[0]
+        updates = ExperimentUpdate.objects.filter(experiment=experiment)
+    else:
+        user = request.user
+        experiments = Experiment.objects.filter(subscribers=user)
+        updates = None
+        for exp in experiments:
+            if updates is None:
+                updates = ExperimentUpdate.objects.filter(experiment=exp)
+            else:
+                updates = updates | ExperimentUpdate.objects.filter(experiment=exp)
+    if updates:
+        updates_exist = True
+        updates = updates.order_by('-dateSent')
+
+    else:
+        updates = {1: {'subject' : '', 'body' : '', 'dateSent': ''}}
+        updates_exist = False
+
+    
+    context = {
+        "updates": updates,
+        "update_exists": updates_exist
+    }
+    return render(request, "viewUpdates.html", context)
+
+
 
 def viewExperiment_Researcher(request):
     if request.method == 'POST':
@@ -1399,8 +1625,14 @@ def viewExperiment_Researcher(request):
         #completed_participants = UserUniqueExperiment.objects.filter(experiment=experiment, page_num=roundCount)
         pages = Page.objects.filter(experiment=experiment).order_by('page_number')
         pagesList = list()
+        audio_rounds_exist = False
         for page in pages:
+            if isinstance(page.content_object, AudioRound):
+                audio_rounds_exist = True
+                print("THEY EXIST")
             pagesList.append(processPageInfo(page))
+
+        
 
         context = {
             "experimentName": experiment.title,
@@ -1409,16 +1641,16 @@ def viewExperiment_Researcher(request):
             #"completed_count": len(completed_participants),
             "form" : form,
             "updates" : updates,
-            'updates_exist': updates_exist,
+            'update_exists': updates_exist,
             'subscriber_count': subscriber_count,
             "chartsData": getChartDataContext(request),
             'pages_list': getExperimentQuestionInfo(experiment),
             "experimentList": pagesList,
             "uv": uv,
             'pages_list': makeChartData(getExperimentQuestionInfo(experiment)),
-            "experimentList": pagesList
+            "experimentList": pagesList,
+            "audio_rounds": audio_rounds_exist
         }
-
 
         return render(request, "ResearcherPages/viewExperimentInfo.html", context)
 
@@ -1517,7 +1749,7 @@ def getChartDataContext(request):
 
     ]
     
-    return sampleChartsData #chartsData
+    return chartsData
 
 
 def dataAnalysis(request):    
@@ -1550,7 +1782,7 @@ def deleteExperiment(request):
 
 def deleteAudio(request):
     audio_id = request.GET.get('id')
-    audio = Audio_store.objects.filter(id=audio_id)
+    audio = Word.objects.filter(id=audio_id)
     if not audio.exists():
         return HttpResponse("ID not recognised")
     audio = audio[0]

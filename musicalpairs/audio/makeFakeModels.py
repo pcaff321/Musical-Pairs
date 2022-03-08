@@ -1,7 +1,7 @@
 import random
 from typing import Text
 from .processRoundData import createAudioRound, createPage, createSurveyQuestion, createSurveyRound, createTextRound
-from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserWordRound, Word, WordBundle, set_file_name
+from .models import Audio_store, AudioRound, ImageRound, Mumble, Pair, Survey_James, SurveyAnswer, User, TextRound, SurveyRound, Page, Experiment, Survey, SurveyQuestion, UserPairGuess, UserUniqueExperiment, UserWordRound, Word, WordBundle, set_file_name
 from time import time
 from faker import Faker
 from django.conf import settings
@@ -51,12 +51,12 @@ def makeExperiment(roundList):
     global g_experiment
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
     experiment = Experiment.objects.filter(user_source=user, title="Musical Pairs")
-    if experiment.exists():
+    if experiment.exists() and (len(Page.objects.filter(experiment=experiment[0])) > 20):
         print("Experiment Exists")
         fakeAnswersForExperiment(experiment[0], 30)
         return
     else:
-        experiment = Experiment(user_source=user, title="Musical Pairs")
+        experiment = Experiment(user_source=user, title="Musical Pairs", public=True)
         experiment.save()
     pageNum = 1
     for data in roundList:
@@ -107,7 +107,6 @@ def replicateMusicalPairs():
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
     wordBundle = WordBundle.objects.filter(name="Default Audios", public=True, user_source=user)
     if not wordBundle.exists():
-        print("IT DOES NOT EXISTTTTTTTTTTTTTTT")
         wordBundle = WordBundle(name="Default Audios", public=True, user_source=user)
         wordBundle.save()  
     else:
@@ -163,15 +162,6 @@ def replicateMusicalPairs():
         "title": "Keep In Touch",
         "text": "Should you wish to keep up to date with any further updates or news on this study, \
             please feel free to subscribe to updates at the end of this experiment or get in contact with me."
-    }
-    roundList.append(data)
-
-
-    data = {
-        "roundType": "text",
-        "title": "Can you participate?",
-        "text": "You may only participate if you have never taken part in this study before and you \
-            believe that you will remain reasonably free from distractions during the course of this experiment"
     }
     roundList.append(data)
 
@@ -538,52 +528,56 @@ def fakeAnswersForSurvey(user, survey, experiment, inputAnswers=None):
 
 def fakeAnswersForAudio(user, audioRound, experiment, words):
     global fakeAudio
-    word1 = words.pop()
-    word2 = words.pop()
-    pair = Pair(audio1=word1, audio2=word2)
-    pair.save()
     wordRoundInstance = UserWordRound(experiment=experiment, audio_ref=fakeAudio, for_user=user, associated_audio_round=audioRound)
     wordRoundInstance.save()
-    prime = audioRound.prime
-    placebo = False
-    roundPrime = prime
-    if prime == 'K':
-        if random.random() <= 0.8:  # 20% chance placebo is used
-            roundPrime = 'J'
-    if roundPrime == 'K':
-        placebo = True
+    for i in range(int(audioRound.pairs)):
+        word1 = words.pop()
+        word2 = words.pop()
+        pair = Pair(audio1=word1, audio2=word2)
+        pair.save()
+        prime = audioRound.prime
+        placebo = False
+        roundPrime = prime
+        if prime == 'K':
+            if random.random() <= 0.8:  # 20% chance placebo is used
+                roundPrime = 'J'
+        if roundPrime == 'K':
+            placebo = True
 
-    userPairGuess = UserPairGuess(pair=pair, audio_ref=fakeAudio, associated_word_round=wordRoundInstance, placebo_added=placebo, prime=roundPrime)
-    if placebo:
-        if (random.randint(1, 10) <= 8):
-            userPairGuess.answer = word2.word
-    else:
-        if (random.randint(1, 10) <= 6):
-            userPairGuess.answer = word2.word
-    if (random.randint(1, 10) <= 2):
-            userPairGuess.answer = "NO_IDEA"
-    if (random.randint(1, 10) <= 1):
-            userPairGuess.answer = "WAS_DISTURBED"
-    if (random.randint(1, 10) <= 1):
-            userPairGuess.answer = "NOT_ANSWERED"
-    userPairGuess.save()
+        userPairGuess = UserPairGuess(pair=pair, audio_ref=fakeAudio, associated_word_round=wordRoundInstance, placebo_added=placebo, prime=roundPrime)
+        if placebo:
+            if (random.randint(1, 10) <= 8):
+                userPairGuess.answer = word2.word
+        else:
+            if (random.randint(1, 10) <= 6):
+                userPairGuess.answer = word2.word
+        if (random.randint(1, 10) <= 2):
+                userPairGuess.answer = "NO_IDEA"
+        if (random.randint(1, 10) <= 1):
+                userPairGuess.answer = "WAS_DISTURBED"
+        if (random.randint(1, 10) <= 1):
+                userPairGuess.answer = "NOT_ANSWERED"
+        userPairGuess.save()
 
 
 def fakeAnswersForExperiment(experiment, amount_of_users):
     pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
     fakeDataMade = TextRound.objects.filter(title="FAKE ANSWERS MADE", experiment=experiment)
-    print("FAKE EDATA", fakeDataMade)
-    if len(fakeDataMade) > 0:
+    userRounds = UserWordRound.objects.filter(experiment=experiment)
+    if (len(fakeDataMade) > 0) and (len(userRounds) > 5):
         print("Fake models exist already")
         return
     print("Making fake data of {} users".format(amount_of_users))
     pages = Page.objects.filter(experiment=experiment)#.order_by('page_number')
     pagesList = list()
+    surv = Survey_James(name=str(pietro.id), round_count=1)
+    surv.save()
     for i in range(amount_of_users):
         words = list(Word.objects.filter(user_source=pietro))
         random.shuffle(words)
         print("Generating fake data for User {}".format(str(i)))
         user = makeFakeUser()
+        UserUniqueExperiment(for_user=user, experiment=experiment, survey_james=surv).save()
         for page in pages:
             if isinstance(page.content_object, ImageRound) or isinstance(page.content_object, SurveyRound):
                 fakeAnswersForSurvey(user, page.content_object.survey, experiment)

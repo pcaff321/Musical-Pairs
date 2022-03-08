@@ -2,17 +2,158 @@
 
 {% block content %}
 
-<h1>Your audios are listed below </h1>
-{% for instance in object_list %}
-<div class='row'>
-    <h1>{{ instance.name }}
-    <audio controls>
-        <source src="{{ instance.file_location }}" type="audio/wav">
-        Your browser does not support the audio element.
-    </audio>
-        <a href="{% url 'deleteAudio' %}?id={{ instance.id }}"><button>Delete Audio</button></a>
-</div>
-<br><br><br>
-{% endfor %}
+<style>
 
+/* Style the tab */
+.tab {
+  overflow: #f1f1f1;
+  background-color: dimgray;
+  margin-left: 40px;
+  border-bottom: 1px solid dimgray;
+}
+
+/* Style the buttons inside the tab */
+.tablinks {
+  background-color: inherit;
+  float: left;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  border:none;
+  color: white;
+}
+
+
+
+/* Create an active/current tablink class */
+.tablinks.active {
+  background-color: white;
+  border: none;
+  color: dimgray;
+
+}
+
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border-top: none;
+}
+
+.tabcontent.active {
+  display:block;
+}
+
+.table {
+  margin-top : 30px;
+
+}
+
+.headingRow{
+  padding-top: 30px;
+  color: black;
+}
+
+#tabInfo {
+  margin-top:50px;
+  margin-left:40px;
+}
+
+.total {
+  margin-top:30px;
+  margin-left:-30px;
+}
+
+
+    
+button {
+    margin:10px;
+    background-color: dimgray !important;
+    border: none !important;
+    font-size: 20px !important;
+    color: white !important;
+    border-radius:5px;
+    margin-top: -20px !important;
+  }
+
+
+  .mainBtn {
+    background-color: #4f5d75 !important;
+    padding:10px 30px !important
+  }
+
+
+
+</style>
+
+
+
+<div class="row headingRow">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 d-flex justify-content-center heading">
+    <h1>Your Words</h1>
+  </div>
+</div>
+
+{% if no_audios %}
+<br><br><br>
+<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+<h2> You have no words added </h2></div><br><br><br>
+<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <a href="{% url 'uploadAudio' %}"><button class="btn mainBtn">Add Words</button></a>
+</div>
+{% else %}
+<table class="table table-sm ">
+  <thead>
+    <tr>
+      <th scope="col">Word #</th>
+      <th scope="col">Word</th>
+      <th scope="col">Audio File</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for instance in object_list %}
+
+    <tr>
+    <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ instance.word }}</td>
+      <td><audio controls>
+        <source src="{{ instance.audio_store.file_location }}" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio></td>
+      <td><a href="{% url 'deleteAudio' %}?id={{ instance.id }}"><button>Delete Audio</button></a></td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+{% endif %}
+
+{% endblock %}
+
+
+
+{% block extrascripts %}
+
+<script>
+
+    function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+
+</script>
 {% endblock %}

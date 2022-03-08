@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block style %}
-  <title>Create Experiments</title>
+  <title>Edit Experiment</title>
   <style>
     .container {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 10px;
+      
       }
       
       .box {
@@ -17,6 +18,9 @@
         padding: 10px
         cursor: move;
       }
+
+
+
 
       .box.over {
         border: 3px dotted #666;
@@ -298,7 +302,7 @@ select{
 </div>
   <div class="col-md-2">
   <button id="submitButton"onclick="submitExperiment()">
-    Submit Experiment
+    Save Changes
     </button>
   </div>
   <div class="col-md-1 questionCol">

@@ -6,7 +6,7 @@ import SurveyTest from './surveytest';
 import { Button, Grid, Typography, TextField, FormHelperText, FormControl, FormControlLabel, Radio, RadioGroup, Slider} from '@material-ui/core'
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { purple } from '@material-ui/core/colors';
-
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
@@ -110,16 +110,15 @@ export default function Survey(props) {
     }
 
     function handlePairButtonsPressed(e) {
-        setAnswerValue(e.target.getInnerHTML());
         let input = document.querySelector("input");
-        let targetVal = e.target.getInnerHTML();
-        let inputVal = "";
-        if (targetVal.toString() == "NO IDEA"){
-            inputVal = "NO_IDEA";
-        }else{
-            inputVal = "WAS_DISTRACTED";
+        input.value = e.target.innerText;
+        if (e.target.innerText == "DISTRACTED") {
+            setAnswerValue("WAS_DISTRACTED");
+            input.value = "Distracted";
+        } else if (e.target.innerText == "NO IDEA") {
+            setAnswerValue("NO_IDEA");
+            input.value = "No Idea";
         }
-        input.value = inputVal;
    }
 
    function subscribeToExperiment(e) {
@@ -250,7 +249,7 @@ export default function Survey(props) {
                     <div align="center">
                         {initial_components[i]}
                         {paragraph_list.map((item, index) => (
-                            <p>{item}</p>
+                            <p><strong>{item}</strong></p>
                         ))}
                     </div>
                 )
@@ -286,7 +285,7 @@ export default function Survey(props) {
                     );
                 } else if (roomData.round_list[i][2] == "Agree") {
                     question = (
-                        <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange}>
+                        <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange} style={{ display: "block" }}>
                             <FormControlLabel 
                                 value="1" control={<Radio color="primary" />} 
                                 label="1" labelPlacement="bottom"
@@ -366,13 +365,13 @@ export default function Survey(props) {
                                     {question}
                                 </FormControl><br></br><br></br><br></br>
                                 <Grid item xs={12} align="center">
-                                    <Button id="distracted" value="d" color="secondary" variant="contained"
+                                    <Button id="distracted" value="WAS_DISTRACTED" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        DISTRACTED
+                                        Distracted
                                     </Button>
-                                    <Button id="no-idea" value="no-idea" color="secondary" variant="contained"
+                                    <Button id="no-idea" value="NO_IDEA" color="secondary" variant="contained"
                                         onClick={handlePairButtonsPressed}>
-                                        NO IDEA
+                                        No Idea
                                     </Button>
                                 </Grid>
                                 <br></br>
@@ -382,8 +381,8 @@ export default function Survey(props) {
                                     </Button>
                                 </Grid>
                                 <br></br><br></br>
-                                <p>If you were distracted while listening to the audio, press "Distracted".</p>
-                                <p>If you have no idea what the answer is, press "No Idea".</p>
+                                <p><strong>If you were distracted while listening to the audio, press "Distracted".</strong></p>
+                                <p><strong>If you have no idea what the answer is, press "No Idea".</strong></p>
                             </Grid>
                         </ThemeProvider>
                     );
@@ -411,8 +410,8 @@ export default function Survey(props) {
                             Experiment Complete
                     </h1><br></br><br></br><br></br>
                     <br></br><br></br>
-                    <p>Thank you for partaking in this experiment!</p>
-                    <p>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</p>
+                    <p><strong>Thank you for partaking in this experiment!</strong></p>
+                    <p><strong>If you would like to subscribe to updates on the experiment or see a review of your test, please click the corresponding buttons below.</strong></p>
                     <Grid item xs={12} align="center">
                         <Button id="subscribeBtn" name="subscribeBtn" value={experimentID} color="secondary" variant="contained"
                         onClick={subscribeToExperiment}>
@@ -451,7 +450,7 @@ export default function Survey(props) {
                 <p>Use the arrow keys to navigate back and forth.</p>
             </Grid>
             <Grid item xs={12} align="right" style={{ marginRight: "1em", textAlign: "right", width: "100%", bottom: "5%", position: "absolute"}}>
-                <p>page {displayedTable}/{roomData.round_count + 1}</p>
+                <ProgressBar now={100 * displayedTable/(roomData.round_count + 1)} style={{width: "30%", marginLeft: "auto", marginRight: "auto", backgroundColor: "darkgray"}}/>
             </Grid>
         </Grid>
     )

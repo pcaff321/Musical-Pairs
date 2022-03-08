@@ -11,6 +11,7 @@
   background-color: dimgray;
   margin-left: 40px;
   border-bottom: 1px solid dimgray;
+  margin-top:30px;
 }
 
 /* Style the buttons inside the tab */
@@ -42,6 +43,7 @@
   display: none;
   padding: 6px 12px;
   border-top: none;
+  margin-top: 30px;
 }
 
 .tabcontent.active {
@@ -68,6 +70,11 @@
   margin-left:-30px;
 }
 
+#im {
+  max-width:30%;
+  min-width:30%;
+}
+
 
 </style>
 
@@ -79,60 +86,115 @@
     <h1>Your Results</h1>
   </div>
 </div>
-<p id="tabInfo">Switch between tabs to see results for each round:</p>
 
-<div class="tab">
-    {% for instance in object_list %}
-    <button class="tablinks" onclick="openTab(event, '{{ instance.name }}')">{{ instance.name }}</button>
-    {% endfor %}
-</div>
 
-{% for instance in object_list %}
-<div class="tabcontent " id="{{ instance.name }}">
 <div class="row">
-  <div class="col-md-3"></div>
-  <div class="col-md-4 d-flex justify-content-center total">
-      <h3> {{ instance.name }}: {{ instance.score }} out of {{ instance.amount }}</h3>
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <div class="tab">
+        {% for instance in object_list %}
+          <button class="tablinks" onclick="openTab(event, '{{ instance.name }}')">{{ instance.name }}</button>
+        {% endfor %}
+    </div>
   </div>
 </div>
 <div class="row">
-<div class="col-md-2"></div>
-<div class="col-md-8 d-flex justify-content-center" style="text-align:center">
-
-<table class="table table-sm ">
-  <thead>
-    <tr>
-      <th scope="col">Pair #</th>
-      <th scope="col">Word 1</th>
-      <th scope="col">Word 2</th>
-      <th scope="col">Answer</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for pair in instance.pairsList %}
-
-    <tr>
-    <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ pair.word1 }}</td>
-      <td>{{ pair.word2 }}</td>
-      {% if pair.answer == pair.word2 %}
-      <td style="color:green">{{ pair.answer }}</td>
-      {% elif pair.answer == "NOT_ANSWERED" %}
-      <td>{{ pair.answer }}</td>
-      {% else %}
-      <td style="color:red">{{ pair.answer }}</td>
-
-      {% endif %}
-    </tr>
+  <div class="col-md-3"></div>
+  <div class="col-md-6">
+    {% for instance in object_list %}
+      <div class="tabcontent " id="{{ instance.name }}">
+          {% if instance.type == "audio" %}
+            <div class="row">
+              <div class="col-md-12 d-flex justify-content-center total">
+                <h3> {{ instance.name }}: {{ instance.score }} out of {{ instance.amount }}</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 d-flex justify-content-center" style="text-align:center">
+                <table class="table table-sm "> 
+                  <thead>
+                    <tr>
+                      <th scope="col">Pair #</th>
+                      <th scope="col">Word 1</th>
+                      <th scope="col">Word 2</th>
+                      <th scope="col">Answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for pair in instance.pairsList %}
+                      <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ pair.word1 }}</td>
+                        <td>{{ pair.word2 }}</td>
+                        {% if pair.answer == pair.word2 %}
+                          <td style="color:green">{{ pair.answer }}</td>
+                        {% elif pair.answer == "NOT_ANSWERED" %}
+                          <td>{{ pair.answer }}</td>
+                        {% else %}
+                          <td style="color:red">{{ pair.answer }}</td>
+                        {% endif %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% elif instance.type == "image" %}
+            <div class="row">
+              <div class="col-md-12 d-flex justify-content-center">
+                <img id="im"src="{{instance.url}}"></img>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 d-flex justify-content-center" style="text-align:center">
+                <table class="table table-sm ">
+                  <thead>
+                    <tr>
+                      <th scope="col">Question</th>
+                      <th scope="col">Question Type</th>
+                      <th scope="col">Your Answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for question in instance.surveyInfo.questions %}
+                      <tr>
+                        <td>{{ question.questionText }}</td>
+                        <td>{{ question.questionType }}</td>
+                        <td>{{ question.answer }}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% elif instance.type == "survey" %}
+            <div class="row">
+              <div class="col-md-12 d-flex justify-content-center" style="text-align:center">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Question</th>
+                      <th scope="col">Question Type</th>
+                      <th scope="col">Your Answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for question in instance.surveyInfo.questions %}
+                      <tr>
+                        <td>{{ question.questionText }}</td>
+                        <td>{{ question.questionType }}</td>
+                        <td>{{ question.answer }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% endif %}
+        </div>
     {% endfor %}
-
-  </tbody>
-</table>
+  </div>
 </div>
-</div>
-</div>
-{% endfor %}
-
 
 {% endblock %}
 
