@@ -278,6 +278,9 @@ def home(request):
 def index(request):
     return render(request, 'index.html')
 
+def thankYou(request):
+    return render(request, 'thankYou.html')
+
 
 def getTrimmedAudio(user_id, url=False):
     if url:
