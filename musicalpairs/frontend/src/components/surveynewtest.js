@@ -286,7 +286,8 @@ export default function Survey(props) {
                 } else if (roomData.round_list[i][2] == "Agree") {
                     question = (
                         <RadioGroup id="agree" row defaultValue="3" onChange={handleAnswerChange} style={{ display: "block" }}>
-                            <p>On a scale of 1-5, how much do you agree with the preceding statement?</p>
+                            <p>How much do you agree with the preceding statement?</p>
+                            <p>[1 - Strongly Disagree, 2 - Disagree, 3 - Indifferent, 4 - Agree, 5 - Strongly Agree]</p>
                             <FormControlLabel 
                                 value="1" control={<Radio color="primary" />} 
                                 label="1" labelPlacement="bottom"
