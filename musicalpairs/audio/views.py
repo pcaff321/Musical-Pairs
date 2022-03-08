@@ -1663,6 +1663,8 @@ def getGuessesBasedOnPrime(experiment, prime):
             pairGuesses.append(guess)
     return pairGuesses
 
+def tutorial(request):
+    return render(request,'tutorial.html')
 
 def getChartData(guesses):
     correct = 0

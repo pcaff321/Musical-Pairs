@@ -1,0 +1,373 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+{% block content %}
+
+<style>
+
+
+
+    .input {
+        padding-top :15px;
+      }
+
+      .label {
+        padding-top :15px;
+        padding-left: 60px;
+
+      }
+
+      .textArea {
+
+        min-width: 40%;
+
+      }
+
+      #submitBtn {
+        margin:10px;
+        background-color: #4f5d75 !important;
+        border: none !important;
+        padding: 10px 10px 10px 10px !important;
+        font-size: 16px;
+        color: white;
+        border-radius:5px;
+      }
+
+
+      #submitBtn:hover{
+        background-color: #2d3142 !important;
+
+      }
+
+      #submitBtn:focus {
+        box-shadow:none;
+      }
+
+
+
+    #rowHeading {
+      margin-top: 30px;
+      margin-bottom:40px;
+    }
+
+    .row1{
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+
+    #publishBtn {
+        margin-left:-50px;
+    }
+
+    #copyBtn {
+        margin-left: 10px;
+    }
+
+    .customBtn {
+        margin: 50px;
+        padding-left: 20px;
+        padding-right:20px;
+        background-color: #4f5d75 !important;
+        border: none;
+        color: white !important;
+        font-size: 20px;
+    }
+
+    .customBtn:hover {
+        background-color: #2d3142 !important;
+    }
+
+    .customBtn:focus {
+        border:none !important;
+      }
+
+    .customBtn:active{
+        transform: perspective(20px) translateZ(-1px);
+        border: none !important;
+      }
+
+
+/* Style the tab */
+
+.tab {
+  overflow: #f1f1f1;
+  background-color: dimgray;
+  border-bottom: 1px solid dimgray;
+
+}
+
+/* Style the buttons inside the tab */
+.tablinks {
+    border: none;
+    border-left: 1px solid gray ;
+    border-right: 1px solid gray;
+  background-color: inherit;
+  float: left;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  color: white;
+}
+
+
+
+/* Create an active/current tablink class */
+.tablinks.active {
+  background-color: white;
+  border: none;
+  color: dimgray;
+
+}
+
+
+/* Style the tab content */
+.tabcontent {
+
+  display: none;
+  padding: 6px 12px;
+  border-top: none;
+}
+
+.tabcontent.active {
+  display:block;
+}
+
+#summary {
+    text-align: center;
+}
+
+.contentRow {
+    margin-top : 50px;
+
+}
+
+.hidden{
+    display: none;
+}
+
+#feedbackmessage {
+    text-align: center;
+    padding: 150px;
+    font-size: 20px;
+    color: green;
+}
+
+#errorMessage {
+    text-align: center;
+    color: red;
+}
+
+.prevUpdates {
+    max-width:80%;
+}
+
+.chartTitle, .chartCorrect {
+  padding: 50px;
+}
+
+
+.chartRow{
+  margin-top: 100px;
+}
+
+img {
+  max-width:90%;
+}
+
+.box {
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 1px solid darkgray;
+  text-align: left;
+}
+
+.box p {
+  font-size: 18px;
+}
+.roundRow {
+  padding-top: 30px;
+  margin-left:20px !important;
+
+}
+
+.pageNum {
+  font-size:20px;
+  color: darkgray;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+
+<div class="row row1">
+    <div class="col-md-2"></div>
+        <div class="col-md-8 d-flex justify-content-center heading">
+        <h1>Tutorial</h1>
+    </div>
+</div>
+<div class="row tabRow">
+    <div class="col-md-1"></div>
+    <div class="col-md-10 d-flex justify-content-center heading">
+
+        <div class="tab">
+            <button class="tablinks tablinks1 active" onclick="openTab(event, 'intro')">Intro</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'textinfo')">Text</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'audios')">Audio</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'image')">Image</button>
+            <button class="tablinks tablinks1" onclick="openTab(event, 'survey')">Survey</button>
+        </div>
+    </div>
+</div>
+
+<div class="row contentRow">
+<div class="col-md-1"></div>
+<div class="col-md-10 d-flex justify-content-center heading">
+
+  <div id="intro" class="tabcontent tabcontent1">
+    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+        <p>This tutorial page explains the 4 different types of rounds and their uses for the experiments.
+        </p>
+    </div>
+    <div class="row roundRow"></div></div>
+
+    <div id="textinfo" class="tabcontent tabcontent1">
+<div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+    <p>Text rounds just contain text. They are the simplest type of round.</p>
+    </div>
+</div>
+
+  <div id="audios" class="tabcontent tabcontent1">
+    <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+<p>Subjects are played audios of words spoken by the researcher. These words are paired together, and in later rounds the subjects
+are expected to recall the second word spoken in a pair, when prompted with the first word. Along
+with this, there is added background noises and music played.
+
+When creating an audio round, default audios or the user's audios can be specified, along with a number of pairs.</p>
+      </div>
+      </div>
+
+
+
+<div class="tabcontent tabcontent1" id="image">
+  <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+      <p>Image rounds contain images that are presented to the user. They also contain an accompanying question
+      with different answer types. (slider bar, input box, yes or no, agree)</p>
+      </div>
+</div>
+
+
+<div class="tabcontent tabcontent1" id="survey">
+ <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+     <p>Survey rounds are used by the researcher to collect user feedback. The experiment creator specifies
+     a question and also an answer type, similar to the image round.</p>
+     </div>
+</div>
+
+
+<link rel="apple-touch-icon" href="/docs/5.0/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="/docs/5.0/assets/img/favicons/manifest.json">
+<link rel="mask-icon" href="/docs/5.0/assets/img/favicons/safari-pinned-tab.svg" color="#7952b3">
+<link rel="icon" href="/docs/5.0/assets/img/favicons/favicon.ico">
+<meta name="theme-color" content="#7952b3">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'assets/css/dashboard.css' %}" rel="stylesheet">
+  </head>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+      <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
+      <script src="{% static 'assets/js/dashboard.js' %}"></script>
+  </body>
+
+  <script>
+
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      $("#publishForm").removeClass("hidden");
+      tabcontent = document.getElementsByClassName("tabcontent1");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        $("#errorMessage").addClass("hidden");
+        $("#feedbackmessage").addClass("hidden");
+      }
+      tablinks = document.getElementsByClassName("tablinks1");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    function openTab2(evt, tabName) {
+      var i, tabcontent, tablinks;
+      $("#publishForm").removeClass("hidden");
+      tabcontent = document.getElementsByClassName("tabcontent2");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        $("#errorMessage").addClass("hidden");
+        $("#feedbackmessage").addClass("hidden");
+      }
+      tablinks = document.getElementsByClassName("tablinks2");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+  document.onload = document.getElementById('intro').style.display = "block";
+
+  function displayFirstRound_lol(){
+        {% for page in pages_list %}
+          {% if page.num == 0 %}
+           document.getElementById("{{ page.id }}").style.display = "block";
+          {% endif %}
+        {% endfor %}
+  }
+
+  document.onload = displayFirstRound_lol();
+</script>
+
+</html>
+
+
+
+{% endblock %}
+
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+{% endblock %}

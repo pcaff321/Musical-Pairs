@@ -3,11 +3,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import Audio_store_view, listExperiments, showAudios, createExperiment, createExperiment_POST, \
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
-        researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
-            showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
-                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
-                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates,\
-                        thankYou
+    researcher_signup, logout_view, ajaxTest, createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish, \
+    showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher, \
+    dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
+    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
+    thankYou, tutorial
+
+dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
+    home, index, deleteAudio, tutorial
 from .api import PostAnswer, addAnswer
 
 
@@ -20,10 +23,12 @@ urlpatterns = [
     path('experimentLoad', experimentLoad, name='experimentLoad'),
     path('checkReady', checkReady, name='checkReady'),
     path('get-room', GetRoomView.as_view(), name='get-room'),
-    path('thankYou/', thankYou, name='thankYou'),
     path('uploadAudio/', Audio_store_view, name='uploadAudio'),
+    path('viewUpdates/', viewUpdates, name='viewUpdates'),
     path('trimAudio/', trimAudio, name='trimAudio'),
     path('playAudio/', playAudioFile, name='playAudio'),
+    path('tutorial/', tutorial, name="tutorial"),
+    path('thankYou/', thankYou, name="thankYou"),
     path('myExperiments/', myExperiments, name='myExperiments'),
     path('publicExperiments/', publicExperiments, name='publicExperiments'),
     path('takenExperiments/', takenExperiments, name='takenExperiments'),
@@ -51,6 +56,5 @@ urlpatterns = [
     path('addAnswer/', addAnswer, name='addAnswer'),
     path('signup/experimentee/', experimentee_signup.as_view(), name='experimentee_signup'),
     path('signup/researcher/', researcher_signup.as_view(), name='researcher_signup'),
-    path('viewUpdates/', viewUpdates, name="viewUpdates"),
     path('publish/', publish, name="publish")
 ]+ static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

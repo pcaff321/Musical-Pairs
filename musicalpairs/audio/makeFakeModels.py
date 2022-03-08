@@ -177,15 +177,6 @@ def replicateMusicalPairs():
 
     data = {
         "roundType": "text",
-        "title": "Can you participate?",
-        "text": "You may only participate if you have never taken part in this study before and you \
-            believe that you will remain reasonably free from distractions during the course of this experiment"
-    }
-    roundList.append(data)
-
-
-    data = {
-        "roundType": "text",
         "title": "Consent?",
         "text": "If you continue from this point, you hereby give consent to part in this study."
     }
