@@ -646,7 +646,7 @@ def fakeAnswersForAudio(user, audioRound, experiment, words):
 def fakeAnswersForExperiment(experiment, amount_of_users):
     pietro = User.objects.filter(last_name="PIETRO_WORDS")[0]
     fakeDataMade = TextRound.objects.filter(title="FAKE ANSWERS MADE", experiment=experiment)
-    userRounds = UserWordRound.objects.filter(experiment=experiment)
+    userRounds = UserUniqueExperiment.objects.filter(experiment=experiment)
     if (len(fakeDataMade) > 0) and (len(userRounds) > 5):
         print("Fake models exist already")
         return
