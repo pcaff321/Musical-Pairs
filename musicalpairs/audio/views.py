@@ -45,7 +45,7 @@ try:
     makePietroWords()
     makeMumbleWords()
     replicateMusicalPairs()
-    makeInkBlotTest()
+    #makeInkBlotTest()
 except:
     print("DB not migrated yet")
 
