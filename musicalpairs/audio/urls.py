@@ -3,12 +3,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import Audio_store_view, listExperiments, showAudios, createExperiment, createExperiment_POST, \
     main, roundTest, showAudios, playAudioFile, prevRoundPage, nextRoundPage, loginView, experimentee_signup, \
-        researcher_signup, logout_view, ajaxTest,createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish,\
-            showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher,\
-                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
-                    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates,\
-                        thankYou
-                dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
+    researcher_signup, logout_view, ajaxTest, createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish, \
+    showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher, \
+    dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
+    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
+    thankYou, tutorial
+
+dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
     home, index, deleteAudio, tutorial
 from .api import PostAnswer, addAnswer
 
