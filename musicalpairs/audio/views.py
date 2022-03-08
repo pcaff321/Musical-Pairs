@@ -852,7 +852,7 @@ def takenExperiments(request):
     user_id = user.id
     experiments = list()
     for exp in exps:
-        experiments.append(exp.experiment)
+        experiments.append((exp, exp.experiment))
     no_exp = True
     if len(experiments) > 0:
         no_exp = False
