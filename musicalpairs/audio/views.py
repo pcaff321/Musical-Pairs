@@ -1428,8 +1428,6 @@ def answerQuestion_POST(request):
                     question.answer = str(answer)
             else:
                 question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
-            print("ANSWER POST", answer)
-            print("Answer", question.answer)
             question.save()
         elif questionInfo == "pair":
             print("Pair Guess")
