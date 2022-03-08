@@ -49,7 +49,7 @@ def getWordBundle(user):
 
 def makeExperiment(roundList, experimentName="Musical Pairs"):
     global g_experiment
-    user = User.objects.filter(last_name="PIETRO_WORDS")[0]
+    user = User.objects.filter(last_name="PIETRO_WORDS").order_by('id')[0]
     experiment = Experiment.objects.filter(user_source=user, title=experimentName)
     if experiment.exists() and (len(Page.objects.filter(experiment=experiment[0])) > 20):
         print("Experiment Exists")

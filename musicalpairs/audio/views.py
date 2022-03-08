@@ -868,11 +868,6 @@ def takenExperiments(request):
 
 
 def publicExperiments(request):
-    print("CALLING CREATE FAKE MODELS")
-    fake_user, fake_experiment = create_Fake_Models()
-    makePietroWords()
-    makeMumbleWords()
-    replicateMusicalPairs()
     experiments = Experiment.objects.filter(public=True)
     for exp in experiments:
         participants = len(UserUniqueExperiment.objects.filter(experiment=exp))
