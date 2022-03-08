@@ -70,9 +70,8 @@
 
     
 button {
-    margin:10px;
-    background-color: dimgray !important;
-    border: none !important;
+  background-color: #4f5d75 !important;
+  border: none !important;
     font-size: 20px !important;
     color: white !important;
     border-radius:5px;
@@ -106,10 +105,14 @@ button {
     <a href="{% url 'createExperiment' %}"><button class="btn mainBtn">Create Experiment</button></a>
 </div>
 {% else %}
+
+<div class="row headingRow">
+  <div class="col-md-3"></div>
+  <div class="col-md-6 d-flex justify-content-center heading">
 <table class="table table-sm ">
   <thead>
     <tr>
-      <th scope="col">Experiment #</th>
+      <th scope="col">#</th>
       <th scope="col">Experiment Title</th>
       <th scope="col">Participants</th>
       <th scope="col"></th>
@@ -128,6 +131,7 @@ button {
 
   </tbody>
 </table>
+</div></div>
 {% endif %}
 
 {% endblock %}
