@@ -72,6 +72,7 @@
 button {
   background-color: #4f5d75 !important;
   border: none !important;
+  padding-bottom:2px;
     font-size: 20px !important;
     color: white !important;
     border-radius:5px;
@@ -115,7 +116,10 @@ button {
       <th scope="col">#</th>
       <th scope="col">Experiment Title</th>
       <th scope="col">Participants</th>
+      <th scope="col">State</th>
       <th scope="col"></th>
+      <th scope="col"></th>
+
     </tr>
   </thead>
   <tbody>
@@ -125,7 +129,15 @@ button {
     <th scope="row">{{ forloop.counter }}</th>
       <td>{{ instance.title }}</td>
       <td>{{ instance.participants }}</td>
-      <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Visit Dashboard</button></a></td>
+      {% if instance.public %}
+      <td>public</td>
+      <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Dashboard</button></a></td>
+      {% else %}
+      <td>private</td>
+      <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Dashboard</button></a></td>
+      <td><a href="{% url 'editExperiment' %}?id={{ instance.id }}"><button>Edit</button></a></td>
+
+      {% endif %}
     </tr>
     {% endfor %}
 
