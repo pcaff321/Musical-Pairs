@@ -4,10 +4,9 @@ from collections import UserDict
 import csv
 from email.mime import audio
 import mimetypes
-from msvcrt import getch
 from matplotlib.pyplot import isinteractive
 from pydub import AudioSegment
-from msilib import datasizemask
+#from msilib import datasizemask
 import os
 from pickle import FALSE
 from django.contrib.auth import login, logout, authenticate
