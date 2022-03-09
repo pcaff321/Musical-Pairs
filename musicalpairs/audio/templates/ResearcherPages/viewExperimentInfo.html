@@ -72,6 +72,8 @@
       border: none;
       color: white !important;
       font-size: 20px;
+      margin-left:20px;
+      margin-right:20px;
     }
     
     .customBtn {
@@ -308,9 +310,13 @@ canvas{
     <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
       <h2>Overview</h2>
     </div>
-    <div class="col-md-12 d-flex justify-content-center">
-      <a href="{% url 'editExperiment' %}?id={{ id }}"><button class="editBtn">Edit Experiment</button></a>
-    </div>
+      {% if public %}
+      {% else %}
+        <a href="{% url 'editExperiment' %}?id={{ id }}"><button class="editBtn">Edit Experiment</button></a>
+        <a href="{% url 'makePublic' %}?id={{ id }}"><button onclick="return confirm('You will not be able to edit your experiment once it goes public. Are you sure you want to continue?')" class="editBtn">Make Public</button></a>
+      {% endif %}
+      <a href="{% url 'viewExperiment_Researcher' %}?id={{ id }}"><button onclick="return confirm('You will not be able to undo this operation. All your data will be lost. Are you sure you want to go ahead with deleting the experiment?')" class="editBtn">Delete Experiment</button></a>
+
     <div class="row roundRow">
       <div class="col-sm-12">
           <div class="container row" id="roundContainer">

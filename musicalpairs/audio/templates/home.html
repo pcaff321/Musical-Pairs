@@ -19,11 +19,11 @@
     }
 
    .menuRow {
-       margin-top:20px;
+       margin-top:50px;
    } 
 
   .button {
-    padding: 10px 40px;
+    padding: 10px 30px;
     margin-top:15px;
     background-color: #4f5d75 !important;
     border: none;
@@ -55,58 +55,62 @@
         <h1>Hello,  {{request.user.first_name}}&nbsp;&nbsp;</h1>
     </div>
         {% if user.is_researcher  %}
-            
         <div class="row menuRow">
             <div class="col-md-4"></div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'myExperiments' %}"><button class="button">My Experiments</button></a>
+                <a href="{% url 'publicExperiments' %}"><button class="button">Public Experiments &nbsp;<i class="fa-solid fa-bullhorn"></i></button></a>
             </div>
         </div>
         <div class="row">
             <div class="col-md-4"></div>
-            <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'createExperiment' %}"><button class="button block">Create Experiment</button></a>
+            <div class="col-md-2 d-flex justify-content-center">
+                <a href="{% url 'myExperiments' %}"><button class="button">My Experiments &nbsp;<i class="fa-solid fa-flask"></i></button></a>
+            </div>
+            
+            <div class="col-md-2 d-flex justify-content-center">
+                <a href="{% url 'uploadAudio' %}"><button class="button block">Add Words &nbsp;<i class="fa-solid fa-microphone"></i></button></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-2 d-flex justify-content-center">
+                <a href="{% url 'createExperiment' %}"><button class="button block">Create Experiment &nbsp;<i class="fa-solid fa-circle-plus"></i></button></a>
+            </div>
+            <div class="col-md-2 d-flex justify-content-center">
+                <a href="{% url 'showAudios' %}"><button class="button block">My Words &nbsp;<i class="fa-solid fa-file-audio"></i></button></a>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-5"></div>
-            <div class="col-md-2 d-flex justify-content-center">
-                <a href="{% url 'uploadAudio' %}"><button class="button block">Add Words</button></a>
-            </div>
-        </div>
+
         <div class="row">
             <div class="col-md-4"></div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'showAudios' %}"><button class="button block">My Words</button></a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'publish' %}"><button class="button">Publish an Update</button></a>
+                <a href="{% url 'publish' %}"><button class="button">Publish an Update &nbsp;<i class="fa-solid fa-envelope"></i></i></button></a>
             </div>
         </div>
         {% else %}
-        <div class="row" style="margin-top:50px;">
+        <div class="row menuRow">
             <div class="col-md-4"></div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'takenExperiments' %}"><button class="button">Experiments I've Taken</button></a>
+                <a href="{% url 'publicExperiments' %}"><button class="button">Public Experiments &nbsp;<i class="fa-solid fa-bullhorn"></i></button></a>
             </div>
         </div>
         <div class="row">
             <div class="col-md-4"></div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'viewUpdates' %}"><button class="button">Updates On Experiments</button></a>
+                <a href="{% url 'takenExperiments' %}"><button class="button">Experiment History &nbsp;<i class="fa-solid fa-clock-rotate-left"></i></button></a>
             </div>
         </div>
-        <div class="row ">
+        <div class="row">
             <div class="col-md-4"></div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a href="{% url 'publicExperiments' %}"><button class="button">View Public Experiments</button></a>
+                <a href="{% url 'viewUpdates' %}"><button class="button">Sub Updates &nbsp;<i class="fa-solid fa-inbox"></i></button></a>
             </div>
         </div>
+
         {% endif %}
     </div>
 </div>
+<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
+
 {% endblock %}

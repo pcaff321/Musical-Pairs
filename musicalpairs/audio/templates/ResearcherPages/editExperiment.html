@@ -295,6 +295,15 @@ select{
     <h1>Edit Experiment</h1>
   </div>
 </div>
+{% if public %}
+<div class="row row1">
+  <div class="col-md-3"></div>
+  <br><br><br>
+  <div class="col-md-12 d-flex justify-content-center" id="rowHeading">
+  <h2> You cannot edit a public experiment. </h2>
+</div><br><br><br>
+</div>
+{% else %}
 <div class="row row1">
   <div class="col-md-7"></div>
   <div class="col-md-2 col2 form-outline form-group">
@@ -336,7 +345,7 @@ select{
     </div><br><br><br>
   </div>
 </div>
-
+{% endif %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 
