@@ -7,18 +7,15 @@ To run pip needs to be installed, which is a python package manager. Then, depen
 
 2. Install dependencies(already downloaded within the project, just need to be installed).
 
-#Linux:
-pip install --no-index --find-links dependencies-LINUX/ -r requirements-linux.txt 
+Linux: pip install --no-index --find-links dependencies-LINUX/ -r requirements-linux.txt 
 
 
 
-#Windows:
-
-pip install --no-index --find-links dependencies-WINDOWS/ -r requirements-windows.txt 
-
+Windows: pip install --no-index --find-links dependencies-WINDOWS/ -r requirements-windows.txt 
 
 
 #Note:
+
 In case of any errors while installing, there is a requirements.txt file that you can use to download and install the packages from online:
 
 pip install -requirements.txt
