@@ -223,8 +223,6 @@ export default function Survey(props) {
             window.removeEventListener('keydown', keyEventListener);
             if (typeof(audio) != 'undefined' && audio != null) {
                 audio.removeEventListener("ended", audioSetsNextStage);
-                audio.pause();
-                audio.currentTime = 0;
             }
             if (typeof(submitButton) != 'undefined' && submitButton != null) {
                 submitButton.removeEventListener("click", handleSubmitButtonPressed);
