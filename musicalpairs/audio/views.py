@@ -1247,7 +1247,7 @@ def createExperiment_POST(request):
                     experimentName = data['experimentName']
                     if experimentName == "":
                             error = True
-                            error_msg = "Experiment Name is blank"
+                            error_msg = "Experiment name is blank."
                             break
                     experiment = Experiment(user_source=user, title=experimentName)
                     experiment.save()
@@ -1266,7 +1266,7 @@ def createExperiment_POST(request):
                         questionType = question['questionType']
                         if questionText == "":
                             error = True
-                            error_msg = "Question is blank"
+                            error_msg = "Question is blank."
                             break
                         question = createSurveyQuestion(user, survey, questionText, questionType, questionNumber)
                         questionNumber += 1
@@ -1287,31 +1287,31 @@ def createExperiment_POST(request):
                     wordBundleAmount = len(Word.objects.filter(user_source=wordBundle.user_source))
                     if (wordBundleAmount <= (pairs * 2)):
                         error = True
-                        error_msg = "Not enough audios in the word bundle in Audio Round {} to make {} pairs".format(audio_round, pairs)
+                        error_msg = "Not enough audios in the word bundle in Audio Round {} to make {} pair(s).".format(audio_round, pairs)
                         break
                 elif data['roundType'] == "text":
                     title = data['title']
                     text = data['text']
                     if title == "":
                             error = True
-                            error_msg = "Text round title is blank"
+                            error_msg = "Text round title is blank."
                             break
                     if text == "":
                             error = True
-                            error_msg = "Text round text is blank"
+                            error_msg = "Text round text is blank."
                             break
                     round = createTextRound(title, text, experiment, user)
                 elif data['roundType'] == "image":
                     if len(imageList) <= imageNumber:
                             error = True
-                            error_msg = "Image file is blank"
+                            error_msg = "Image file is blank."
                             break
                     image = imageList[imageNumber]
                     name = data['name']
                     questionText = data['questionText']
                     if questionText == "":
                             error = True
-                            error_msg = "Question is blank in image round"
+                            error_msg = "Question is blank in image round."
                             break
                     questionType = data['questionType']
                     if questionType == "input":
@@ -1337,7 +1337,7 @@ def createExperiment_POST(request):
         response_data = {}
 
         if error:
-            response_data['result'] = 'Error creating experiment'
+            response_data['result'] = 'Error creating experiment.'
             response_data['id'] = experiment.id
             response_data['okay'] = False
             response_data['error_msg'] = error_msg
