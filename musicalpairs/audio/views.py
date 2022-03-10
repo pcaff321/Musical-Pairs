@@ -571,7 +571,7 @@ def experimentLoad(request):
     if len(userUniqueExperiment) > 0:
         return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
 
-    return render(request, "experimentLoadingPage.html", {"id": experiment_id})
+    return render(request, "experimentLoadingPage.html", {"id": experiment_id, "public": experiment.public, "exp_user_source":experiment.user_source})
 
 
 def checkReady(request):
@@ -880,6 +880,18 @@ def publicExperiments(request):
         "no_exp": no_exp
     }
     return render(request, 'publicExperiments.html', context)
+
+def makePublic(request):    
+    experiment_id = request.GET.get('id')
+    experiment = Experiment.objects.filter(id=experiment_id)
+    if experiment.exists():
+        experiment = experiment[0]
+        experiment.public = True
+        experiment.save()
+    path='/audio/viewExperiment/?id='+ experiment_id
+    return redirect(path)
+
+    
 
 def getQuestionsForExperiment(experiment):
     
@@ -1387,7 +1399,7 @@ def editExperiment(request):
             for bundle in otherBundles:
                 listOfBundles.append(bundle)
 
-            context = {"experimentName":experiment.title, "experimentList": pagesList, "listOfBundles": listOfBundles}
+            context = {"experimentName":experiment.title, "public": experiment.public, "experimentList": pagesList, "listOfBundles": listOfBundles}
             return render(request, 'ResearcherPages/editExperiment.html', context)
             
     return HttpResponse("ID not found")
@@ -1630,6 +1642,7 @@ def viewExperiment_Researcher(request):
 
         context = {
             "experimentName": experiment.title,
+            "public" : experiment.public,
             "id": experiment_id, 
             "participant_count": len(participants),
             #"completed_count": len(completed_participants),
