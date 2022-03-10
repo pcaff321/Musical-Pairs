@@ -7,7 +7,7 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher, \
     dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
     trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
-    thankYou, tutorial
+    thankYou, tutorial, makePublic
 
 dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
     home, index, deleteAudio, tutorial
@@ -30,6 +30,7 @@ urlpatterns = [
     path('tutorial/', tutorial, name="tutorial"),
     path('thankYou/', thankYou, name="thankYou"),
     path('myExperiments/', myExperiments, name='myExperiments'),
+    path('makePublic/', makePublic, name='makePublic'),
     path('publicExperiments/', publicExperiments, name='publicExperiments'),
     path('takenExperiments/', takenExperiments, name='takenExperiments'),
     path('deleteAudio/', deleteAudio, name='deleteAudio'),
