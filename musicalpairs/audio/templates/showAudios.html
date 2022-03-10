@@ -135,7 +135,7 @@ button {
         <source src="{{ instance.audio_store.file_location }}" type="audio/wav">
         Your browser does not support the audio element.
     </audio></td>
-      <td><a href="{% url 'deleteAudio' %}?id={{ instance.id }}"><button>Delete Audio</button></a></td>
+      <td><a href="{% url 'deleteAudio' %}?id={{ instance.id }}"><button onclick=" return confirm('Are you sure you want to delete the audio? This may affect your current experiments and the audio will be lost forever.')">Delete Audio</button></a></td>
     </tr>
     {% endfor %}
 

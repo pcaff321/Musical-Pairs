@@ -335,6 +335,8 @@
 
         <script>
 
+            var anyAudio = false; // to check if any audio has been uploaded
+
             function removeSilence() {
                 if (!url){
                     url = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length);
@@ -359,40 +361,40 @@
 
 
             function saveAudio() {
-                var audioBlobURL = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 0);
-                var audioBlob = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 1);
                 var li = document.createElement('li');
                 var link = document.createElement('a');
                 //get the name that's written in input text box
                 var name = $("#name").val()
-
-                if (!name) {
-                    alert("Must give audio a name")
-                }
-                else{
-                    link.href = audioBlobURL;
-                    link.download = name + '.wav';
-                    link.innerHTML = link.download;
-                    //add the new audio and a elements to the li element 
-                    li.appendChild(link);
-                    //add the li element to the ordered list 
-
-                    recordingsList.appendChild(li);
-
-                    var fd = new FormData();
-                    audioName = name 
-                    fd.append('word', audioName);
-                    fd.append('file', audioBlob);
-                    $.ajax({
-                        type: 'POST',
-                        url: "{% url 'uploadAudio' %}",
-                        headers: {"X-CSRFToken": "{{ csrf_token }}"},
-                        data: fd,
-                        processData: false,
-                        contentType: false
-                    }).done(function(data) {
-                        console.log(data);
-                    });
+                try {
+                    var audioBlobURL = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 0);
+                    var audioBlob = bufferToWave(wavesurfer.backend.buffer, 0, wavesurfer.backend.buffer.length, 1);
+                    if (!name) {
+                        alert("Must give audio a name")
+                    }
+                    else{
+                        var fd = new FormData();
+                        audioName = name 
+                        fd.append('word', audioName);
+                        fd.append('file', audioBlob);
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'uploadAudio' %}",
+                            headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                            data: fd,
+                            processData: false,
+                            contentType: false
+                        }).done(function(data) {
+                            link.href = audioBlobURL;
+                            link.download = name + '.wav';
+                            link.innerHTML = link.download;
+                            //add the new audio and a elements to the li element 
+                            li.appendChild(link);
+                            //add the li element to the ordered list 
+                            recordingsList.appendChild(li);
+                        }).fail(function(data){
+                            message = "You have already created a word called '" + audioName + "'. If you would like to replace it, you must go into 'Manage Your Words' and delete it"
+                            alert(message)
+                        });
 
 
                 /*  var formData = new FormData();
@@ -404,7 +406,13 @@
                     request.open("POST", "/uploadAudio/");
                     request.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); 
                     request.send(formData); */
+                    }
                 }
+                catch(error) {
+                    alert("You must upload or record an audio before submitting.")
+
+                }
+
         
             }
 
