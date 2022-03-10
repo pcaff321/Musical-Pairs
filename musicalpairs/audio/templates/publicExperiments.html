@@ -157,7 +157,7 @@ button {
         <th scope="row">{{ forloop.counter }}</th>
           <td>{{ instance.title }}</td>
           <td>{{ instance.participants }}</td>
-          <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button>Visit Dashboard</button></a></td>
+          <td><a href="{% url 'viewExperiment_Researcher' %}?id={{ instance.id }}"><button onclick="return alert('Please note this feature is only implemented for demonstration and testing purposes. In the final product only the creator of an experiment will be able to view the dashboard.')">Visit Dashboard</button></a></td>
           <td><a href="{% url 'experimentLoad' %}?id={{ instance.id }}"><button>Do Experiment</button></a></td>
 
         </tr>

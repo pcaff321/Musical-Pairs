@@ -421,17 +421,13 @@ canvas{
                     </div>
                   {% else %}
                     <h3> Answers: </h3>
-                    <div class="row">
-                      <div class="col-md-12 d-flex justify-content-center">
                         <div style="overflow-y: scroll; height:400px;">
                           <ul class="list-group">
                             {% for answer in page.answers %}
                               <li class="list-group-item">{{ answer.answer }}</li>
                             {% endfor %}
                           </ul>
-                        </div>                  
-                      </div>
-                    </div><br>
+                        </div>    
                   {% endif %}
                 </div>
               </div>
@@ -440,7 +436,7 @@ canvas{
               {% for question in page.surveyInfo.questions %}
                 <div class="row qRoundHeading">
                   <div class="col-md-12 d-flex justify-content-center">
-                    <h3> Question {{ forloop.counter}}: </h3>
+                    <h2> Question {{ forloop.counter}}: </h2>
                   </div>
                 </div>
                 <div class="row">
