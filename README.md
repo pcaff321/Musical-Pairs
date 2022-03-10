@@ -14,7 +14,7 @@ Linux: pip install --no-index --find-links dependencies-LINUX/ -r requirements-l
 Windows: pip install --no-index --find-links dependencies-WINDOWS/ -r requirements-windows.txt 
 
 
-#Note:
+# Note:
 
 In case of any errors while installing, there is a requirements.txt file that you can use to download and install the packages from online:
 
