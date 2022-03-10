@@ -21,6 +21,12 @@
   font-size:28px;
 }
 
+{% if not public %}
+
+{% elif exp_user_source.id != user.id%}
+
+{% else %}
+
 </style>
 <div class="row">
 <div class="col-md-2"></div>
@@ -62,5 +68,6 @@
                   });
                   setInterval(() => check(), 1500)
 </script>
+{% endif %}
 
 {% endblock %}
