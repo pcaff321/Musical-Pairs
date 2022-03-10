@@ -48,7 +48,7 @@
       <!-- Responsive navbar-->
       <nav class="navbar navbar-expand-lg navbar-dark">
           <div class="container">
-              <a class="navbar-brand" href="{% url 'home' %}" style="background-color:transparent; border:none;">
+              <a class="navbar-brand" href="{% url 'index' %}" style="background-color:transparent; border:none;">
                 <img src="{% static "gears.png"%}" width="30" height="30" class="d-inline-block align-top" alt="">
                 ExperiMental
               </a>
@@ -56,7 +56,7 @@
               <div class="collapse navbar-collapse" id="navbarSupportedContent">
                   <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
-                      <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'login' %}">Home</a></li>
+                      <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'index' %}">Home</a></li>
                       {% if user.is_authenticated != True %}
                       <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a></li>
                       
