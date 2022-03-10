@@ -6,17 +6,14 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     researcher_signup, logout_view, ajaxTest, createPostTest, SurveyView, CreateSurveyView, GetRoomView, publish, \
     showResults, answerQuestion_POST, editExperiment, createExperimentPage, viewExperiment_Researcher, \
     dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
-    trimAudio, home, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
-    thankYou, tutorial, makePublic
-
-dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
-    home, index, deleteAudio, tutorial
+    trimAudio, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
+    thankYou, tutorial, makePublic, dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
+     deleteAudio, tutorial
 from .api import PostAnswer, addAnswer
 
 
 urlpatterns = [
     path('', index, name='index'),
-    path('home', home, name='home'),
     path('survey', SurveyView.as_view(), name='survey'),
     path('createsurvey', CreateSurveyView.as_view(), name='createsurvey'),
     path('createExperimentPage', createExperimentPage, name='createExperimentPage'),

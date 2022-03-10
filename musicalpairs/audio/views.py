@@ -271,16 +271,12 @@ def getResultsForUser(user, experiment):
     return roundLists
 
 
-@login_required
-def home(request):
-    return render(request, 'home.html')
 
 def index(request):
     return render(request, 'index.html')
 
 def thankYou(request):
     return render(request, 'thankYou.html')
-
 
 def getTrimmedAudio(user_id, url=False):
     if url:
@@ -1113,14 +1109,14 @@ def showAnswers(request):
 
 def loginView(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('index')
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('index')
     form = CustomAuthenticationForm()
     return render(request, 'login.html', {"form": form})
 
@@ -1140,7 +1136,7 @@ class experimentee_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('home')
+        return redirect('index')
 
 
 class researcher_signup(CreateView):
@@ -1155,13 +1151,13 @@ class researcher_signup(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('home')
+        return redirect('index.html')
 
 
     
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('index')
 
 def createPostTest(request):
     if request.method == 'POST':
