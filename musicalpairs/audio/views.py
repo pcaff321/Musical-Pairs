@@ -37,16 +37,16 @@ from operator import attrgetter
 
 from .makeFakeModels import create_Fake_Models, makeInkBlotTest, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
-
-try:
+# Used to generate the public example experiments and data for them to test the data analysis.
+'''try:
     print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
     makePietroWords()
     makeMumbleWords()
     replicateMusicalPairs()
-    #makeInkBlotTest()
+    makeInkBlotTest()
 except:
-    print("DB not migrated yet")
+    print("DB not migrated yet")'''
 
 
 from django.template.defaulttags import register
