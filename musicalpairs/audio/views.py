@@ -1716,7 +1716,7 @@ def deleteExperiment(request):
     if request.user != experiment.user_source:
         return HttpResponse("You do not have permission to delete this experiment")
     experiment.delete()
-    return redirect('listExperiments')
+    return redirect('myExperiments')
 
 def deleteAudio(request):
     audio_id = request.GET.get('id')
