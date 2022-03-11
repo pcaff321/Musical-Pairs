@@ -52,7 +52,6 @@ def makeExperiment(roundList, experimentName="Musical Pairs"):
     user = User.objects.filter(last_name="PIETRO_WORDS").order_by('id')[0]
     experiment = Experiment.objects.filter(user_source=user, title=experimentName)
     if experiment.exists() and (len(Page.objects.filter(experiment=experiment[0])) > 20):
-        print("Experiment Exists")
         if experimentName == "Musical Pairs":
             fakeAnswersForExperiment(experiment[0], 30)
         return
@@ -465,11 +464,9 @@ def replicateMusicalPairs():
 
 
 def makePietroWords():
-    print("MAKING PIETRO AUDIOSSSSSSSSSS")
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
     wordBundle = WordBundle.objects.filter(name="Default Audios", public=True, user_source=user)
     if not wordBundle.exists():
-        print("IT DOES NOT EXISTTTTTTTTTTTTTTT")
         userBundle = WordBundle(name="Default Audios", public=True, user_source=user)
         userBundle.save()
     #Make audio store object
@@ -477,9 +474,7 @@ def makePietroWords():
     if len(words) > 50:
         return
     path = settings.MEDIA_ROOT + '/pietroWords/'
-    print("PATH", path)
     files = os.listdir(path)
-    print("FILES", files)
 
     for index, file in enumerate(files):
         name = str(file)

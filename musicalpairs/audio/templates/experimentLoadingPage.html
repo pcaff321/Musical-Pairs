@@ -44,9 +44,7 @@
       processData: false,
       contentType: false
   }).done(function(data) {
-      console.log(data);
       if (data['ready'] == true) {
-        console.log("true");
         window.location.replace("{% url 'experimentLoad' %}?id={{ id }}");
       }
   });
@@ -58,7 +56,6 @@
                       processData: false,
                       contentType: false
                   }).done(function(data) {
-                      console.log(data);
                   });
                   setInterval(() => check(), 1500)
 </script>

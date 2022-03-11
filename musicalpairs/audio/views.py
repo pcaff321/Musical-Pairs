@@ -39,7 +39,6 @@ from .makeFakeModels import create_Fake_Models, makeInkBlotTest, makeMumbleWords
 
 
 try:
-    print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
     makePietroWords()
     makeMumbleWords()
@@ -169,7 +168,6 @@ def createPath(path):
     isExist = os.path.exists(path)
 
     if not isExist:
-        print("DOESN'T EXIST")
         os.makedirs(path)
 
 def getAnswersFromSurveyForUser(survey, user):
@@ -448,39 +446,7 @@ def getRoundList(request):
                 round_list[roundPageNum] = roundContent
                 roundPageNum += 1
     return round_list
-    
-""" 
-@method_decorator(csrf_exempt, name='dispatch')
-class CreateSurveyView(APIView):
-    print("Top")
-    serializer_class = CreateSurveySerializer
-    def post(self, request, format="None"):
-        print("Post survey")
-        if not self.request.session.exists(self.request.session.session_key):
-            self.request.session.create()
 
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            name = serializer.data.get("name")
-            round_count = serializer.data.get("round_count")
-            round_list = serializer.data.get("round_list")
-            host = self.request.session.session_key
-            survey = Survey_James(
-                host = host,
-                name = name,
-                round_count = round_count,
-                #round_list = {
-                #    1: ["text", "Introduction", "Welcome to my study!", "Paragraph 2"],
-                #    2: ["audio", True, 1, False, "/static/door_creak.wav"],
-                #    3: ["question", "Is my survey based?", "Yes/No"],
-                #    4: ["question", "How based?", "Slider"],
-                #    5: ["question", "Describe in your own words how based it was", "Text"]
-                #}
-                round_list = getRoundList(request)
-            )
-            survey.save()
-
-            return Response(SurveySerializer(survey).data, status=status.HTTP_201_CREATED) """
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateSurveyView(APIView):
@@ -656,7 +622,6 @@ def Audio_store(request):
 
 
 def Audio_store_view(request):
-    print("Success ATTEMPT")
     if request.method == 'POST': 
         form = AudioForm(request.POST,request.FILES or None) 
         if form.is_valid(): 
@@ -780,73 +745,6 @@ def roundTest(request):
         return render(request, 'ExperimentTemplates/standardPage.html', context)
     return HttpResponse("Error with experiment")
 
-""" def roundTest(request):
-    user = request.user
-    experiment_id = request.GET.get('id')
-    pageNum = request.GET.get('page')
-    if experiment_id is None:
-        experiment_id = fake_experiment.id
-    experiment_id = int(experiment_id)
-    user_experiment_id = request.session.get('experiment_id', experiment_id)
-    sessionNum = request.session.get('sessionNum', 0)
-    print("SESS", request.session)
-    if experiment_id != user_experiment_id and experiment_id != fake_experiment.id:
-        request.session['experiment_id'] = experiment_id
-        request.session['sessionNum'] = 0
-    sessionNum = request.session.get('sessionNum', 0)
-    user_experiment_id = request.session.get('experiment_id', experiment_id)
-    if sessionNum == 0:
-        return nextRoundPage(request)
-    user_id = request.user.id
-    page = getPage(user_experiment_id, sessionNum)
-    if page is None:
-        return HttpResponse("Page " + str(sessionNum) + " does not exist")
-    if page is None:
-        return HttpResponse("ERROR WITH PAGE" + str(sessionNum))
-    pageType = page.content_object
-    #pageType = "survey" ## Determine this by checking page number to experiment pages
-    if isinstance(pageType, AudioRound):
-        print("AUDIO ROUND")
-        mumbles = pageType.mumbles
-        pairs = pageType.pairs
-        placebo = pageType.placebo
-        experiment = pageType.experiment
-        print("sneding user", user)
-        url = getRoundFile(mumbles=mumbles, pairs=pairs, placebo=placebo, user=user, experiment=experiment, pageModel=page) #'' #settings.MEDIA_URL + str(pageType.audio_ref.file_location)  # getRoundFile()
-        context = {
-            'page': 'audio',
-            'mumbles': mumbles,
-            'pairs': pairs,
-            'placebo': placebo,
-            'sessionNum': sessionNum,
-            'url': url
-        }
-        return render(request, 'ExperimentTemplates/standardPage.html', context)
-    elif isinstance(pageType, TextRound):
-        print("TECT ROD")
-       # url = getRoundFile()
-        context = {
-            'page': 'text',
-            'text': pageType.text,
-            'sessionNum': sessionNum
-        }
-        return render(request, 'ExperimentTemplates/standardPage.html', context)
-    elif isinstance(pageType, SurveyRound):
-        print("SURAV")
-        #url = getRoundFile()
-        questions = getQuestions(pageType.survey)
-        context = {
-            'page': 'survey',
-            'surveyName': pageType.survey.name,
-            'questions': questions,
-            'sessionNum': sessionNum
-        }
-        return render(request, 'ExperimentTemplates/standardPage.html', context)
-    return HttpResponse("Error with experiment") """
-
-
-
-
 @login_required
 def showAudios(request):
     user_id = request.user.id
@@ -882,7 +780,6 @@ def myExperiments(request):
 def takenExperiments(request):
     user = request.user
     exps = UserUniqueExperiment.objects.filter(for_user=user)
-    print("exp", exps)
     user_id = user.id
     experiments = list()
     for exp in exps:
@@ -1210,7 +1107,6 @@ def createPostTest(request):
 
 
         response_data['result'] = 'Create post successful!'
-        print("DATA SENT")
 
         return HttpResponse(
             json.dumps(response_data),
@@ -1419,7 +1315,6 @@ def createExperiment_POST(request):
 
 def editExperiment(request):
     experimentID= request.GET.get('id', None)
-    print("ID", experimentID)
     if experimentID is not None:
         experiment = Experiment.objects.filter(id=experimentID)
         if experiment.exists():
@@ -1464,7 +1359,6 @@ def answerQuestion_POST(request):
                 json.dumps({"Error": "no experiment ID given"}),
                 content_type="application/json"
                 )
-            print("Question Post")
             surveyQuestion = SurveyQuestion.objects.get(id=database_ID)
             experiment = Experiment.objects.get(id=experiment_ID)
             question = SurveyAnswer.objects.filter(user_source=user, surveyQuestion=surveyQuestion)
@@ -1476,7 +1370,6 @@ def answerQuestion_POST(request):
                 question = SurveyAnswer(surveyQuestion=surveyQuestion, experiment=experiment, user_source=user, answer=str(answer))
             question.save()
         elif questionInfo == "pair":
-            print("Pair Guess")
             if not (str(answer) == "NOT_ANSWERED"):
                 pairGuess = UserPairGuess.objects.get(id=database_ID)
                 pairGuess.answer = str(answer)
@@ -1674,7 +1567,6 @@ def viewExperiment_Researcher(request):
         for page in pages:
             if isinstance(page.content_object, AudioRound):
                 audio_rounds_exist = True
-                print("THEY EXIST")
             pagesList.append(processPageInfo(page))
 
         
@@ -2041,12 +1933,10 @@ def detect_leading_silence(sound, silence_threshold=-40.0, chunk_size=10):
 def trimAudio(request):
 
     sound = AudioSegment.from_wav(request.FILES['file'])
-    print("LENGTH OF SOUND", len(sound))
     start_trim = detect_leading_silence(sound)
     end_trim = detect_leading_silence(sound.reverse())
     duration = len(sound) 
     trimmed_sound = sound[start_trim - 20:duration-end_trim+20]
-    print("NOW", len(trimmed_sound))
     user_id = request.user.id
     try:
         createPath(os.path.join(settings.MEDIA_ROOT, str(user_id)))

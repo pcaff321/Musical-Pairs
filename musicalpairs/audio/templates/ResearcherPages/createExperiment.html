@@ -366,10 +366,8 @@ select{
     if (this.classList.contains("textRound")) {
       let title = this.querySelector("#title-input").value;
       let text = this.querySelector("#text-input").value;
-      console.log(this.innerHTML);
       this.innerHTML = this.innerHTML.replace(/value="[^"]*"/g, "");
       this.innerHTML = this.innerHTML.replace(/"Write Your Text Here">.*</g, '"Write Your Text Here"><');
-      console.log(this.innerHTML);
       this.innerHTML = this.innerHTML.replace('<input id="title-input" class="form-control" placeholder="Title:">', 
       '<input id="title-input" class="form-control" value="' + title + '" placeholder="Title:">')
       this.innerHTML = this.innerHTML.replace('<textarea id="text-input" class="text-input form-control" placeholder="Write Your Text Here"></textarea>', 
@@ -378,7 +376,6 @@ select{
       let name = this.querySelector("#nameText").value;
       let question = this.querySelector("#question").value;
       let questionType = this.querySelector("#questionType").value;
-      console.log(questionType);
       this.innerHTML = this.innerHTML.replace(/id="question" value="[^"]*"/g, 'id="question"');
       this.innerHTML = this.innerHTML.replace(/id="nameText" value="[^"]*"/g, 'id="nameText"');
       this.innerHTML = this.innerHTML.replace("selected", "");
@@ -389,7 +386,6 @@ select{
     } else if (this.classList.contains("surveyRound")) {
       let question = this.querySelector("#question").value;
       let questionType = this.querySelector("#questionType").value;
-      console.log("dragged\n", questionType);
       this.innerHTML = this.innerHTML.replace(/id="question" value="[^"]*"/g, 'id="question"');
       this.innerHTML = this.innerHTML.replace("selected", "");
       this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
@@ -449,7 +445,6 @@ select{
         let name = this.querySelector("#nameText").value;
         let question = this.querySelector("#question").value;
         let questionType = this.querySelector("#questionType").value;
-        console.log(questionType);
         this.innerHTML = this.innerHTML.replace(/id="question" value="[^"]*"/g, 'id="question"');
         this.innerHTML = this.innerHTML.replace(/id="nameText" value="[^"]*"/g, 'id="nameText"');
         this.innerHTML = this.innerHTML.replace("selected", "");
@@ -460,7 +455,6 @@ select{
       } else if (this.classList.contains("surveyRound")) {
         let question = this.querySelector("#question").value;
         let questionType = this.querySelector("#questionType").value;
-        console.log("dragged onto\n", questionType);
         this.innerHTML = this.innerHTML.replace(/id="question" value="[^"]*"/g, 'id="question"');
         this.innerHTML = this.innerHTML.replace("selected", "");
         this.innerHTML = this.innerHTML.replace('<input id="question" placeholder="Question:" class="questionText form-control">', 
@@ -560,10 +554,6 @@ select{
 
   function addQuestion(element){
     surveyDiv = element.parentNode;
-    //newQuestion = htmlToElement(questionHtml);
-    //console.log(newQuestion);
-
-    //surveyDiv.appendChild(newQuestion);
     surveyDiv.insertAdjacentHTML('beforeend', questionHtml);
   }
 
@@ -722,7 +712,6 @@ select{
       }else if (hasClass(element, 'textRound')){
         var type = "text"
         var title = element.querySelector('#title-input').value
-        console.log("title", title)
         var text = element.querySelector('.text-input').value
 
 
@@ -754,7 +743,6 @@ select{
     }
 
     )
-    console.log("STUFF", experimentString, imageList);
 
 
     return [experimentString, imageList];	
@@ -784,8 +772,6 @@ select{
               imageList = expInfo[1]
               fd.append('roundInfo', experimentString);
               for (const file of imageList) {
-                console.log(imageList)
-                console.log("file", file)
                 if (typeof(file) == "undefined") {
                   break
                 } else {
@@ -800,7 +786,6 @@ select{
                   processData: false,
                   contentType: false
               }).done(function(data) {
-                  console.log(data);
                   if (data['okay'] == true){
                   location.href = "{% url 'viewExperiment_Researcher' %}?id=" + data['id'];
                   }else{
