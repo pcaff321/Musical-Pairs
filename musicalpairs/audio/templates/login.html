@@ -25,13 +25,11 @@
   }
 
 .buttn {
-  margin-top: 10px;
   margin-bottom: 30px;
   background-color: #4f5d75 !important;
   border: none;
   color: white !important;
   padding: 8px 25px 8px 25px !important;
-
 }
 
 .buttn:focus {
@@ -56,7 +54,7 @@
 }
 
 .welcomeRow {
-  padding-top: 30px;
+  padding-top: 20px;
   padding-bottom:30px;
 }
 
@@ -96,7 +94,9 @@
           {{ form.password |as_crispy_field}}
         </div>
     </div>
+    
     <div class="row">
+      <p style="color:red; text-align:center;">{{message}}</p>
       <div class="col-md-4 col1"></div>
       <div class="col-md-4 col d-flex justify-content-center">
           <button type="submit" class="buttn">Sign In</button>

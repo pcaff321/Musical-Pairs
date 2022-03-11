@@ -94,7 +94,7 @@
         border:none !important;
       }
       
-    .customBtn:focus, .editBtn:active{
+    .customBtn:active, .editBtn:active{
         transform: perspective(20px) translateZ(-1px);
         border: none !important;
       }
@@ -276,8 +276,8 @@ canvas{
 <div class="row">
     <div class="col-md-3"></div>
     <div class="col-md-4">
-        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Link</button>
-        <a id="inviteLink" href="http://{{ request.get_host }}{% url 'experimentLoad' %}?id={{ id }}"><u>Experiment Invite Link</u></a>
+        <button class="btn btn-primary customBtn" id="copyBtn" onclick="copy2Clip()">Copy Invite</button>
+        <a id="inviteLink" href="http://{{ request.get_host }}{% url 'experimentLoad' %}?id={{ id }}"><u>Experiment Link</u></a>
     </div>
 </div>
 <div class="row tabRow">
