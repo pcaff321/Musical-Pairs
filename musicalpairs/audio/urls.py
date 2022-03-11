@@ -8,12 +8,13 @@ from .views import Audio_store_view, listExperiments, showAudios, createExperime
     dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, \
     trimAudio, index, deleteAudio, myExperiments, publicExperiments, takenExperiments, viewUpdates, \
     thankYou, tutorial, makePublic, dataAnalysis, showAnswers, deleteExperiment, downloadData, experimentLoad, checkReady, trimAudio,\
-     deleteAudio, tutorial
+     deleteAudio, tutorial, intermediaryPage
 from .api import PostAnswer, addAnswer
 
 
 urlpatterns = [
     path('', index, name='index'),
+    path('intermediaryPage', intermediaryPage, name="intermediaryPage"),
     path('survey', SurveyView.as_view(), name='survey'),
     path('createsurvey', CreateSurveyView.as_view(), name='createsurvey'),
     path('createExperimentPage', createExperimentPage, name='createExperimentPage'),

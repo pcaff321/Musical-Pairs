@@ -56,6 +56,7 @@ function handleFiles(event) {
     var files = event.target.files;
     url = URL.createObjectURL(files[0]);
     wavesurfer.load(url);
+    anyAudio = true;
 }
 // event listener for pre-recorded audio upload
 hiddenInput.addEventListener("change", handleFiles, false);
@@ -253,6 +254,7 @@ player.on('finishRecord', function() {
     );
     fileReader.readAsArrayBuffer(player.recordedData);
     url = null;
+    anyAudio = true;
     // the following line automatically saves the file to device
     //player.record().saveAs({'audio': 'my-audio-file-name.wav'});
 });

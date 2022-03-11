@@ -4,6 +4,7 @@
 {% block content %}
 
 {% if user.is_authenticated %}
+<script src="{% static 'assets/js/fontawesome.js' %}"></script>
 
 <style>
 
@@ -114,7 +115,6 @@
         {% endif %}
     </div>
 </div>
-<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
 
 {% else %}
 
@@ -233,7 +233,6 @@ function change() {
     
 </script>
 
-<script src="https://kit.fontawesome.com/1b3007e0fe.js" crossorigin="anonymous"></script><br><br>
 
 {%endif%}
 

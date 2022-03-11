@@ -1,0 +1,153 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<style>
+
+
+  
+  html {
+    background: url('{% static "psych-image2.jpg"%}') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-color: rgba(255,255,255,0.9);
+    background-blend-mode: lighten;
+}
+
+
+  .heading {
+    padding-bottom: 30px;    
+
+  }
+
+.buttn {
+  margin-top: 10px;
+  margin-bottom: 30px;
+  background-color: #4f5d75 !important;
+  border: none;
+  color: white !important;
+  padding: 8px 25px 8px 25px !important;
+
+}
+
+.buttn:focus {
+  box-shadow:none;
+}
+
+
+.buttn:hover {
+  background-color: #2d3142 !important;
+}
+
+
+#signupLink {
+  color: black;
+}
+
+#title { 
+  padding-top: 15px;
+  color: black;
+  font-size: 30px;
+  text-align:center;
+  
+}
+
+#registerForm {
+    padding-top: 15px;
+    margin-bottom:45px;
+    color: black;
+    font-size: 30px;
+    text-align:center;
+}
+
+.welcomeRow {
+  margin-bottom: 20px;
+  padding-top: 30px;
+}
+
+#hint_id_password1 {
+    display:none;
+  }
+
+  #hint_id_password2 {
+    display:none;
+  }
+
+
+
+
+</style>
+<div class="row welcomeRow">
+  <div class="col-md-12 d-flex justify-content-center heading">
+    <h1>Login or Create an Account to Begin Experiment.</h1>
+  </div>
+</div>
+
+<div class="row logRow">
+    <div class="col-md-2"></div>
+    <div class="col-md-3">
+        <div id="loginForm">
+            <p id="title">Login</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form1.username |as_crispy_field}}
+            </div>
+            <div class="form-group">
+                {{ form1.password |as_crispy_field}}
+            </div>
+            <p style="color:red; text-align:center;">{{message}}</p>
+            <div class="form-group d-flex justify-content-center">
+                <button type="submit" class="buttn">Sign In</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-1"></div>
+    <div class="col-md-4">
+        <div id="registerForm">
+            <p id="titleSignUp">Sign Up</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+            <div class="form-group col">
+                {{ form2.first_name|as_crispy_field }}
+            </div>
+    
+            <div class="form-group col">
+                {{ form2.last_name|as_crispy_field }}
+            </div>
+        </div>
+            <div class="form-group">
+                {{ form2.email|as_crispy_field }}
+            </div>
+            <div class="row">
+            <div class="form-group col">
+                {{ form2.password1|as_crispy_field }}
+            </div>
+            <div class="form-group col">
+                {{ form2.password2|as_crispy_field }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col">
+                {{ form2.date_of_birth|as_crispy_field}}
+            </div>
+            <div class="form-group col">
+                {{ form2.gender|as_crispy_field }}
+            </div>
+        </div>
+            <div class="form-group d-flex justify-content-center">
+                <button type="submit" class="buttn" onclick="return alert('This feature is not yet implemented')">Sign In</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}>
