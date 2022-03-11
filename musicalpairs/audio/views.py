@@ -37,16 +37,16 @@ from operator import attrgetter
 
 from .makeFakeModels import create_Fake_Models, makeInkBlotTest, makeMumbleWords, makePietroWords, replicateMusicalPairs
 
-# Used to generate the public example experiments and data for them to test the data analysis.
-'''try:
+
+try:
     print("CALLING CREATE FAKE MODELS")
     fake_user, fake_experiment = create_Fake_Models()
     makePietroWords()
     makeMumbleWords()
     replicateMusicalPairs()
-    makeInkBlotTest()
+    #makeInkBlotTest()
 except:
-    print("DB not migrated yet")'''
+    print("DB not migrated yet")
 
 
 from django.template.defaulttags import register
@@ -552,22 +552,57 @@ def createExperimentPage(request):
 
 
 def experimentLoad(request):
+    message=""
     user = request.user
-    userBundle = getWordBundle(user)
-    experiments = Experiment.objects.all()
-    experiment = experiments[0]
     experiment_id = request.GET.get('id', None)
-    if experiment_id is not None:
-        experiment_Check = Experiment.objects.filter(id=experiment_id)
-        if experiment_Check.exists():
-            experiment = experiment_Check[0]
+    if user.is_authenticated:
+        userBundle = getWordBundle(user)
+        experiments = Experiment.objects.all()
+        experiment = experiments[0]
+        if experiment_id is not None:
+            experiment_Check = Experiment.objects.filter(id=experiment_id)
+            if experiment_Check.exists():
+                experiment = experiment_Check[0]
 
-    userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
-    if len(userUniqueExperiment) > 0:
-        return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
+        userUniqueExperiment = UserUniqueExperiment.objects.filter(for_user=user, experiment=experiment)
+        if len(userUniqueExperiment) > 0:
+            return redirect(reverse('surveyPage', kwargs={'roomCode':userUniqueExperiment[0].survey_james.code}))
 
-    return render(request, "experimentLoadingPage.html", {"id": experiment_id, "public": experiment.public, "exp_user_source":experiment.user_source})
+        return render(request, "experimentLoadingPage.html", {"id": experiment_id, "public": experiment.public, "exp_user_source":experiment.user_source})
+    else:
+        
+        if request.method == 'POST':
+            def get_context_data(self, **kwargs):
+                kwargs['user_type'] = 'experimentee'
+                return super().get_context_data(**kwargs)
 
+            def form_valid(self, form):
+                user = form.save()
+                login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+                return redirect("experimentLoadingPage.html", {"id": experiment_id})
+            try:
+                username = request.POST['username']
+                password = request.POST['password']
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return render(request, "experimentLoadingPage.html", {"id": experiment_id})
+                else:
+                    message="Invalid Login"
+            except:
+                model = User
+                form_class = ExperimenteeSignUpForm
+                template_name = 'signup_form.html'
+
+                
+                loginForm = CustomAuthenticationForm()
+                signupForm = ExperimenteeSignUpForm
+                return render(request, "intermediaryPage.html", {"id": experiment_id, "form1" : loginForm, "form2" : signupForm, "message":message})
+            
+
+        loginForm = CustomAuthenticationForm()
+        signupForm = ExperimenteeSignUpForm
+        return render(request, "intermediaryPage.html", {"id": experiment_id, "form1" : loginForm, "form2" : signupForm, "message":message})
 
 def checkReady(request):
     user = request.user
@@ -1106,8 +1141,15 @@ def showAnswers(request):
     }
     return render(request, 'showAnswers.html', context)
 
+def intermediaryPage(request):
+    return render(request, 'intermediaryPage.html')
+
+
+def ajaxTest(request):
+    return render(request, 'ajaxTesting.html')
 
 def loginView(request):
+    message=""
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
@@ -1117,8 +1159,10 @@ def loginView(request):
         if user is not None:
             login(request, user)
             return redirect('index')
+        else:
+            message="Invalid Login"
     form = CustomAuthenticationForm()
-    return render(request, 'login.html', {"form": form})
+    return render(request, 'login.html', {"form": form, "message":message})
 
 def ajaxTest(request):
     return render(request, 'ajaxTesting.html')
