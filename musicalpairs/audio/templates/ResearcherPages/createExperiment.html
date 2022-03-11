@@ -784,8 +784,13 @@ select{
               imageList = expInfo[1]
               fd.append('roundInfo', experimentString);
               for (const file of imageList) {
+                console.log(imageList)
                 console.log("file", file)
-                fd.append('images[]', file, file.name);
+                if (typeof(file) == "undefined") {
+                  break
+                } else {
+                  fd.append('images[]', file, file.name);
+                }
               }
               $.ajax({
                   type: 'POST',
