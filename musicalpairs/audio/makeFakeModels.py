@@ -121,15 +121,14 @@ def makeExperiment(roundList, experimentName="Musical Pairs"):
 
 def makeInkBlotTest():
     user = User.objects.filter(last_name="PIETRO_WORDS")[0]
-    print("aofea", os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png"))
     """    inkBlot1 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png"), "r")
     inkBlot2 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot2.png"), "r")
     inkBlot3 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot3.png"), "r")
     inkBlot4 = open(os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot4.png"), "r") """
-    inkBlot1 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot1.png")
-    inkBlot2 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot2.png")
-    inkBlot3 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot3.png")
-    inkBlot4 = os.path.join(settings.MEDIA_ROOT, "inkBlots/inkBlot4.png")
+    inkBlot1 = "inkBlots/inkBlot1.png"
+    inkBlot2 = "inkBlots/inkBlot2.png"
+    inkBlot3 = "inkBlots/inkBlot3.png"
+    inkBlot4 = "inkBlots/inkBlot4.png"
     roundList = list()
     # Round 1
     data = {
@@ -296,15 +295,6 @@ def replicateMusicalPairs():
         "title": "Third Step",
         "text": "Finally, the first word of each pair will be played twice, and you will have to write down the corresponding second word. \
             For example - you would hear 'mirror . . . mirror' and you would type 'dog'"
-    }
-    roundList.append(data)
-
-
-    data = {
-        "roundType": "text",
-        "title": "Tip",
-        "text": "You will hear many pairs in one go, so you will need a way to connect words. Let's say the pair was 'fig . . . boat', \
-            a strategy to memorise this pair could be imagining a boat full of figs! Always try to se the pairs in your mind like that."
     }
     roundList.append(data)
 
